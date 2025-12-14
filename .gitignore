@@ -1,0 +1,47 @@
+# ========================
+# OS & System Files
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# ========================
+# Build / Output Folders
+# ========================
+dist/
+build/
+out/
+.cache/
+
+# ========================
+# Editor / IDE
+# ========================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ========================
+# Logs & temp
+# ========================
+*.log
+*.tmp
+*.temp
+*.swp
+*.bak
+
+# ========================
+# Environment / secrets
+# ========================
+.env
+.env.local
+.env.*.local
+
+# ========================
+# Optional / OS-style temp files
+# ========================
+*.db
+*.lock
