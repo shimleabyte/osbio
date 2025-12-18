@@ -100,7 +100,7 @@ Each app is scoped to do **one thing clearly**.
 These tradeoffs were chosen to prioritize:
 - clarity
 - performance
-- completion
+- simplicity
 
 ---
 
@@ -126,7 +126,7 @@ No build step required.
 
 ## Deployment
 
-Live version: **[add link here]**
+Live version: **[https://shimleabyte.github.io/Portofolio-OSexperienced/]**
 
 ---
 
