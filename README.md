@@ -12,7 +12,7 @@
 This is an OS-style portfolio built as an **interactive desktop experience**.  
 Instead of scrolling a long landing page, visitors explore content through windows, apps, and simple interactions — just like using a system.
 
-The focus is not on complexity or features, but on **clarity, interaction, and finishing things properly**.
+The focus is not on complexity or features, but on **clarity, interaction, and aestethic of simplicity**.
 
 ---
 
