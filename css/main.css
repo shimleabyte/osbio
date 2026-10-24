@@ -1422,6 +1422,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
   .taskbar { bottom:.6rem; width:calc(100% - 2rem); justify-content:space-around; }
   .taskbar-btn { flex:1; width:auto; height:49px; }
   .window { position:absolute !important; inset:64px .55rem 66px !important; width:auto !important; height:auto !important; max-width:none !important; max-height:none !important; border-radius:10px; }
+  .window:not(.active) { display:none !important; }
   .window-header { flex-shrink:0; }
   .window-content { min-height:0; }
   .desktop-screen:has(.window) .desktop-intro, .desktop-screen:has(.window) .desktop-shortcuts { display:none; }
