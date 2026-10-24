@@ -583,19 +583,20 @@ const WindowManager = (() => {
         // Display the command
         const commandLine = document.createElement('div');
         commandLine.className = 'terminal-line';
-        const prompt = document.createElement('span');
-        prompt.className = 'terminal-prompt';
-        prompt.textContent = '
+        commandLine.innerHTML = `
+          <span class="terminal-prompt">$</span>
+          <span class="terminal-text">${command}</span>
+        `;
+        terminalOutput.appendChild(commandLine);
         
         // Process the command
-        const parts = command.trim().split(/\s+/).filter(Boolean);
-        const cmd = (parts.shift() || '').toLowerCase();
+        const cmd = command.trim().toLowerCase();
         let output = '';
         
         if (cmd === '') {
           // Do nothing for empty command
         } else if (commands[cmd]) {
-          output = commands[cmd].execute(terminalOutput, parts);
+          output = commands[cmd].execute(terminalOutput);
         } else {
           output = `
   <div class="command-output">

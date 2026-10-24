@@ -1446,3 +1446,9 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .window-header { touch-action: pan-y; }
 .resume-unavailable { padding: 2rem; color: var(--color-text-muted); text-align: center; }
 .resume-unavailable a { color: var(--color-accent); }
+
+/* Terminal command line and resume fallback refinements */
+.terminal-text { overflow-wrap: anywhere; }
+.window.minimized { display: none !important; }
+.resume-unavailable { padding: 2rem; color: var(--color-text-muted); text-align: center; }
+.resume-unavailable a { color: var(--color-accent); }
