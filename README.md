@@ -4,36 +4,36 @@ An interactive, static portfolio presented as a small developer environment. It 
 
 ## Design intent
 
-The workspace should make the projects easier to understand, not turn the operating-system metaphor into the main attraction.
+The workspace should make projects easier to understand, not turn the operating-system metaphor into the main attraction.
 
 - **Balanced entry:** a short, skippable intro leads into the workspace.
-- **Pixel-flow identity:** pixel geometry and dissolution motifs are recognizable accents rather than constant decoration.
-- **Project-first navigation:** Projects, About, Terminal, and Contact are reachable from both desktop shortcuts and the taskbar.
-- **Adaptive mobile:** small screens use a single-window application surface rather than tiny overlapping desktop windows.
+- **Pixel-flow identity:** pixel geometry and dissolution motifs act as recognizable accents rather than constant decoration.
+- **Project-first navigation:** Projects, About, Terminal, and Contact are reachable from desktop shortcuts and the taskbar.
+- **Adaptive mobile:** small screens use a single-window application surface instead of tiny overlapping windows.
 - **Static by design:** no account, backend, or server-side data is required.
 
 ## Featured work
 
 ### Mutabaah CLI
-A Go command-line project for managing mutabaah activities. Its implementation includes command handling and local JSON persistence.
+A Go command-line project for managing mutabaah activities, with command handling and local JSON persistence.
 
-- Repository: https://github.com/mutabaah-cli
+- Repository: https://github.com/shimleabyte/mutabaah-cli
 
 ### OSBio
-This project itself: a vanilla HTML, CSS, and JavaScript workspace exploring application windows, navigation, and interface state.
+A vanilla HTML, CSS, and JavaScript workspace exploring application windows, navigation, and interface state.
 
 - Repository: https://github.com/shimleabyte/osbio
 
-The project list should only contain projects with verified repositories or demos. It deliberately avoids fictional sample projects and dead placeholder links.
+Only projects with a verified repository or demo should be added. Fictional sample projects and dead placeholder links are intentionally excluded.
 
 ## Applications
 
-- **Projects:** selected projects, repository links, and engineering case studies.
+- **Projects:** selected projects and engineering case studies.
 - **About:** development interests and principles.
 - **Terminal:** a small portfolio command interface, not an operating-system shell.
 - **Contact:** confirmed contact channels.
 
-The resume launcher is intentionally omitted until a real resume asset is available. External social links are not fabricated.
+A resume file is not included in this repository yet, so the Resume window states that limitation rather than offering a broken download.
 
 ## Run locally
 
@@ -44,4 +44,4 @@ Serve the repository root with any static HTTP server and open `index.html`. The
 - No authentication or fake sign-in form.
 - No arbitrary shell execution.
 - No backend or database.
-- Window behavior is progressively enhanced; mobile navigation prioritizes readability and touch interaction.
+- Mobile prioritizes readable single-window navigation over desktop-style overlapping windows.
