@@ -1440,3 +1440,9 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 @media (prefers-reduced-motion:reduce) {
   *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
 }
+
+.window.minimized { display: none !important; }
+.window.active { border-color: rgba(120, 224, 170, .28); }
+.window-header { touch-action: pan-y; }
+.resume-unavailable { padding: 2rem; color: var(--color-text-muted); text-align: center; }
+.resume-unavailable a { color: var(--color-accent); }

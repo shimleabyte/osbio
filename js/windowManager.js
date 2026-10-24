@@ -84,7 +84,7 @@ const WindowManager = (() => {
                 <div class="project-details" id="mutabaah-cli">
                   <div class="project-learned"><strong>Engineering focus</strong><p>Command parsing and validation, separation of domain logic from CLI interaction, and reading/writing structured data locally.</p></div>
                   <p class="case-note">Keep this case study limited to current repository capabilities; roadmap items belong in a separate section.</p>
-                  <div class="project-links"><a class="btn btn-outline btn-sm" href="https://github.com/mutabaah-cli" target="_blank" rel="noopener noreferrer">Source code ↗</a></div>
+                  <div class="project-links"><a class="btn btn-outline btn-sm" href="https://github.com/shimleabyte/mutabaah-cli" target="_blank" rel="noopener noreferrer">Source code ↗</a></div>
                 </div>
               </article>
               <article class="project-card" tabindex="0" role="button" aria-expanded="false" data-project="osbio">
@@ -118,11 +118,11 @@ const WindowManager = (() => {
               </a>
               <a href="https://github.com/shimleabyte" class="contact-item" target="_blank" rel="noopener noreferrer">
                 <span class="contact-icon">🔗</span>
-                <span class="contact-label">LinkedIn</span>
+                <span class="contact-label">GitHub profile</span>
               </a>
               <a href="https://github.com/shimleabyte" class="contact-item" target="_blank" rel="noopener noreferrer">
                 <span class="contact-icon">🐦</span>
-                <span class="contact-label">Twitter(X)</span>
+                <span class="contact-label">GitHub profile</span>
               </a>
             </div>
           </div>
@@ -135,18 +135,18 @@ const WindowManager = (() => {
         content: `
           <div class="resume-app">
             <div class="resume-actions">
-              <a href="/resume.pdf" class="btn btn-primary" download>
-                <span class="icon">⬇️</span> Download PDF
+              <a href="https://github.com/shimleabyte" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                <span class="icon">⬇️</span> View GitHub profile
               </a>
               <button class="btn btn-outline view-toggle">
                 <span class="icon">👁️</span> Toggle Preview
               </button>
             </div>
             <div class="resume-preview">
-              <iframe src="/resume.pdf#view=FitH" class="resume-iframe"></iframe>
+              <iframe src="about:blank" class="resume-iframe" title="Resume preview unavailable"></iframe>
             </div>
             <div class="resume-fallback">
-              <p>Unable to load PDF preview. <a href="/resume.pdf" download>Download resume</a> instead.</p>
+              <p>A resume PDF has not been published in this repository yet. <a href="https://github.com/shimleabyte" target="_blank" rel="noopener noreferrer">Visit GitHub profile</a>.</p>
             </div>
           </div>
         `
@@ -213,6 +213,24 @@ const WindowManager = (() => {
 
   // DOM Elements
   let desktopElement;
+
+  // Keep window focus, z-order, and taskbar state synchronized in one place.
+  function focusWindow(windowId) {
+    const record = openWindows.find((item) => item.id === windowId);
+    if (!record || record.minimized) return;
+
+    activeWindowId = windowId;
+    openWindows.forEach((item) => {
+      const isActive = item.id === windowId;
+      item.element.classList.toggle('active', isActive);
+      if (isActive) {
+        item.element.style.zIndex = String(CONFIG.zIndex + windowCounter + 1);
+      }
+    });
+    if (record.element && typeof record.element.focus === 'function') record.element.focus({ preventScroll: true });
+    updateTaskbarState();
+  }
+
 
   // Initialize the window manager
   function init() {
@@ -513,7 +531,7 @@ const WindowManager = (() => {
             <div class="command-output">
               <p>Featured projects:</p>
               <ul>
-                <li><a href="https://github.com/mutabaah-cli" target="_blank" rel="noopener noreferrer">mutabaah-cli</a> — Go CLI and local JSON persistence</li>
+                <li><a href="https://github.com/shimleabyte/mutabaah-cli" target="_blank" rel="noopener noreferrer">mutabaah-cli</a> — Go CLI and local JSON persistence</li>
                 <li><a href="https://github.com/shimleabyte/osbio" target="_blank" rel="noopener noreferrer">osbio</a> — interactive static developer workspace</li>
               </ul>
               <p>Use <span class="terminal-command">open projects</span> to inspect project notes in the workspace.</p>
@@ -539,7 +557,7 @@ const WindowManager = (() => {
     <ul>
       <li>Email: <a href="mailto:presentshimley@gmail.com" target="_blank">presentshimley@gmail.com</a></li>
       <li>GitHub: <a href="https://github.com/shimleabyte" target="_blank">github.com/shimleabyte</a></li>
-      <li>LinkedIn: <a href="https://linkedin.com/in/example" target="_blank">linkedin.com/in/example</a></li>
+      <li>LinkedIn: <a href="https://github.com/shimleabyte" target="_blank">github.com/shimleabyte</a></li>
     </ul>
   </div>
             `;
