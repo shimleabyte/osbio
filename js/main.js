@@ -1,167 +1,66 @@
 /**
- * OS-Style Portfolio — Screen Transitions
- * 
- * State machine: BOOT → SIGNIN → DESKTOP
- * Boot: ~2 seconds (skippable via click/keypress)
- * Sign-in: Click button or press Enter → Desktop
+ * OSBio startup and desktop-level behavior.
+ * The boot intro is short and skippable; there is no fake sign-in flow.
  */
-
 (function () {
   'use strict';
 
-  // Configuration
-  const BOOT_DURATION = 2000;      // 2 seconds
-  const FADE_DURATION = 400;       // Match CSS transition
+  const boot = document.getElementById('boot-screen');
+  const desktop = document.getElementById('desktop');
+  const skipButton = document.getElementById('skip-boot');
+  const clock = document.getElementById('system-clock');
+  let bootFinished = false;
+  let bootTimer;
 
-  // State
-  let hasExitedBoot = false;
-  let hasExitedSignin = false;
-  let bootTimer = null;
-
-  // Elements
-  const bootScreen = document.getElementById('boot-screen');
-  const signinScreen = document.getElementById('signin-screen');
-  const desktopScreen = document.getElementById('desktop-screen');
-  const enterDesktopBtn = document.getElementById('enter-desktop-btn');
-  const usernameInput = document.getElementById('username');
-
-  // ========================================
-  // Boot Screen Logic
-  // ========================================
-
-  function exitBoot() {
-    if (hasExitedBoot) return;
-    hasExitedBoot = true;
-
-    if (bootTimer) {
-      clearTimeout(bootTimer);
-      bootTimer = null;
-    }
-
-    document.removeEventListener('click', handleBootSkip);
-    document.removeEventListener('keydown', handleBootSkip);
-
-    bootScreen.classList.add('fade-out');
-
-    setTimeout(() => {
-      bootScreen.classList.add('hidden');
-      signinScreen.classList.remove('hidden');
-
-      // Focus the username input for accessibility
-      if (usernameInput) {
-        usernameInput.focus();
-        usernameInput.select();
-      }
-    }, FADE_DURATION);
+  function enterDesktop() {
+    if (bootFinished) return;
+    bootFinished = true;
+    window.clearTimeout(bootTimer);
+    boot.classList.add('is-exiting');
+    desktop.classList.remove('is-hidden');
+    window.setTimeout(() => {
+      boot.hidden = true;
+    }, 380);
   }
 
-  function handleBootSkip(event) {
-    if (event.type === 'keydown') {
-      const ignoredKeys = ['Shift', 'Control', 'Alt', 'Meta', 'CapsLock'];
-      if (ignoredKeys.includes(event.key)) return;
-    }
-    exitBoot();
+  function updateClock() {
+    if (!clock) return;
+    clock.textContent = new Intl.DateTimeFormat(undefined, {
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date());
   }
 
-  // ========================================
-  // Sign-in Screen Logic
-  // ========================================
-
-  function exitSignin() {
-    if (hasExitedSignin) return;
-    hasExitedSignin = true;
-
-    // Remove sign-in listeners
-    if (enterDesktopBtn) {
-      enterDesktopBtn.removeEventListener('click', exitSignin);
+  skipButton.addEventListener('click', enterDesktop);
+  boot.addEventListener('click', event => {
+    if (event.target === boot) enterDesktop();
+  });
+  document.addEventListener('keydown', event => {
+    if (!bootFinished && !['Shift', 'Control', 'Alt', 'Meta', 'CapsLock'].includes(event.key)) {
+      enterDesktop();
+      return;
     }
-    document.removeEventListener('keydown', handleSigninKeydown);
-
-    signinScreen.classList.add('fade-out');
-
-    setTimeout(() => {
-      signinScreen.classList.add('hidden');
-      desktopScreen.classList.remove('hidden');
-    }, FADE_DURATION);
-  }
-
-  function handleSigninKeydown(event) {
-    // Only handle Enter key on sign-in screen
-    if (event.key === 'Enter' && !hasExitedSignin && hasExitedBoot) {
-      event.preventDefault();
-      exitSignin();
-    }
-  }
-
-  // ========================================
-  // Taskbar Logic
-  // ========================================
-
-  let activeApp = null;
-
-  function setActiveApp(appName) {
-    // Remove active class from all buttons
-    const allBtns = document.querySelectorAll('.taskbar-btn');
-    allBtns.forEach(btn => btn.classList.remove('active'));
-
-    // Set new active app
-    if (appName && appName !== activeApp) {
-      const targetBtn = document.querySelector(`.taskbar-btn[data-app="${appName}"]`);
-      if (targetBtn) {
-        targetBtn.classList.add('active');
-        activeApp = appName;
-
-        // TODO: Open/focus corresponding window (next phase)
-        console.log(`App opened: ${appName}`);
-      }
-    } else if (appName === activeApp) {
-      // Clicking same app - could toggle or just focus
-      // For now, keep it active
-      const targetBtn = document.querySelector(`.taskbar-btn[data-app="${appName}"]`);
-      if (targetBtn) {
-        targetBtn.classList.add('active');
+    if (event.key === 'Escape' && bootFinished) {
+      const focusedWindow = document.querySelector('.app-window.is-active');
+      if (focusedWindow) {
+        const close = focusedWindow.querySelector('[data-window-action="close"]');
+        if (close) close.click();
       }
     }
-  }
+  });
 
-  function initTaskbar() {
-    const taskbarBtns = document.querySelectorAll('.taskbar-btn');
-
-    taskbarBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const appName = btn.dataset.app;
-        setActiveApp(appName);
-      });
+  document.querySelectorAll('[data-launch]').forEach(button => {
+    button.addEventListener('click', () => {
+      if (window.WindowManager) window.WindowManager.openWindow(button.dataset.launch);
     });
-  }
+  });
 
-  // ========================================
-  // Initialization
-  // ========================================
+  document.getElementById('desktop-home').addEventListener('click', () => {
+    if (window.WindowManager) window.WindowManager.showDesktop();
+  });
 
-  function init() {
-    // Boot screen auto-exit timer
-    bootTimer = setTimeout(exitBoot, BOOT_DURATION);
-
-    // Boot screen skip listeners
-    document.addEventListener('click', handleBootSkip);
-    document.addEventListener('keydown', handleBootSkip);
-
-    // Sign-in screen listeners (attached early, but only active after boot exits)
-    if (enterDesktopBtn) {
-      enterDesktopBtn.addEventListener('click', exitSignin);
-    }
-    document.addEventListener('keydown', handleSigninKeydown);
-
-    // Taskbar initialization
-    initTaskbar();
-  }
-
-  // Start when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  updateClock();
+  window.setInterval(updateClock, 60_000);
+  bootTimer = window.setTimeout(enterDesktop, 1100);
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) enterDesktop();
 })();
