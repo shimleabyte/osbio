@@ -1,138 +1,47 @@
-# OS-Style Portfolio  
-**An interactive frontend experience**
+# Shimleabyte — Developer Workspace
 
-> Not flashy.  
-> Not loud.  
-> **Intentional.**
+An interactive, static portfolio presented as a small developer environment. It combines a pixel-flow visual identity with a practical way to explore selected projects, technical decisions, and contact information.
 
----
+## Design intent
 
-## Overview
+The workspace should make the projects easier to understand, not turn the operating-system metaphor into the main attraction.
 
-This is an OS-style portfolio built as an **interactive desktop experience**.  
-Instead of scrolling a long landing page, visitors explore content through windows, apps, and simple interactions — just like using a system.
+- **Balanced entry:** a short, skippable intro leads into the workspace.
+- **Pixel-flow identity:** pixel geometry and dissolution motifs are recognizable accents rather than constant decoration.
+- **Project-first navigation:** Projects, About, Terminal, and Contact are reachable from both desktop shortcuts and the taskbar.
+- **Adaptive mobile:** small screens use a single-window application surface rather than tiny overlapping desktop windows.
+- **Static by design:** no account, backend, or server-side data is required.
 
-The focus is not on complexity or features, but on **clarity, interaction, and aestethic of simplicity**.
+## Featured work
 
----
+### Mutabaah CLI
+A Go command-line project for managing mutabaah activities. Its implementation includes command handling and local JSON persistence.
 
-## Why This Looks “Boring” (On Purpose)
+- Repository: https://github.com/mutabaah-cli
 
-> This is not accidental boring —  
-> this is **boring, by design**.
+### OSBio
+This project itself: a vanilla HTML, CSS, and JavaScript workspace exploring application windows, navigation, and interface state.
 
-Calm interfaces reduce friction.  
-Noise impresses quickly, but clarity lasts longer.
+- Repository: https://github.com/shimleabyte/osbio
 
-This portfolio avoids unnecessary excitement to keep attention on:
-- structure
-- interaction
-- intent
+The project list should only contain projects with verified repositories or demos. It deliberately avoids fictional sample projects and dead placeholder links.
 
-Think of it as **quiet confidence**, not lack of effort.
+## Applications
 
----
+- **Projects:** selected projects, repository links, and engineering case studies.
+- **About:** development interests and principles.
+- **Terminal:** a small portfolio command interface, not an operating-system shell.
+- **Contact:** confirmed contact channels.
 
-## Experience Flow
+The resume launcher is intentionally omitted until a real resume asset is available. External social links are not fabricated.
 
-1. Boot / loading screen  
-2. Demo sign-in (clearly labeled, non-functional)  
-3. Desktop environment  
-4. App-style windows for content
+## Run locally
 
-Everything is designed to feel familiar, lightweight, and intentional.
+Serve the repository root with any static HTTP server and open `index.html`. There is no build step or package installation.
 
----
+## Scope and trade-offs
 
-## What This Project Demonstrates
-
-- UI system thinking  
-- Window and state management  
-- Interaction design  
-- Scope control  
-- Ability to ship a finished experience  
-
-No filler. No half-built features.
-
----
-
-## Intentional Decisions
-
-- **Static-only**  
-  This project has no backend. The goal is experience and interaction, not data handling.
-
-- **Demo sign-in**  
-  Used purely as a UX transition. No authentication, no stored data, no misleading behavior.
-
-- **Minimalism**  
-  Visual and functional restraint keeps the experience readable and focused.
-
----
-
-## Technical Scope
-
-- Type: Static frontend application  
-- Architecture: Single-page, window-based UI system  
-- State: Frontend-managed, session-based  
-- Persistence: None (intentional)
-
----
-
-## Included “Apps”
-
-- About  
-- Projects  
-- Contact  
-- Resume  
-- Fake Terminal (predefined commands)  
-- Mini interaction / mini app
-
-Each app is scoped to do **one thing clearly**.
-
----
-
-## Tradeoffs
-
-- No real authentication  
-- No database or persistence  
-- Desktop-first experience  
-
-These tradeoffs were chosen to prioritize:
-- clarity
-- performance
-- simplicity
-
----
-
-## Tech Stack
-
-- HTML  
-- CSS  
-- JavaScript  
-
-Deployed as a static site.
-
----
-
-## Running Locally
-
-1. Clone the repository  
-2. Serve the project using any local static server  
-3. Open in the browser  
-
-No build step required.
-
----
-
-## Deployment
-
-Live version: **[https://shimleabyte.github.io/Portofolio-OSexperienced/]**
-
----
-
-## Notes
-
-This portfolio is designed to be **explored**, not scrolled.  
-Every interaction exists for a reason, and everything unnecessary was intentionally left out.
-
-Calm is a feature.
+- No authentication or fake sign-in form.
+- No arbitrary shell execution.
+- No backend or database.
+- Window behavior is progressively enhanced; mobile navigation prioritizes readability and touch interaction.

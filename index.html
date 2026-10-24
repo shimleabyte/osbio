@@ -1,121 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="OS-style portfolio experience">
-  <title>Portofolio | Shymleabyte</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101513">
+  <meta name="description" content="An interactive developer workspace by Shimleabyte. Explore projects, engineering decisions, and experiments.">
+  <title>Shimleabyte — Developer Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/main.css">
 </head>
-
 <body>
-  <!-- Boot Screen Layer -->
-  <div id="boot-screen" class="screen">
-    <div class="boot-content">
-      <span class="boot-identity">shimleabyte.prtfl</span>
-      <span class="boot-status">booting<span class="cursor">_</span></span>
-    </div>
-    <span class="boot-hint">press any key to skip</span>
+  <div id="boot-screen" class="screen boot-screen" aria-label="Loading workspace">
+    <div class="boot-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <p class="eyebrow">SHIMLEABYTE / WORKSPACE</p>
+    <p class="boot-status">initializing workspace<span class="cursor">_</span></p>
+    <button id="skip-boot" class="text-button">Skip intro</button>
   </div>
-
-  <!-- Sign-in Demo Layer -->
-  <div id="signin-screen" class="screen hidden">
-    <div class="signin-panel">
-      <div class="signin-header">
-        <span class="signin-title">Welcome</span>
-        <span class="signin-subtitle">to My Portofolio</span>
+  <div id="welcome-screen" class="screen welcome-screen hidden">
+    <div class="welcome-orbit" aria-hidden="true"></div>
+    <div class="welcome-panel">
+      <div class="pixel-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="eyebrow">PERSONAL DEVELOPER ENVIRONMENT</p>
+      <h1>Ideas become<br><span>working systems.</span></h1>
+      <p class="welcome-copy">I'm Shimleabyte. I build software, explore interaction design, and care about the decisions behind what ships.</p>
+      <div class="welcome-actions">
+        <button id="enter-workspace" class="button button-primary">Enter workspace <span aria-hidden="true">↗</span></button>
+        <a class="button button-quiet" href="https://github.com/shimleabyte" target="_blank" rel="noopener noreferrer">GitHub profile</a>
       </div>
-
-      <div class="signin-form">
-        <div class="signin-input-group">
-          <label for="username" class="signin-label">Username</label>
-          <input type="text" id="username" class="signin-input" value="guest" autocomplete="off" spellcheck="false">
-        </div>
-
-        <button id="enter-desktop-btn" class="signin-button">
-          Enter Desktop
-        </button>
-      </div>
-
-      <p class="signin-disclaimer">
-        This is a demo. No real authentication. No data is stored.
-      </p>
+      <p class="welcome-note"><span class="status-dot"></span> Static frontend · No account required</p>
     </div>
+    <p class="welcome-index">01 — DISCOVER / 03</p>
   </div>
-
-  <!-- Desktop Layer -->
-  <div id="desktop-screen" class="screen hidden">
-    <div class="desktop-welcome">
-      <span class="desktop-name">Welcome!</span>
-      <span class="desktop-tagline">to my Portfolio</span>
-    </div>
-    
-    <!-- Windows will be dynamically inserted here -->
-    
-    <!-- Floating Taskbar -->
-    <nav class="taskbar" role="navigation" aria-label="Desktop applications">
-      <button class="taskbar-btn" data-app="about" aria-label="About">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-        </svg>
-        <span class="taskbar-tooltip">About</span>
-      </button>
-
-      <button class="taskbar-btn" data-app="projects" aria-label="Projects">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <path d="M3 10h18" />
-          <path d="M9 4v6" />
-        </svg>
-        <span class="taskbar-tooltip">Projects</span>
-      </button>
-
-      <button class="taskbar-btn" data-app="contact" aria-label="Contact">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="2" y="4" width="20" height="16" rx="2" />
-          <path d="M22 6l-10 7L2 6" />
-        </svg>
-        <span class="taskbar-tooltip">Contact</span>
-      </button>
-
-      <button class="taskbar-btn" data-app="resume" aria-label="Resume">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-          <path d="M14 2v6h6" />
-          <path d="M8 13h8" />
-          <path d="M8 17h8" />
-        </svg>
-        <span class="taskbar-tooltip">Resume</span>
-      </button>
-
-      <button class="taskbar-btn" data-app="terminal" aria-label="Terminal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <path d="M7 9l3 3-3 3" />
-          <path d="M13 15h4" />
-        </svg>
-        <span class="taskbar-tooltip">Terminal</span>
-      </button>
-
-      <button class="taskbar-btn" data-app="memory" aria-label="Memory Match">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="2" y="6" width="20" height="12" rx="3" />
-          <circle cx="9" cy="12" r="2" />
-          <circle cx="17" cy="10" r="1" />
-          <circle cx="17" cy="14" r="1" />
-        </svg>
-        <span class="taskbar-tooltip">Memory Match</span>
-      </button>
+  <main id="desktop-screen" class="screen desktop-screen hidden" aria-label="Developer workspace">
+    <header class="system-bar">
+      <a class="system-brand" href="#" id="home-link" aria-label="Workspace home"><span class="brand-pixel" aria-hidden="true"></span><span>SHIMLEABYTE<span class="brand-muted">.OS</span></span></a>
+      <div class="system-meta"><span class="status-dot"></span><span>WORKSPACE READY</span><time id="system-clock" aria-label="Current time"></time></div>
+    </header>
+    <div class="desktop-backdrop" aria-hidden="true"><div class="pixel-field pixel-field-one"></div><div class="pixel-field pixel-field-two"></div><span class="backdrop-index">FLOW / FORM / FUNCTION</span></div>
+    <section class="desktop-intro" aria-label="Workspace introduction">
+      <p class="eyebrow">INDEPENDENT DEVELOPER / INDONESIA</p>
+      <h2>Build with intent.<br><span>Understand the system.</span></h2>
+      <p>Explore selected work, technical decisions, and experiments through this small interactive workspace.</p>
+      <button class="inline-launch" data-launch="projects">Explore selected projects <span aria-hidden="true">→</span></button>
+    </section>
+    <section class="desktop-shortcuts" aria-label="Quick launch">
+      <button class="shortcut-card" data-launch="projects"><span class="shortcut-icon icon-projects" aria-hidden="true">▦</span><span class="shortcut-copy"><strong>Projects</strong><small>Work & engineering notes</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
+      <button class="shortcut-card" data-launch="about"><span class="shortcut-icon icon-about" aria-hidden="true">⌘</span><span class="shortcut-copy"><strong>About</strong><small>Principles & interests</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
+      <button class="shortcut-card" data-launch="terminal"><span class="shortcut-icon icon-terminal" aria-hidden="true">&gt;_</span><span class="shortcut-copy"><strong>Terminal</strong><small>Explore by command</small></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>
+    </section>
+    <p class="desktop-caption">A portfolio presented as a workspace — explore it your way.</p>
+    <nav class="taskbar" aria-label="Workspace applications">
+      <button class="taskbar-btn" data-app="projects" aria-label="Open projects" title="Projects"><span aria-hidden="true">▦</span><small>Projects</small></button>
+      <button class="taskbar-btn" data-app="about" aria-label="Open about" title="About"><span aria-hidden="true">⌘</span><small>About</small></button>
+      <button class="taskbar-btn" data-app="terminal" aria-label="Open terminal" title="Terminal"><span aria-hidden="true">&gt;_</span><small>Terminal</small></button>
+      <button class="taskbar-btn" data-app="contact" aria-label="Open contact" title="Contact"><span aria-hidden="true">↗</span><small>Contact</small></button>
     </nav>
-  </div>
-
+  </main>
   <script src="js/windowManager.js"></script>
   <script src="js/main.js"></script>
 </body>
-
 </html>
