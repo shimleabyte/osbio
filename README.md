@@ -126,8 +126,7 @@ No build step required.
 
 ## Deployment
 
-Live version: **[https://shimleabyte.github.io/Portofolio-OSexperienced/]**
-
+Live version: [https://shimleabyte.github.io/osbio/]
 ---
 
 ## Notes
