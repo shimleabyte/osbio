@@ -1,126 +1,101 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Portfolio of shimleabyte, built as a small desktop OS in plain HTML, CSS and JavaScript.">
-  <meta name="theme-color" content="#0d1117">
-  <meta property="og:title" content="shimleabyte | Portfolio">
-  <meta property="og:description" content="A portfolio that works like a small desktop OS.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1117'/%3E%3Cpath d='M9 11l5 5-5 5M17 21h6' fill='none' stroke='%2358a6ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-  <title>shimleabyte | Portfolio</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151719">
+  <meta name="description" content="OSBio is Shimleabyte's interactive developer desktop: real repositories, implementation notes, and the systems behind each build.">
+  <meta property="og:title" content="OSBio — Pixel-Flow Developer Workspace">
+  <meta property="og:description" content="A developer portfolio presented as an instrumental desktop environment.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23151719'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23e6c84f'/%3E%3Crect x='13' y='5' width='6' height='6' fill='%2376b7b1'/%3E%3Crect x='5' y='13' width='6' height='6' fill='%23e6c84f'/%3E%3Crect x='13' y='13' width='6' height='6' fill='%23e6c84f'/%3E%3Crect x='21' y='13' width='6' height='6' fill='%2376b7b1'/%3E%3C/svg%3E">
+  <title>OSBio — Pixel-Flow Developer Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/main.css">
 </head>
-
 <body>
-  <noscript>This portfolio needs JavaScript to run. Source and contact: github.com/shimleabyte</noscript>
-  <!-- Boot Screen Layer -->
-  <div id="boot-screen" class="screen">
-    <div class="boot-content">
-      <span class="boot-identity">shimleabyte.prtfl</span>
-      <span class="boot-status">booting<span class="cursor">_</span></span>
+  <noscript>This portfolio needs JavaScript to run. Source: github.com/shimleabyte/osbio</noscript>
+
+  <section id="boot-screen" class="boot-screen" aria-label="Starting OSBio">
+    <div class="boot-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="boot-identity">SHIMLEABYTE / OS·01</p>
+    <p class="boot-status">Initializing workspace<span class="boot-cursor">_</span></p>
+    <button id="skip-boot" class="quiet-button" type="button">Skip intro ↗</button>
+  </section>
+
+  <main id="desktop-screen" class="desktop is-hidden" aria-label="OSBio desktop">
+    <header class="system-bar">
+      <button class="brand-button" type="button" data-action="show-desktop" aria-label="Show desktop">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span>SHIMLEABYTE<span class="brand-suffix">.OS</span></span>
+      </button>
+      <div class="system-bar-center"><span class="system-mark" aria-hidden="true"></span><span>PERSONAL WORKSPACE</span><span class="system-divider">/</span><span id="system-context">DESKTOP</span></div>
+      <div class="system-bar-right"><span class="system-indicator">STATIC BUILD</span><time id="system-clock">--:--</time></div>
+    </header>
+
+    <div class="desktop-wallpaper" aria-hidden="true">
+      <div class="flow-ribbon ribbon-one"></div>
+      <div class="flow-ribbon ribbon-two"></div>
+      <div class="pixel-cluster cluster-one"></div>
+      <div class="pixel-cluster cluster-two"></div>
+      <span class="wallpaper-label">FLOW / FORM / FUNCTION</span>
+      <span class="wallpaper-coordinate">PX—01 / FIELD STUDY</span>
     </div>
-    <span class="boot-hint">press any key to skip</span>
-  </div>
 
-  <!-- Sign-in Demo Layer -->
-  <div id="signin-screen" class="screen hidden">
-    <div class="signin-panel">
-      <div class="signin-header">
-        <span class="signin-title">Welcome</span>
-        <span class="signin-subtitle">to my portfolio</span>
-      </div>
+    <section class="desktop-copy" aria-label="Workspace introduction">
+      <p class="eyebrow">INDEPENDENT DEVELOPER <span>/</span> INDONESIA</p>
+      <h1>Build the system.<br><span>Make the flow visible.</span></h1>
+      <p class="desktop-description">A working desktop for real repositories, implementation notes, and the decisions behind each build.</p>
+      <button class="text-link" type="button" data-app="projects">Open project index <span aria-hidden="true">↗</span></button>
+    </section>
 
-      <div class="signin-form">
-        <div class="signin-input-group">
-          <label for="username" class="signin-label">Username</label>
-          <input type="text" id="username" class="signin-input" value="guest" autocomplete="off" spellcheck="false">
-        </div>
-
-        <button id="enter-desktop-btn" class="signin-button">
-          Enter Desktop
-        </button>
-      </div>
-
-      <p class="signin-disclaimer">
-        This is a demo. No real authentication. No data is stored.
-      </p>
-    </div>
-  </div>
-
-  <!-- Desktop Layer -->
-  <div id="desktop-screen" class="screen hidden">
-    <div class="desktop-welcome">
-      <span class="desktop-name">shimleabyte</span>
-      <span class="desktop-tagline">frontend developer</span>
-    </div>
-    
-    <!-- Windows will be dynamically inserted here -->
-    
-    <!-- Floating Taskbar -->
-    <nav class="taskbar" role="navigation" aria-label="Desktop applications">
-      <button class="taskbar-btn" data-app="about" aria-label="About">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-        </svg>
-        <span class="taskbar-tooltip">About</span>
+    <nav class="desktop-apps" aria-label="Desktop applications">
+      <button class="desktop-app-btn" type="button" data-app="projects">
+        <span class="app-glyph glyph-projects" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="app-name">Projects</span><small>02 / repositories</small>
       </button>
-
-      <button class="taskbar-btn" data-app="projects" aria-label="Projects">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <path d="M3 10h18" />
-          <path d="M9 4v6" />
-        </svg>
-        <span class="taskbar-tooltip">Projects</span>
+      <button class="desktop-app-btn" type="button" data-app="about">
+        <span class="app-glyph glyph-about" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="app-name">About</span><small>01 / profile</small>
       </button>
-
-      <button class="taskbar-btn" data-app="contact" aria-label="Contact">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="2" y="4" width="20" height="16" rx="2" />
-          <path d="M22 6l-10 7L2 6" />
-        </svg>
-        <span class="taskbar-tooltip">Contact</span>
+      <button class="desktop-app-btn" type="button" data-app="resume">
+        <span class="app-glyph glyph-resume" aria-hidden="true">CV</span>
+        <span class="app-name">Resume</span><small>PDF / document</small>
       </button>
-
-      <button class="taskbar-btn" data-app="resume" aria-label="Resume">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-          <path d="M14 2v6h6" />
-          <path d="M8 13h8" />
-          <path d="M8 17h8" />
-        </svg>
-        <span class="taskbar-tooltip">Resume</span>
+      <button class="desktop-app-btn" type="button" data-app="terminal">
+        <span class="app-glyph glyph-terminal" aria-hidden="true">$_</span>
+        <span class="app-name">Terminal</span><small>READ-ONLY / SIM</small>
       </button>
-
-      <button class="taskbar-btn" data-app="terminal" aria-label="Terminal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <path d="M7 9l3 3-3 3" />
-          <path d="M13 15h4" />
-        </svg>
-        <span class="taskbar-tooltip">Terminal</span>
+      <button class="desktop-app-btn" type="button" data-app="contact">
+        <span class="app-glyph glyph-contact" aria-hidden="true">@</span>
+        <span class="app-name">Contact</span><small>02 / channels</small>
       </button>
-
-      <button class="taskbar-btn" data-app="memory" aria-label="Memory Match">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="2" y="6" width="20" height="12" rx="3" />
-          <circle cx="9" cy="12" r="2" />
-          <circle cx="17" cy="10" r="1" />
-          <circle cx="17" cy="14" r="1" />
-        </svg>
-        <span class="taskbar-tooltip">Memory Match</span>
+      <button class="desktop-app-btn" type="button" data-app="memory">
+        <span class="app-glyph glyph-memory" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="app-name">Memory Match</span><small>MINI / GAME</small>
       </button>
     </nav>
-  </div>
+
+    <div class="desktop-footer">
+      <span><b class="system-mark" aria-hidden="true"></b> WORKSPACE READY</span>
+      <span>SELECT AN APPLICATION</span>
+      <span>© SHIMLEABYTE / OS·01</span>
+    </div>
+
+    <nav class="taskbar" aria-label="Application dock">
+      <button class="taskbar-btn" type="button" data-app="projects" aria-label="Open Projects" title="Projects"><span class="dock-glyph glyph-projects" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="taskbar-tooltip">Projects</span></button>
+      <button class="taskbar-btn" type="button" data-app="about" aria-label="Open About" title="About"><span class="dock-glyph glyph-about" aria-hidden="true"><i></i><i></i><i></i></span><span class="taskbar-tooltip">About</span></button>
+      <button class="taskbar-btn" type="button" data-app="resume" aria-label="Open Resume" title="Resume"><span class="dock-glyph glyph-resume" aria-hidden="true">CV</span><span class="taskbar-tooltip">Resume</span></button>
+      <button class="taskbar-btn" type="button" data-app="terminal" aria-label="Open Terminal" title="Terminal"><span class="dock-glyph glyph-terminal" aria-hidden="true">$_</span><span class="taskbar-tooltip">Terminal</span></button>
+      <button class="taskbar-btn" type="button" data-app="contact" aria-label="Open Contact" title="Contact"><span class="dock-glyph glyph-contact" aria-hidden="true">@</span><span class="taskbar-tooltip">Contact</span></button>
+      <button class="taskbar-btn" type="button" data-app="memory" aria-label="Open Memory Match" title="Memory Match"><span class="dock-glyph glyph-memory" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="taskbar-tooltip">Memory Match</span></button>
+    </nav>
+    <div id="window-layer" class="window-layer" aria-live="polite"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </main>
 
   <script src="js/windowManager.js"></script>
   <script src="js/main.js"></script>
 </body>
-
 </html>
