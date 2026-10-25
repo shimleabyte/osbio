@@ -1,8 +1,5 @@
-/**
- * OSBio desktop window manager.
- * Keeps application state in one place: open, focus, minimize, maximize, and drag.
- * All project destinations are real repositories; no fabricated portfolio entries.
- */
+/* OSBio desktop window manager.
+   Application state stays in one place; repository claims are tied to source. */
 (function () {
   'use strict';
 
@@ -21,7 +18,8 @@
       name: 'Mutabaah CLI',
       symbol: '$_',
       symbolClass: '',
-      description: 'A Go command-line project for managing mutabaah activities with JSON-backed local data.',
+      description: 'A Go command-line tool for managing mutabaah activities with JSON-backed local data.',
+      approach: 'Command dispatch in main.go is separated from activity operations and JSON file persistence.',
       tags: ['Go', 'CLI', 'JSON', 'File I/O'],
       url: 'https://github.com/shimleabyte/mutabaah-cli'
     },
@@ -30,23 +28,24 @@
       name: 'OSBio',
       symbol: 'px',
       symbolClass: 'blue',
-      description: 'An interactive OS-inspired portfolio exploring window management, desktop interaction, and visual identity.',
-      tags: ['HTML', 'CSS', 'JavaScript', 'UI'],
+      description: 'A static portfolio framed as an interactive desktop, with windows, a dock, and a simulated terminal.',
+      approach: 'A central vanilla JavaScript window manager handles focus, dragging, minimize, maximize, and restore.',
+      tags: ['HTML', 'CSS', 'JavaScript', 'Static hosting'],
       url: 'https://github.com/shimleabyte/osbio'
     }
   ];
 
   const apps = {
     projects: {
-      title: 'Selected work',
+      title: 'Project index',
       kicker: 'REPOSITORIES / 02',
-      width: 790,
-      height: 610,
+      width: 880,
+      height: 650,
       content: () => `
         <div class="app-content">
           <p class="eyebrow">WORKSPACE / PROJECT INDEX</p>
-          <h2 class="app-heading">Work in <span>progress.</span></h2>
-          <p class="app-lede">A short list of real repositories. Each project is a record of what I am building and what I am learning by doing it.</p>
+          <h2 class="app-heading">Selected <span>work.</span></h2>
+          <p class="app-lede">A short index of public repositories. The notes below describe implementation choices visible in the projects—not invented performance metrics or placeholder case studies.</p>
           <div class="projects-grid">
             ${projects.map(project => `
               <article class="project-card">
@@ -54,14 +53,19 @@
                   <span class="project-number">PROJECT / ${project.number}</span>
                   <span class="project-symbol ${project.symbolClass}" aria-hidden="true">${project.symbol}</span>
                 </div>
-                <h3 class="project-title">${project.name}</h3>
-                <p class="project-description">${project.description}</p>
-                <ul class="tag-list" aria-label="Technologies">${project.tags.map(tag => `<li>${tag}</li>`).join('')}</ul>
-                <a class="card-link" href="${project.url}" target="_blank" rel="noopener noreferrer">View repository <span aria-hidden="true">↗</span></a>
+                <div class="project-main">
+                  <h3 class="project-title">${project.name}</h3>
+                  <p class="project-description">${project.description}</p>
+                  <ul class="tag-list" aria-label="Technologies">${project.tags.map(tag => `<li>${tag}</li>`).join('')}</ul>
+                  <a class="card-link" href="${project.url}" target="_blank" rel="noopener noreferrer">Inspect repository <span aria-hidden="true">↗</span></a>
+                </div>
+                <div class="project-details">
+                  <p class="project-approach"><span class="project-approach-label">Implementation note</span>${project.approach}</p>
+                </div>
               </article>
             `).join('')}
           </div>
-          <p class="project-note">This list intentionally stays small. Only projects with a verifiable repository are shown; no demo metrics or fictional case studies.</p>
+          <p class="project-note">Scope stays deliberately small: only repositories with verifiable source are listed. Project maturity is not represented by an invented score.</p>
         </div>
       `
     },
@@ -69,17 +73,17 @@
       title: 'About this workspace',
       kicker: 'PROFILE / 01',
       width: 650,
-      height: 570,
+      height: 590,
       content: () => `
         <div class="app-content">
           <p class="eyebrow">PROFILE / APPROACH</p>
           <h2 class="app-heading">Learn by <span>building.</span></h2>
           <p class="app-lede">I'm Shimleabyte. This portfolio is a working interface for the projects I build, the systems I explore, and the design decisions I want to make visible.</p>
           <div class="profile-grid">
-            <section class="info-tile"><span class="meta-label">01 / BUILD</span><strong>Small, real projects</strong><p>Prefer concrete implementations that can be inspected in source code over polished claims without evidence.</p></section>
+            <section class="info-tile"><span class="meta-label">01 / BUILD</span><strong>Small, real projects</strong><p>Prefer implementations that can be inspected in source over polished claims without evidence.</p></section>
             <section class="info-tile"><span class="meta-label">02 / UNDERSTAND</span><strong>Systems thinking</strong><p>Explore how state, interaction, data, and interface behavior fit together.</p></section>
-            <section class="info-tile"><span class="meta-label">03 / DESIGN</span><strong>Interface as a system</strong><p>Use motion, type, color, and custom visual details to make behavior easier to understand.</p></section>
-            <section class="info-tile"><span class="meta-label">04 / ITERATE</span><strong>Keep improving</strong><p>Treat each repository as a record of progress, decisions, and lessons learned.</p></section>
+            <section class="info-tile"><span class="meta-label">03 / DESIGN</span><strong>Interface as a system</strong><p>Use type, hierarchy, and custom visual details to make behavior easier to understand.</p></section>
+            <section class="info-tile"><span class="meta-label">04 / ITERATE</span><strong>Keep improving</strong><p>Treat each repository as a record of decisions and lessons learned.</p></section>
           </div>
           <section class="window-section">
             <h3 class="section-heading">Current project context</h3>
@@ -91,18 +95,18 @@
     contact: {
       title: 'Connect',
       kicker: 'CONTACT / LINKS',
-      width: 500,
-      height: 460,
+      width: 520,
+      height: 470,
       content: () => `
         <div class="app-content">
           <p class="eyebrow">OPEN CHANNELS</p>
-          <h2 class="app-heading">Let's keep it <span>direct.</span></h2>
-          <p class="app-lede">The links below are intended destinations, not decorative placeholders.</p>
+          <h2 class="app-heading">Keep it <span>direct.</span></h2>
+          <p class="app-lede">These are the contact destinations already present in the project.</p>
           <div class="contact-list">
             <a class="contact-link" href="https://github.com/shimleabyte" target="_blank" rel="noopener noreferrer"><span class="contact-symbol">GH</span><span class="contact-copy"><strong>GitHub</strong><small>github.com/shimleabyte</small></span><span class="contact-arrow" aria-hidden="true">↗</span></a>
             <a class="contact-link" href="mailto:presentshimley@gmail.com"><span class="contact-symbol">@</span><span class="contact-copy"><strong>Email</strong><small>presentshimley@gmail.com</small></span><span class="contact-arrow" aria-hidden="true">↗</span></a>
           </div>
-          <p class="project-note">Only contact destinations already present in the repository are included. No placeholder social profiles.</p>
+          <p class="project-note">No placeholder social profiles are included.</p>
         </div>
       `
     },
@@ -113,12 +117,12 @@
       height: 470,
       content: () => `
         <div class="terminal-app">
-          <div class="terminal-topline"><span>SHIMLEABYTE SHELL</span><span>SIMULATED · READ ONLY</span></div>
+          <div class="terminal-topline"><span>SHIMLEABYTE SHELL</span><span>SIMULATED / READ ONLY</span></div>
           <div class="terminal-output" role="log" aria-live="polite">
             <p class="terminal-line">Welcome to the OSBio shell. Type <span class="terminal-command">help</span> to see available commands.</p>
           </div>
           <form class="terminal-input-row">
-            <label class="terminal-prompt" for="terminal-command-input">$</label>
+            <label class="terminal-prompt" for="terminal-command-input"> $ </label>
             <input class="terminal-input" id="terminal-command-input" name="command" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal command">
             <span class="terminal-hint">ENTER TO RUN</span>
           </form>
@@ -141,9 +145,9 @@
     });
   }
 
-  function setContext(text) {
+  function setContext(label) {
     const context = document.getElementById('system-context');
-    if (context) context.textContent = text;
+    if (context) context.textContent = label;
   }
 
   function focusWindow(id) {
@@ -187,10 +191,10 @@
     element.dataset.app = appName;
     element.setAttribute('role', 'dialog');
     element.setAttribute('aria-label', app.title);
+    const layerRect = layer.getBoundingClientRect();
+    const offset = (cascade++ % 5) * 26;
     const width = app.width;
     const height = app.height;
-    const offset = (cascade++ % 5) * 26;
-    const layerRect = layer.getBoundingClientRect();
     const left = isMobile() ? 8 : Math.max(16, Math.min((layerRect.width - width) / 2 + offset, layerRect.width - width - 16));
     const top = isMobile() ? 8 : Math.max(16, Math.min((layerRect.height - height) / 2 + offset, layerRect.height - height - 16));
     element.style.width = Math.min(width, Math.max(300, layerRect.width - 24)) + 'px';
@@ -202,7 +206,7 @@
         <div class="window-lights" aria-label="Window controls">
           <button type="button" class="window-control close" data-window-action="close" aria-label="Close window">×</button>
           <button type="button" class="window-control minimize" data-window-action="minimize" aria-label="Minimize window">−</button>
-          <button type="button" class="window-control maximize" data-window-action="maximize" aria-label="Maximize or restore window">+</button>
+          <button type="button" class="window-control maximize" data-window-action="maximize" aria-label="Maximize or restore window">□</button>
         </div>
         <span class="window-title">${app.title}</span>
         <span class="window-kicker">${app.kicker}</span>
@@ -293,6 +297,14 @@
   }
 
   function openWindow(appName) {
+    if (isMobile()) {
+      openWindows.forEach(entry => {
+        if (entry.appName !== appName) {
+          entry.minimized = true;
+          entry.element.classList.add('is-minimized');
+        }
+      });
+    }
     const entry = createWindow(appName);
     if (!entry) return;
     entry.minimized = false;
@@ -305,10 +317,8 @@
     const entry = openWindows.get('window-' + appName);
     if (!entry) {
       openWindow(appName);
-    } else if (entry.minimized) {
-      entry.minimized = false;
-      entry.element.classList.remove('is-minimized');
-      focusWindow(entry.id);
+    } else if (entry.minimized || (isMobile() && activeId !== entry.id)) {
+      openWindow(appName);
     } else if (activeId === entry.id) {
       minimizeWindow(entry.id);
     } else {
@@ -377,7 +387,7 @@
         writeLine('Email: presentshimley@gmail.com');
         openWindow('contact');
       } else if (cmd === 'open' && apps[arg]) {
-        writeLine('Opening ' + arg + '…');
+        writeLine('Opening ' + arg + '...');
         openWindow(arg);
       } else if (cmd === 'clear') {
         output.replaceChildren();
@@ -399,9 +409,7 @@
     });
   }
 
-  document.querySelectorAll('.dock-app[data-app]').forEach(button => {
-    button.addEventListener('click', () => toggleApp(button.dataset.app));
-  });
+  dockButtons.forEach(button => button.addEventListener('click', () => toggleApp(button.dataset.app)));
   document.querySelectorAll('[data-action="show-desktop"]').forEach(button => button.addEventListener('click', showDesktop));
   window.addEventListener('resize', () => {
     if (!isMobile()) return;
@@ -409,6 +417,7 @@
       entry.element.style.left = '8px';
       entry.element.style.top = '8px';
     });
+    if (activeId) openWindow(openWindows.get(activeId)?.appName);
   });
 
   window.WindowManager = { openWindow, closeWindow, showDesktop, toggleApp };
