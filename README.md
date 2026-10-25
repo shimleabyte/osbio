@@ -1,137 +1,55 @@
-# OS-Style Portfolio  
-**An interactive frontend experience**
+# osbio
 
-> Not flashy.  
-> Not loud.  
-> **Intentional.**
+My portfolio, built as a small desktop OS: a boot screen, a dock, draggable windows and a terminal. Plain HTML, CSS and JavaScript, no build step.
 
----
+**Live:** https://shimleabyte.github.io/osbio/
 
-## Overview
+## Apps
 
-This is an OS-style portfolio built as an **interactive desktop experience**.  
-Instead of scrolling a long landing page, visitors explore content through windows, apps, and simple interactions — just like using a system.
+| App | What it does |
+|---|---|
+| About | Bio, stack, interests |
+| Projects | Expandable project cards |
+| Contact | Email and GitHub |
+| Resume | PDF preview and download |
+| Terminal | `help`, `about`, `projects`, `contact`, `open <app>`, `clear` |
+| Memory Match | Card-matching game |
 
-The focus is not on complexity or features, but on **clarity, interaction, and aestethic of simplicity**.
+Esc closes the focused window. Below 700px wide, windows open full screen above the dock.
 
----
+## Run locally
 
-## Why This Looks “Boring” (On Purpose)
+```bash
+git clone https://github.com/shimleabyte/osbio.git
+cd osbio
+python3 -m http.server 8000
+```
 
-> This is not accidental boring —  
-> this is **boring, by design**.
+Open http://localhost:8000. Any static server works.
 
-Calm interfaces reduce friction.  
-Noise impresses quickly, but clarity lasts longer.
+To enable the Resume app, add your PDF at the repo root as `resume.pdf`.
 
-This portfolio avoids unnecessary excitement to keep attention on:
-- structure
-- interaction
-- intent
+## Structure
 
-Think of it as **quiet confidence**, not lack of effort.
+```
+index.html          boot, sign-in and desktop layers, dock
+css/main.css        design tokens at the top (:root), then per-app styles
+js/main.js          boot -> sign-in -> desktop flow
+js/windowManager.js window templates, open/close/focus/drag, per-app logic
+```
 
----
+### Adding an app
 
-## Experience Flow
-
-1. Boot / loading screen  
-2. Demo sign-in (clearly labeled, non-functional)  
-3. Desktop environment  
-4. App-style windows for content
-
-Everything is designed to feel familiar, lightweight, and intentional.
-
----
-
-## What This Project Demonstrates
-
-- UI system thinking  
-- Window and state management  
-- Interaction design  
-- Scope control  
-- Ability to ship a finished experience  
-
-No filler. No half-built features.
-
----
-
-## Intentional Decisions
-
-- **Static-only**  
-  This project has no backend. The goal is experience and interaction, not data handling.
-
-- **Demo sign-in**  
-  Used purely as a UX transition. No authentication, no stored data, no misleading behavior.
-
-- **Minimalism**  
-  Visual and functional restraint keeps the experience readable and focused.
-
----
-
-## Technical Scope
-
-- Type: Static frontend application  
-- Architecture: Single-page, window-based UI system  
-- State: Frontend-managed, session-based  
-- Persistence: None (intentional)
-
----
-
-## Included “Apps”
-
-- About  
-- Projects  
-- Contact  
-- Resume  
-- Fake Terminal (predefined commands)  
-- Mini interaction / mini app
-
-Each app is scoped to do **one thing clearly**.
-
----
-
-## Tradeoffs
-
-- No real authentication  
-- No database or persistence  
-- Desktop-first experience  
-
-These tradeoffs were chosen to prioritize:
-- clarity
-- performance
-- simplicity
-
----
-
-## Tech Stack
-
-- HTML  
-- CSS  
-- JavaScript  
-
-Deployed as a static site.
-
----
-
-## Running Locally
-
-1. Clone the repository  
-2. Serve the project using any local static server  
-3. Open in the browser  
-
-No build step required.
-
----
-
-## Deployment
-
-Live version: [https://shimleabyte.github.io/osbio/]
----
+1. Add a template to `CONFIG.windowTemplates` in `windowManager.js`.
+2. Add a dock button in `index.html` with a matching `data-app`.
+3. If it needs behaviour, hook it up in `setupWindowEvents`.
 
 ## Notes
 
-This portfolio is designed to be **explored**, not scrolled.  
-Every interaction exists for a reason, and everything unnecessary was intentionally left out.
+- There is no backend. The sign-in screen is a visual step with no authentication.
+- The only thing stored is a `sessionStorage` flag so the intro is skipped after the first pass in a tab. It clears when the tab closes.
+- Windows are positioned with plain DOM and CSS, with no framework or library.
 
-Calm is a feature.
+## License
+
+See [LICENSE](LICENSE).

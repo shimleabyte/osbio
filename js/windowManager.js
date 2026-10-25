@@ -11,6 +11,17 @@
 const WindowManager = (() => {
   'use strict';
 
+  // Icons (inline SVG, inherit currentColor)
+  const ICON = {
+    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>',
+    github: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
+    external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>',
+    download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+  };
+
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
   // Configuration
   const CONFIG = {
     windowTemplates: {
@@ -85,11 +96,11 @@ const WindowManager = (() => {
                     <strong>What I learned:</strong> Building a window management system from scratch with vanilla JavaScript.
                   </div>
                   <div class="project-links">
-                    <a href="#" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
-                      <span class="icon">🌐</span> Live Demo
+                    <a href="https://shimleabyte.github.io/osbio/" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
+                      <span class="icon">${ICON.external}</span> Live Demo
                     </a>
-                    <a href="#" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
-                      <span class="icon">💻</span> Source Code
+                    <a href="https://github.com/shimleabyte/osbio" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
+                      <span class="icon">${ICON.github}</span> Source Code
                     </a>
                   </div>
                 </div>
@@ -106,14 +117,6 @@ const WindowManager = (() => {
                   <div class="project-learned">
                     <strong>What I learned:</strong> Implementing drag-and-drop interfaces with React DnD and TypeScript type safety.
                   </div>
-                  <div class="project-links">
-                    <a href="#" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
-                      <span class="icon">🌐</span> Live Demo
-                    </a>
-                    <a href="#" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
-                      <span class="icon">💻</span> Source Code
-                    </a>
-                  </div>
                 </div>
               </div>
 
@@ -127,14 +130,6 @@ const WindowManager = (() => {
                 <div class="project-details" id="project3">
                   <div class="project-learned">
                     <strong>What I learned:</strong> Data visualization with D3.js and working with external weather APIs.
-                  </div>
-                  <div class="project-links">
-                    <a href="#" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
-                      <span class="icon">🌐</span> Live Demo
-                    </a>
-                    <a href="#" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
-                      <span class="icon">💻</span> Source Code
-                    </a>
                   </div>
                 </div>
               </div>
@@ -150,20 +145,12 @@ const WindowManager = (() => {
           <div class="contact-app">
             <div class="contact-list">
               <a href="mailto:presentshimley@gmail.com" class="contact-item" target="_blank" rel="noopener noreferrer">
-                <span class="contact-icon">✉️</span>
+                <span class="contact-icon">${ICON.mail}</span>
                 <span class="contact-label">Email</span>
               </a>
               <a href="https://github.com/shimleabyte" class="contact-item" target="_blank" rel="noopener noreferrer">
-                <span class="contact-icon">💻</span>
+                <span class="contact-icon">${ICON.github}</span>
                 <span class="contact-label">GitHub</span>
-              </a>
-              <a href="https://linkedin.com/in/example" class="contact-item" target="_blank" rel="noopener noreferrer">
-                <span class="contact-icon">🔗</span>
-                <span class="contact-label">LinkedIn</span>
-              </a>
-              <a href="https://x.com/example" class="contact-item" target="_blank" rel="noopener noreferrer">
-                <span class="contact-icon">🐦</span>
-                <span class="contact-label">Twitter(X)</span>
               </a>
             </div>
           </div>
@@ -176,19 +163,17 @@ const WindowManager = (() => {
         content: `
           <div class="resume-app">
             <div class="resume-actions">
-              <a href="/resume.pdf" class="btn btn-primary" download>
-                <span class="icon">⬇️</span> Download PDF
+              <a href="resume.pdf" class="btn btn-primary" download>
+                <span class="icon">${ICON.download}</span> Download PDF
               </a>
               <button class="btn btn-outline view-toggle">
-                <span class="icon">👁️</span> Toggle Preview
+                <span class="icon">${ICON.eye}</span> Fit height
               </button>
             </div>
             <div class="resume-preview">
-              <iframe src="/resume.pdf#view=FitH" class="resume-iframe"></iframe>
+              <iframe src="resume.pdf#view=FitH" class="resume-iframe"></iframe>
             </div>
-            <div class="resume-fallback">
-              <p>Unable to load PDF preview. <a href="/resume.pdf" download>Download resume</a> instead.</p>
-            </div>
+            <p class="resume-note">Preview not loading? <a href="resume.pdf" download>Download the PDF</a>.</p>
           </div>
         `
       },
@@ -265,6 +250,10 @@ const WindowManager = (() => {
 
     // Initialize taskbar buttons
     initTaskbarButtons();
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && activeWindowId) closeWindow(activeWindowId);
+    });
   }
 
   // Initialize taskbar button event listeners
@@ -321,6 +310,8 @@ const WindowManager = (() => {
     const windowElement = document.createElement('div');
     windowElement.className = 'window';
     windowElement.id = windowId;
+    windowElement.setAttribute('role', 'dialog');
+    windowElement.setAttribute('aria-labelledby', `${windowId}-title`);
     windowElement.style.zIndex = zIndex;
     windowElement.style.width = template.width;
     windowElement.style.height = template.height;
@@ -331,7 +322,7 @@ const WindowManager = (() => {
     const header = document.createElement('div');
     header.className = 'window-header';
     header.innerHTML = `
-      <span class="window-title">${template.title}</span>
+      <span class="window-title" id="${windowId}-title">${template.title}</span>
       <button class="window-close" aria-label="Close">×</button>
     `;
 
@@ -372,7 +363,7 @@ const WindowManager = (() => {
     let offsetX, offsetY;
 
     // Focus window when clicked
-    windowElement.addEventListener('mousedown', (e) => {
+    windowElement.addEventListener('pointerdown', (e) => {
       if (!isDragging) {
         focusWindow(windowId);
       }
@@ -385,13 +376,13 @@ const WindowManager = (() => {
     });
 
     // Dragging functionality
-    header.addEventListener('mousedown', (e) => {
+    header.addEventListener('pointerdown', (e) => {
       if (e.target === header || e.target.closest('.window-title')) {
         isDragging = true;
         offsetX = e.clientX - windowElement.offsetLeft;
         offsetY = e.clientY - windowElement.offsetTop;
-        document.addEventListener('mousemove', handleDrag);
-        document.addEventListener('mouseup', stopDrag);
+        document.addEventListener('pointermove', handleDrag);
+        document.addEventListener('pointerup', stopDrag);
         focusWindow(windowId);
       }
     });
@@ -412,8 +403,8 @@ const WindowManager = (() => {
 
     function stopDrag() {
       isDragging = false;
-      document.removeEventListener('mousemove', handleDrag);
-      document.removeEventListener('mouseup', stopDrag);
+      document.removeEventListener('pointermove', handleDrag);
+      document.removeEventListener('pointerup', stopDrag);
     }
 
     // Projects app specific functionality
@@ -457,11 +448,6 @@ const WindowManager = (() => {
       projectLinks.forEach(link => {
         link.addEventListener('click', (e) => {
           e.stopPropagation();
-          // Open links in a new tab
-          const url = link.getAttribute('href');
-          if (url && url !== '#') {
-            window.open(url, '_blank', 'noopener,noreferrer');
-          }
         });
       });
     }
@@ -476,10 +462,10 @@ const WindowManager = (() => {
           const isFitH = iframe.src.includes('FitH');
           if (isFitH) {
             iframe.src = iframe.src.replace('FitH', 'FitV');
-            viewToggle.innerHTML = '<span class="icon">👁️</span> Fit Width';
+            viewToggle.innerHTML = '<span class="icon">' + ICON.eye + '</span> Fit width';
           } else {
             iframe.src = iframe.src.replace('FitV', 'FitH');
-            viewToggle.innerHTML = '<span class="icon">👁️</span> Fit Height';
+            viewToggle.innerHTML = '<span class="icon">' + ICON.eye + '</span> Fit height';
           }
         });
       }
@@ -509,6 +495,7 @@ const WindowManager = (() => {
     <p><span class="help-command">about</span> <span class="help-description">- Show information about me</span></p>
     <p><span class="help-command">projects</span> <span class="help-description">- List my projects</span></p>
     <p><span class="help-command">contact</span> <span class="help-description">- Show contact information</span></p>
+    <p><span class="help-command">open &lt;app&gt;</span> <span class="help-description">- Open an app window</span></p>
     <p><span class="help-command">clear</span> <span class="help-description">- Clear the terminal</span></p>
   </div>
             `;
@@ -560,10 +547,20 @@ const WindowManager = (() => {
     <ul>
       <li>Email: <a href="mailto:presentshimley@gmail.com" target="_blank">presentshimley@gmail.com</a></li>
       <li>GitHub: <a href="https://github.com/shimleabyte" target="_blank">github.com/shimleabyte</a></li>
-      <li>LinkedIn: <a href="https://linkedin.com/in/example" target="_blank">linkedin.com/in/example</a></li>
     </ul>
   </div>
             `;
+          }
+        },
+        open: {
+          description: 'Open an app window',
+          execute: (_out, arg) => {
+            const apps = Object.keys(CONFIG.windowTemplates);
+            if (!arg || !apps.includes(arg)) {
+              return `<div class="command-output"><p>Usage: <span class="terminal-command">open &lt;app&gt;</span> (${apps.join(', ')})</p></div>`;
+            }
+            toggleWindow(arg);
+            return '';
           }
         },
         clear: {
@@ -588,22 +585,23 @@ const WindowManager = (() => {
         commandLine.className = 'terminal-line';
         commandLine.innerHTML = `
           <span class="terminal-prompt">$</span>
-          <span class="terminal-text">${command}</span>
+          <span class="terminal-text">${esc(command)}</span>
         `;
         terminalOutput.appendChild(commandLine);
         
         // Process the command
         const cmd = command.trim().toLowerCase();
+        const [name, arg] = cmd.split(/\s+/);
         let output = '';
         
         if (cmd === '') {
           // Do nothing for empty command
-        } else if (commands[cmd]) {
-          output = commands[cmd].execute(terminalOutput);
+        } else if (Object.prototype.hasOwnProperty.call(commands, name)) {
+          output = commands[name].execute(terminalOutput, arg);
         } else {
           output = `
   <div class="command-output">
-    <p class="error-message">Command not found: ${cmd}</p>
+    <p class="error-message">Command not found: ${esc(cmd)}</p>
     <p>Type <span class="terminal-command">help</span> to see available commands.</p>
   </div>
           `;
@@ -687,8 +685,7 @@ const WindowManager = (() => {
         tempSpan.textContent = text;
         tempSpan.style.visibility = 'hidden';
         tempSpan.style.position = 'absolute';
-        tempSpan.style.fontFamily = 'Courier New, monospace';
-        tempSpan.style.fontSize = '14px';
+        tempSpan.style.font = getComputedStyle(input).font;
         tempSpan.style.whiteSpace = 'pre';
         document.body.appendChild(tempSpan);
         const width = tempSpan.offsetWidth;
@@ -852,6 +849,18 @@ const WindowManager = (() => {
       // Initialize the game
       initGame();
     }
+  }
+
+  // Bring a window to the front and mark it active
+  function focusWindow(windowId) {
+    const target = openWindows.find(w => w.id === windowId);
+    if (!target) return;
+    const top = Math.max(CONFIG.zIndex, ...openWindows.map(w => w.zIndex)) + 1;
+    target.zIndex = top;
+    target.element.style.zIndex = top;
+    openWindows.forEach(w => w.element.classList.toggle('active', w.id === windowId));
+    activeWindowId = windowId;
+    updateTaskbarState();
   }
 
   // Close a window

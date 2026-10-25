@@ -4,8 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="OS-style portfolio experience">
-  <title>Portofolio | Shymleabyte</title>
+  <meta name="description" content="Portfolio of shimleabyte, built as a small desktop OS in plain HTML, CSS and JavaScript.">
+  <meta name="theme-color" content="#0d1117">
+  <meta property="og:title" content="shimleabyte | Portfolio">
+  <meta property="og:description" content="A portfolio that works like a small desktop OS.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1117'/%3E%3Cpath d='M9 11l5 5-5 5M17 21h6' fill='none' stroke='%2358a6ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <title>shimleabyte | Portfolio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -13,6 +17,7 @@
 </head>
 
 <body>
+  <noscript>This portfolio needs JavaScript to run. Source and contact: github.com/shimleabyte</noscript>
   <!-- Boot Screen Layer -->
   <div id="boot-screen" class="screen">
     <div class="boot-content">
@@ -27,7 +32,7 @@
     <div class="signin-panel">
       <div class="signin-header">
         <span class="signin-title">Welcome</span>
-        <span class="signin-subtitle">to My Portofolio</span>
+        <span class="signin-subtitle">to my portfolio</span>
       </div>
 
       <div class="signin-form">
@@ -50,8 +55,8 @@
   <!-- Desktop Layer -->
   <div id="desktop-screen" class="screen hidden">
     <div class="desktop-welcome">
-      <span class="desktop-name">Welcome!</span>
-      <span class="desktop-tagline">to my Portfolio</span>
+      <span class="desktop-name">shimleabyte</span>
+      <span class="desktop-tagline">frontend developer</span>
     </div>
     
     <!-- Windows will be dynamically inserted here -->

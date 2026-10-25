@@ -12,25 +12,42 @@
 }
 
 :root {
-  /* Colors */
-  --color-bg: #0a0a0a;
-  --color-bg-secondary: #111111;
-  --color-text: #e5e5e5;
-  --color-text-muted: #666666;
-  --color-accent: #888888;
-  --color-window-bg: #1e1e1e;
-  --color-window-header: #2a2a2a;
-  --color-window-border: rgba(255, 255, 255, 0.08);
-  --color-window-shadow: rgba(0, 0, 0, 0.3);
-  --color-button-hover: rgba(255, 255, 255, 0.05);
+  /* Surfaces */
+  --color-bg: #0d1117;
+  --color-bg-secondary: #010409;
+  --color-window-bg: #161b22;
+  --color-window-header: #1c2128;
+  --color-window-header-bg: rgba(255, 255, 255, 0.06);
+  --color-window-border: #30363d;
+  --color-window-shadow: rgba(1, 4, 9, 0.5);
+
+  /* Text */
+  --color-text: #e6edf3;
+  --color-text-muted: #8b949e;
+
+  /* Accent + status */
+  --color-accent: #58a6ff;
+  --color-accent-rgb: 88, 166, 255;
+  --color-accent-dark: #388bfd;
+  --color-success: #3fb950;
+  --color-warning: #d29922;
+  --color-danger: #f85149;
+
+  /* Interaction */
+  --color-button-hover: rgba(255, 255, 255, 0.06);
   --color-button-active: rgba(255, 255, 255, 0.1);
-  --color-scrollbar: rgba(255, 255, 255, 0.1);
-  --color-scrollbar-hover: rgba(255, 255, 255, 0.2);
+  --color-scrollbar: rgba(255, 255, 255, 0.12);
+  --color-scrollbar-hover: rgba(255, 255, 255, 0.24);
 
-  /* Typography */
+  /* Type */
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
 
-  /* Timing */
+  /* Motion */
   --transition-fade: 400ms ease-out;
   --cursor-blink: 1s step-end infinite;
 }
@@ -231,7 +248,7 @@ body {
 }
 
 .signin-disclaimer {
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   color: var(--color-text-muted);
   text-align: center;
   max-width: 280px;
@@ -247,12 +264,8 @@ body {
   z-index: 25;
 
   /* Subtle gradient wallpaper - calm, not distracting */
-  background: linear-gradient(135deg,
-      #0d0d0d 0%,
-      #0a0a0a 25%,
-      #0f0f12 50%,
-      #0a0a0a 75%,
-      #0d0d0d 100%);
+  background: radial-gradient(900px 500px at 15% 10%, rgba(var(--color-accent-rgb), 0.07), transparent 60%),
+    var(--color-bg);
 
   /* Override centering - desktop uses free positioning */
   align-items: stretch;
@@ -283,7 +296,7 @@ body {
 }
 
 .desktop-tagline {
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   color: var(--color-text-muted);
   letter-spacing: 0.05em;
 }
@@ -293,6 +306,7 @@ body {
    ======================================== */
 
 .taskbar {
+  z-index: 2000;
   position: absolute;
   bottom: 1.5rem;
   left: 50%;
@@ -368,11 +382,11 @@ body {
 
   padding: 0.375rem 0.625rem;
 
-  background-color: rgba(30, 30, 30, 0.95);
+  background-color: rgba(22, 27, 34, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
 
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   color: var(--color-text);
   white-space: nowrap;
 
@@ -391,7 +405,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: rgba(30, 30, 30, 0.95);
+  border-top-color: rgba(22, 27, 34, 0.96);
 }
 
 .taskbar-btn:hover .taskbar-tooltip {
@@ -413,6 +427,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   transition: box-shadow 150ms ease, transform 150ms ease;
+  animation: window-in 140ms ease-out;
 }
 
 .window.active {
@@ -420,6 +435,7 @@ body {
 }
 
 .window-header {
+  touch-action: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -465,7 +481,8 @@ body {
 
 .window-content {
   flex: 1;
-  padding: 1rem;
+  min-height: 0;
+  padding: 0;
   overflow-y: auto;
   color: var(--color-text);
   font-size: 0.875rem;
@@ -759,33 +776,6 @@ body {
   flex-wrap: wrap;
 }
 
-.btn-outline {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--color-text);
-  background: transparent;
-  border: 1px solid var(--color-window-border);
-  border-radius: 4px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.btn-outline:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-  text-decoration: none;
-}
-
-.btn-sm {
-  padding: 0.25rem 0.625rem;
-  font-size: 0.75rem;
-}
-
 .icon {
   font-size: 1em;
   line-height: 1;
@@ -894,14 +884,14 @@ body {
 
 .btn-primary {
   background-color: var(--color-accent);
-  color: white;
+  color: var(--color-bg);
   border-color: var(--color-accent);
 }
 
 .btn-primary:hover {
   background-color: var(--color-accent-dark);
   border-color: var(--color-accent-dark);
-  color: white;
+  color: var(--color-bg);
   text-decoration: none;
 }
 
@@ -915,6 +905,11 @@ body {
   border-color: var(--color-accent);
   color: var(--color-accent);
   text-decoration: none;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.625rem;
+  font-size: var(--text-xs);
 }
 
 .resume-preview {
@@ -933,13 +928,6 @@ body {
   background: white;
 }
 
-.resume-fallback {
-  display: none;
-  padding: 2rem;
-  text-align: center;
-  color: var(--color-text-muted);
-}
-
 /* Hide PDF controls when printing */
 @media print {
   .resume-actions {
@@ -952,22 +940,6 @@ body {
   }
 }
 
-/* Fallback for browsers that don't support PDF embedding */
-.resume-preview:not(:has(iframe[src*=".pdf"])) {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.resume-preview:not(:has(iframe[src*=".pdf"])) .resume-fallback {
-  display: block;
-}
-
-/* Hide the toggle button if PDF embedding is not supported */
-.resume-preview:not(:has(iframe[src*=".pdf"])) + .view-toggle {
-  display: none;
-}
-
 /* ========================================
    Terminal App
    ======================================== */
@@ -976,9 +948,9 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #1e1e1e;
-  color: #f0f0f0;
-  font-family: 'Courier New', monospace;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.5;
   padding: 1rem;
@@ -999,7 +971,7 @@ body {
 }
 
 .terminal-prompt {
-  color: #4caf50;
+  color: var(--color-success);
   margin-right: 0.5rem;
   user-select: none;
   flex-shrink: 0;
@@ -1010,7 +982,7 @@ body {
 }
 
 .terminal-command {
-  color: #64b5f6;
+  color: var(--color-accent);
   font-weight: bold;
 }
 
@@ -1025,8 +997,8 @@ body {
   flex: 1;
   background: transparent;
   border: none;
-  color: #f0f0f0;
-  font-family: 'Courier New', monospace;
+  color: var(--color-text);
+  font-family: var(--font-mono);
   font-size: 14px;
   outline: none;
   padding: 0;
@@ -1037,7 +1009,7 @@ body {
 .terminal-cursor {
   position: absolute;
   left: 0;
-  color: #f0f0f0;
+  color: var(--color-text);
   animation: blink 1s step-end infinite;
   opacity: 1;
 }
@@ -1047,10 +1019,6 @@ body {
   opacity: 0;
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
 
 /* Scrollbar for terminal */
 .terminal-output::-webkit-scrollbar {
@@ -1058,12 +1026,12 @@ body {
 }
 
 .terminal-output::-webkit-scrollbar-thumb {
-  background-color: #4a4a4a;
+  background-color: var(--color-scrollbar);
   border-radius: 3px;
 }
 
 .terminal-output::-webkit-scrollbar-thumb:hover {
-  background-color: #5a5a5a;
+  background-color: var(--color-scrollbar-hover);
 }
 
 /* Command output styles */
@@ -1081,7 +1049,7 @@ body {
 }
 
 .command-output a {
-  color: #64b5f6;
+  color: var(--color-accent);
   text-decoration: none;
 }
 
@@ -1091,33 +1059,34 @@ body {
 
 /* Error message */
 .error-message {
-  color: #f44336;
+  color: var(--color-danger);
 }
 
 /* Help command output */
 .help-command {
-  color: #64b5f6;
+  color: var(--color-accent);
   font-weight: bold;
   margin-right: 0.5rem;
 }
 
 .help-description {
-  color: #f0f0f0;
+  color: var(--color-text);
 }
 
 /* Project list */
-.project-item {
+.terminal-app .project-item {
   margin-bottom: 0.5rem;
 }
 
-.project-name {
-  color: #ff9800;
+.terminal-app .project-name {
+  color: var(--color-warning);
   font-weight: bold;
 }
 
-.project-desc {
-  color: #f0f0f0;
+.terminal-app .project-desc {
+  color: var(--color-text);
   margin-left: 1rem;
+  font-size: inherit;
 }
 
 /* ========================================
@@ -1129,9 +1098,8 @@ body {
   flex-direction: column;
   height: 100%;
   padding: 1rem;
-  background-color: #fff;
-  color: #333;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--color-text);
+  font-family: var(--font-mono);
 }
 
 .game-header {
@@ -1140,14 +1108,14 @@ body {
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-window-border);
 }
 
 .game-header h3 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text);
 }
 
 .game-stats {
@@ -1158,12 +1126,12 @@ body {
 
 .moves {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 #move-count {
   font-weight: 600;
-  color: #333;
+  color: var(--color-text);
 }
 
 .game-board {
@@ -1178,7 +1146,7 @@ body {
 
 .card {
   position: relative;
-  background-color: #f5f5f5;
+  background-color: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.2s ease;
@@ -1196,14 +1164,14 @@ body {
 
 .card.flipped {
   transform: rotateY(0);
-  background-color: #fff;
+  background-color: var(--color-window-header);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  color: #2c3e50;
+  color: var(--color-text);
 }
 
 .card.matched {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background-color: rgba(63, 185, 80, 0.14);
+  color: var(--color-success);
   cursor: default;
   transform: rotateY(0);
 }
@@ -1215,7 +1183,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%) rotateY(0);
   font-size: 1.5rem;
-  color: #9e9e9e;
+  color: var(--color-text-muted);
   transition: opacity 0.2s ease;
 }
 
@@ -1229,7 +1197,7 @@ body {
   margin-top: 1.5rem;
   text-align: center;
   font-size: 0.95rem;
-  color: #666;
+  color: var(--color-text-muted);
   min-height: 2rem;
   display: flex;
   align-items: center;
@@ -1238,14 +1206,14 @@ body {
 
 .completion-message {
   font-weight: 500;
-  color: #2e7d32;
+  color: var(--color-success);
 }
 
 /* Button styles for the game */
 #restart-btn {
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-  color: #333;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-window-border);
+  color: var(--color-text);
   padding: 0.25rem 0.75rem;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -1254,8 +1222,8 @@ body {
 }
 
 #restart-btn:hover {
-  background-color: #e0e0e0;
-  border-color: #ccc;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-text-muted);
 }
 
 /* Responsive adjustments */
@@ -1266,5 +1234,80 @@ body {
   
   .card {
     font-size: 1.25rem;
+  }
+}
+/* ========================================
+   Focus, motion, responsive
+   ======================================== */
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.signin-input:focus {
+  border-color: var(--color-accent);
+}
+
+.signin-button {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.taskbar-btn:focus-visible .taskbar-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.taskbar-btn.active::after {
+  background-color: var(--color-accent);
+}
+
+.icon svg {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+.contact-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.resume-note {
+  margin-top: 0.75rem;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.resume-note a {
+  color: var(--color-accent);
+}
+
+@keyframes window-in {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 700px) {
+  .window {
+    inset: 0 0 5rem 0 !important;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 0;
+  }
+
+  .window-header { padding: 0.75rem 1rem; }
+  .window-close { width: 2.25rem; height: 2.25rem; }
+  .resume-preview { display: none; }
+  .desktop-welcome { display: none; }
+  .taskbar { bottom: 0.75rem; max-width: calc(100vw - 1rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
