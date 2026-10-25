@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b1020">
-  <meta name="description" content="Shimleabyte's interactive developer desktop: real projects, technical notes, and experiments.">
-  <title>Shimleabyte OS — Developer Workspace</title>
+  <meta name="theme-color" content="#151719">
+  <meta name="description" content="OSBio is Shimleabyte's interactive developer desktop: real repositories, implementation notes, and the systems behind each build.">
+  <title>OSBio — Pixel-Flow Developer Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
   <div id="boot-screen" class="boot-screen" aria-label="Starting workspace">
     <div class="boot-art" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <p class="eyebrow">SHIMLEABYTE / OS·01</p>
-    <p class="boot-message">Making room for ideas<span class="boot-cursor">_</span></p>
+    <p class="boot-message">Initializing workspace<span class="boot-cursor">_</span></p>
     <button id="skip-boot" class="quiet-button">Skip intro <span aria-hidden="true">↗</span></button>
   </div>
 
@@ -25,7 +25,7 @@
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
         <span>SHIMLEABYTE<span class="brand-suffix">.OS</span></span>
       </button>
-      <div class="system-bar-center"><span class="live-dot"></span><span>PERSONAL WORKSPACE</span><span class="system-divider">/</span><span id="system-context">DESKTOP</span></div>
+      <div class="system-bar-center"><span class="live-dot" aria-hidden="true"></span><span>PERSONAL WORKSPACE</span><span class="system-divider">/</span><span id="system-context">DESKTOP</span></div>
       <div class="system-bar-right"><span class="system-indicator">STATIC BUILD</span><time id="system-clock">--:--</time></div>
     </header>
 
@@ -33,35 +33,36 @@
       <div class="flow-ribbon ribbon-one"></div><div class="flow-ribbon ribbon-two"></div>
       <div class="pixel-cluster cluster-one"></div><div class="pixel-cluster cluster-two"></div>
       <span class="wallpaper-label">FLOW / FORM / FUNCTION</span>
+      <span class="wallpaper-coordinate">PX—01 / FIELD STUDY</span>
     </div>
 
     <section class="desktop-copy" aria-label="Workspace introduction">
       <p class="eyebrow">INDEPENDENT DEVELOPER <span>/</span> INDONESIA</p>
-      <h1>Build with intent.<br><span>Understand the system.</span></h1>
-      <p class="desktop-description">A small interactive space for real projects, experiments, and the engineering decisions behind them.</p>
-      <button class="text-link" data-launch="projects">Explore selected work <span aria-hidden="true">↗</span></button>
+      <h1>Build the system.<br><span>Make the flow visible.</span></h1>
+      <p class="desktop-description">A working desktop for real repositories, implementation notes, and the decisions behind each build.</p>
+      <button class="text-link" data-launch="projects">Open project index <span aria-hidden="true">↗</span></button>
     </section>
 
     <nav class="desktop-icons" aria-label="Desktop applications">
       <button class="desktop-icon" data-launch="projects">
         <span class="app-glyph glyph-projects" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-        <span>Projects</span><small>2 repositories</small>
+        <span>Projects</span><small>02 / repositories</small>
       </button>
       <button class="desktop-icon" data-launch="about">
         <span class="app-glyph glyph-about" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span>About</span><small>Read profile</small>
+        <span>About</span><small>01 / profile</small>
       </button>
       <button class="desktop-icon" data-launch="terminal">
         <span class="app-glyph glyph-terminal" aria-hidden="true"><b>$_</b></span>
-        <span>Terminal</span><small>Explore commands</small>
+        <span>Terminal</span><small>04 / commands</small>
       </button>
       <button class="desktop-icon" data-launch="contact">
         <span class="app-glyph glyph-contact" aria-hidden="true"><i></i></span>
-        <span>Connect</span><small>Contact links</small>
+        <span>Connect</span><small>02 / channels</small>
       </button>
     </nav>
 
-    <div class="desktop-footer"><span><b class="live-dot"></b> SYSTEM READY</span><span>SELECT AN APP TO BEGIN</span><span>© SHIMLEABYTE</span></div>
+    <div class="desktop-footer"><span><b class="live-dot" aria-hidden="true"></b> WORKSPACE READY</span><span>SELECT AN APPLICATION</span><span>© SHIMLEABYTE / OS·01</span></div>
 
     <nav class="dock" aria-label="Application dock">
       <button class="dock-app dock-home" data-action="show-desktop" aria-label="Show desktop" title="Show desktop"><span class="brand-mark mini" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
@@ -71,7 +72,7 @@
       <button class="dock-app" data-app="terminal" aria-label="Open Terminal" title="Terminal"><span class="dock-glyph glyph-terminal" aria-hidden="true"><b>$_</b></span></button>
       <button class="dock-app" data-app="contact" aria-label="Open Connect" title="Connect"><span class="dock-glyph glyph-contact" aria-hidden="true"><i></i></span></button>
       <span class="dock-separator" aria-hidden="true"></span>
-      <div class="dock-status"><span class="live-dot"></span><span>ONLINE</span></div>
+      <div class="dock-status"><span class="live-dot" aria-hidden="true"></span><span>LOCAL</span></div>
     </nav>
     <div id="window-layer" class="window-layer" aria-live="polite"></div>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
