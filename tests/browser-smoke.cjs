@@ -329,18 +329,23 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // A dirty close can be cancelled or explicitly discarded.
     await reopenedEditorBody.fill(expectedText + ' unsaved draft');
-    const cancelClosePromise = page.waitForEvent('dialog');
+    let cancelCloseMessage = '';
+    page.once('dialog', (dialog) => {
+      cancelCloseMessage = dialog.message();
+      void dialog.dismiss();
+    });
     await page.locator('.window[data-app-name="editor"] .window-close').click();
-    const cancelCloseDialog = await cancelClosePromise;
-    assert.match(cancelCloseDialog.message(), /Discard unsaved changes/);
-    await cancelCloseDialog.dismiss();
+    assert.match(cancelCloseMessage, /Discard unsaved changes/);
     assert.equal(await reopenedEditorBody.isVisible(), true, 'cancel must keep the dirty editor open');
     assert.equal(await reopenedEditorBody.inputValue(), expectedText + ' unsaved draft');
 
-    const discardClosePromise = page.waitForEvent('dialog');
+    let discardCloseMessage = '';
+    page.once('dialog', (dialog) => {
+      discardCloseMessage = dialog.message();
+      void dialog.accept();
+    });
     await page.locator('.window[data-app-name="editor"] .window-close').click();
-    const discardCloseDialog = await discardClosePromise;
-    await discardCloseDialog.accept();
+    assert.match(discardCloseMessage, /Discard unsaved changes/);
     await page.locator('.window[data-app-name="editor"]').waitFor({ state: 'detached' });
 
     await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke-renamed.md' }).dblclick();
