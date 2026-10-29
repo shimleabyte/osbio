@@ -1463,18 +1463,6 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
   overflow: visible;
 }
 .taskbar-btn { flex: 0 0 auto; }
-@media (max-width: 760px) {
-  /* Recent apps can fill the rail; preserve horizontal access before the phone breakpoint. */
-  .taskbar-system { display: none; }
-  .taskbar-apps {
-    max-width: calc(100vw - .8rem);
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  .taskbar-apps::-webkit-scrollbar { display: none; }
-}
 @media (max-width: 680px) {
   .taskbar-apps {
     max-width: 100%;
@@ -2185,4 +2173,18 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
 @media (prefers-reduced-motion: reduce) {
   .launcher-toggle,.panel-nav-button,.launcher-tier .launcher-item,.taskbar-btn { transition: none !important; }
   .launcher-tier .launcher-item:hover,.taskbar-btn:hover,.taskbar-btn.active:hover { transform: none; }
+}
+
+
+/* Final responsive overrides intentionally follow the shell presentation rules above. */
+@media (max-width: 760px) {
+  #desktop-screen > .taskbar .taskbar-system { display: none; }
+  #desktop-screen > .taskbar .taskbar-apps {
+    max-width: calc(100vw - .8rem);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  #desktop-screen > .taskbar .taskbar-apps::-webkit-scrollbar { display: none; }
 }

@@ -255,7 +255,7 @@ test('system navigation and taskbar have a grouped, responsive shell treatment',
   assert.match(css, /\.panel-nav-button:focus-visible/);
   assert.match(css, /\.taskbar-apps[\s\S]*background: #111813/);
   assert.match(css, /@media \(max-width: 680px\)[\s\S]*\.panel-context \{ display: none; \}/);
-  assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.taskbar-system \{ display: none; \}[\s\S]*overflow-x: auto/);
+  assert.match(css, /@media \(max-width: 760px\)[\s\S]*#desktop-screen > \.taskbar \.taskbar-system \{ display: none; \}[\s\S]*#desktop-screen > \.taskbar \.taskbar-apps \{[\s\S]*overflow-x: auto/);
   assert.match(css, /@media \(max-width: 420px\)[\s\S]*#system-date \{ display: none; \}/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.taskbar-btn:hover/);
 });
