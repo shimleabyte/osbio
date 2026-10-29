@@ -25,6 +25,12 @@ A browser portfolio that behaves like a small desktop environment. The shell is 
 
 <p><sub>Captures are taken by the Playwright Chromium smoke test from the real static UI, not mockups.</sub></p>
 
+### Alternate workspace skin — Field Archive
+
+<p align="center"><img src="assets/wallpapers/field-archive.svg" alt="Field Archive wallpaper artwork with a warm paper field register, olive cartography lines, and oxidation-red catalog stamp" width="86%" /></p>
+
+<p><sub>This is the original wallpaper asset used by the selectable Field Archive theme, not a screenshot of the full interface.</sub></p>
+
 ## Shell behavior
 
 - A short, skippable boot sequence introduces the Pixel-Flow mark, then opens to an intentionally quiet, icon-only desktop. No app or guide opens automatically.
