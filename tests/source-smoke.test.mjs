@@ -129,3 +129,10 @@ test('shared project catalogue is loaded and unavailable Resume is not a desktop
   const shortcuts = navStart >= 0 && navEnd > navStart ? html.slice(navStart, navEnd) : '';
   assert.doesNotMatch(shortcuts, /data-app="resume"/);
 });
+
+
+test('window manager is exposed for cross-module storage and monitor integrations', () => {
+  assert.match(windows, /window\.WindowManager = WindowManager/);
+  assert.match(core, /global\.WindowManager/);
+  assert.match(workspaceApps, /global\.WindowManager.*getSnapshot/);
+});

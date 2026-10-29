@@ -437,3 +437,8 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 ### Browser-driven bug fixes
 - [x] Fix initial desktop window placement so newly opened apps avoid the desktop shortcut lane when the viewport has sufficient space.
 - [x] Add a Chromium assertion for that placement and retain the clickable desktop shortcut regression check.
+
+
+### Browser-test follow-up
+- [x] Explicitly expose the window manager on `window` so the Files-to-Editor bridge, System Monitor snapshot and browser lifecycle tests can access the same manager instance.
+- [x] Make Editor save feedback distinguish durable browser storage from a memory-only session fallback.

@@ -135,7 +135,7 @@
         }
         const item=await store.saveFile({id:fileId,name:fileName,parentId:folder,content:body.value});
         id=item.id;parent=item.parentId;readOnly=false;hasFile=true;name.readOnly=false;body.readOnly=false;name.value=item.name;savedName=item.name;savedBody=item.content;
-        status(statusNode,'Saved locally · '+item.updatedAt);update();
+        status(statusNode,store.getMode()==='memory'?'Saved for this session only · browser storage is unavailable':'Saved locally · '+item.updatedAt);update();
       }catch(e){status(statusNode,e.message||'Save failed.',true);}
     }
     save.addEventListener('click',()=>saveDocument(false));copy.addEventListener('click',()=>saveDocument(true));

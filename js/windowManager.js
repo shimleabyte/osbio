@@ -1206,6 +1206,10 @@ const WindowManager = (() => {
   };
 })();
 
+// Expose the manager explicitly for cross-module APIs and diagnostics.
+// Top-level const declarations are not properties on window.
+window.WindowManager = WindowManager;
+
 // Initialize when DOM is loaded
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => WindowManager.init());
