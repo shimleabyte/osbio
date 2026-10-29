@@ -93,8 +93,9 @@ test('local workspace storage exposes safe file operations and bounded event his
   assert.match(core, /osbio-workspace-export-v1/);
   assert.match(core, /duplicate item IDs/);
   assert.match(core, /cyclic folder structure/);
-  assert.match(core, /MAX_IMPORT_CHARACTERS = 12 \* 1024 \* 1024/);
+  assert.match(core, /MAX_IMPORT_BYTES = 12 \* 1024 \* 1024/);
   assert.match(core, /Workspace export exceeds the 12 MB transfer limit/);
+  assert.match(core, /new Blob\(\[serialized\]\)\.size > MAX_IMPORT_BYTES/);
   assert.match(workspaceApps, /file\.size>limit/);
   assert.match(core, /const userIds = new Set\(userEntries\.map\(\(entry\) => entry\.id\)\)/);
   assert.match(core, /parentId: userIds\.has\(entry\.parentId\) \? entry\.parentId : 'root'/);

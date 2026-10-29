@@ -8,7 +8,7 @@
   const FALLBACK_KEY = 'osbio.workspace.entries.v1';
   const EVENT_LIMIT = 160;
   const MAX_IMPORT_ENTRIES = 500;
-  const MAX_IMPORT_CHARACTERS = 12 * 1024 * 1024;
+  const MAX_IMPORT_BYTES = 12 * 1024 * 1024;
   const MAX_TEXT_LENGTH = 2 * 1024 * 1024;
   let database = null;
   let mode = 'starting';
@@ -347,7 +347,7 @@
       parentId: userIds.has(entry.parentId) ? entry.parentId : 'root'
     }));
     const serialized = JSON.stringify({ format: 'osbio-workspace-export-v1', exportedAt: new Date().toISOString(), entries }, null, 2);
-    if (serialized.length > MAX_IMPORT_CHARACTERS) {
+    if (new Blob([serialized]).size > MAX_IMPORT_BYTES) {
       throw new Error('Workspace export exceeds the 12 MB transfer limit. Remove or split large files, then export again.');
     }
     return serialized;
@@ -355,7 +355,7 @@
 
   async function importData(serialized) {
     if (typeof serialized !== 'string') throw new Error('Import content must be text.');
-    if (serialized.length > MAX_IMPORT_CHARACTERS) {
+    if (serialized.length > MAX_IMPORT_BYTES || new Blob([serialized]).size > MAX_IMPORT_BYTES) {
       throw new Error('Import exceeds the 12 MB transfer limit. Split the export into smaller workspace files and try again.');
     }
     let parsed;
@@ -469,7 +469,7 @@
     ready, get, list, listAll, createFolder, saveFile, rename, move, remove, stats,
     exportData, importData, clearUserData,
     getMode: () => mode,
-    getLimits: () => ({ maxTextCharacters: MAX_TEXT_LENGTH, maxImportEntries: MAX_IMPORT_ENTRIES, maxImportCharacters: MAX_IMPORT_CHARACTERS })
+    getLimits: () => ({ maxTextCharacters: MAX_TEXT_LENGTH, maxImportEntries: MAX_IMPORT_ENTRIES, maxImportBytes: MAX_IMPORT_BYTES })
   };
   global.OSBioWorkspace = {
     openFile(id) {

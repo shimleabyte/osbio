@@ -290,8 +290,11 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         }
       }
       let oversizedRejected = false;
-      try { await store.importData(' '.repeat(store.getLimits().maxImportCharacters + 1)); }
+      try { await store.importData(' '.repeat(store.getLimits().maxImportBytes + 1)); }
       catch (error) { oversizedRejected = /12 MB transfer limit/.test(error.message); }
+      let oversizedUnicodeRejected = false;
+      try { await store.importData('é'.repeat(Math.floor(store.getLimits().maxImportBytes / 2) + 16)); }
+      catch (error) { oversizedUnicodeRejected = /12 MB transfer limit/.test(error.message); }
       const afterInvalid = await store.listAll();
       const validResult = await store.importData(JSON.stringify({
         format: 'osbio-workspace-export-v1',
@@ -339,6 +342,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       return {
         rejected,
         oversizedRejected,
+        oversizedUnicodeRejected,
         baselineCount: baseline.length,
         afterInvalidCount: afterInvalid.length,
         validImportCount: validResult.imported,
@@ -348,6 +352,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       };
     });
     assert.equal(importValidation.oversizedRejected, true, 'oversized imports must reject before JSON parsing');
+    assert.equal(importValidation.oversizedUnicodeRejected, true, 'UTF-8 byte size, not UTF-16 character count, must enforce the transfer ceiling');
     assert.deepEqual(importValidation.rejected, [true, true, true, true, true],
       'malformed imports should reject duplicates, cycles, missing/non-folder parents and non-text contents');
     assert.equal(importValidation.afterInvalidCount, importValidation.baselineCount,
@@ -459,6 +464,58 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await mobileGame.waitFor({ state: 'detached' });
     assert.equal(await page.evaluate(() => window.WindowManager.getSnapshot().activeWindowId), null);
     assert.match(await page.locator('#active-app-label').textContent(), /WORKSPACE \/ DESKTOP/);
+
+    // IndexedDB fallback remains persistent when localStorage is available.
+    const fallbackPage = await browser.newPage({ viewport: { width: 960, height: 720 } });
+    await fallbackPage.addInitScript(() => {
+      Object.defineProperty(window, 'indexedDB', { configurable: true, value: undefined });
+    });
+    await fallbackPage.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+    await fallbackPage.waitForFunction(async () => {
+      if (!window.OSBioStorage) return false;
+      const result = await window.OSBioStorage.ready();
+      return result.mode !== 'starting';
+    });
+    assert.equal(await fallbackPage.evaluate(() => window.OSBioStorage.getMode()), 'localStorage');
+    await fallbackPage.evaluate(async () => {
+      await window.OSBioStorage.saveFile({ name: 'fallback-smoke.md', content: 'localStorage fallback' });
+    });
+    await fallbackPage.reload({ waitUntil: 'domcontentloaded' });
+    await fallbackPage.waitForFunction(async () => {
+      if (!window.OSBioStorage) return false;
+      await window.OSBioStorage.ready();
+      return (await window.OSBioStorage.listAll()).some((entry) => entry.name === 'fallback-smoke.md');
+    });
+    assert.equal(await fallbackPage.evaluate(() => window.OSBioStorage.getMode()), 'localStorage');
+    await fallbackPage.close();
+
+    // If storage writes fail, the application uses memory and does not claim cross-reload persistence.
+    const memoryPage = await browser.newPage({ viewport: { width: 960, height: 720 } });
+    await memoryPage.addInitScript(() => {
+      Object.defineProperty(window, 'indexedDB', { configurable: true, value: undefined });
+      Storage.prototype.setItem = function () { throw new DOMException('Storage denied', 'QuotaExceededError'); };
+    });
+    await memoryPage.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+    await memoryPage.waitForFunction(async () => {
+      if (!window.OSBioStorage) return false;
+      const result = await window.OSBioStorage.ready();
+      return result.mode !== 'starting';
+    });
+    assert.equal(await memoryPage.evaluate(() => window.OSBioStorage.getMode()), 'memory');
+    const temporaryId = await memoryPage.evaluate(async () => {
+      const item = await window.OSBioStorage.saveFile({ name: 'session-only-smoke.md', content: 'temporary' });
+      return item.id;
+    });
+    assert.ok(temporaryId);
+    await memoryPage.reload({ waitUntil: 'domcontentloaded' });
+    await memoryPage.waitForFunction(async () => {
+      if (!window.OSBioStorage) return false;
+      await window.OSBioStorage.ready();
+      return window.OSBioStorage.getMode() === 'memory';
+    });
+    assert.equal(await memoryPage.evaluate(async (id) => window.OSBioStorage.get(id), temporaryId), null,
+      'memory fallback should not claim a user file survives reload');
+    await memoryPage.close();
 
     assert.deepEqual(pageErrors, [], 'no uncaught browser JavaScript errors');
     console.log('Browser smoke passed: launcher, overview, shared projects, file persistence, settings, Memory Match, mobile layout.');

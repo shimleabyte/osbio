@@ -106,16 +106,16 @@ Phases should be implemented in order. Each phase has an explicit release gate. 
 **Goal:** understand what is actually running before changing architecture.
 
 Tasks:
-- [ ] Reconfirm the current `main` SHA and deployment workflow.
-- [ ] Inventory all HTML regions, CSS sections, app templates, event listeners, timers and global state.
-- [ ] Map window states and transitions: open, active, inactive, minimized, maximized, restored and closed.
-- [ ] Map keyboard shortcuts and event propagation, including Escape, Ctrl/Cmd+K and Alt+F4.
-- [ ] Identify legacy styles, unreachable components, duplicate project metadata and unused template controls.
-- [ ] Establish repeatable desktop and mobile browser checks.
-- [ ] Capture baseline screenshots at representative desktop and narrow mobile viewport sizes.
-- [ ] Record existing defects separately from proposed features.
+- [x] Reconfirm the current `main` SHA and GitHub Pages deployment workflow.
+- [x] Inventory HTML regions, CSS sections, app templates, event listeners, timers and global state before duplicating existing features.
+- [x] Map core window states and transitions: open, active, inactive, minimized, maximized, snapped, restored and closed.
+- [x] Map shell keyboard shortcuts and event propagation for Escape, Ctrl/Cmd+K, Ctrl+Alt+W, Alt+F4, Ctrl/Cmd+N and file selection.
+- [x] Identify and correct known defects separately from new features; record unresolved visual review separately.
+- [x] Establish repeatable Chromium desktop and mobile browser smoke checks in CI.
+- [ ] Capture and review baseline screenshots at representative desktop and narrow mobile viewport sizes.
+- [x] Record pre-existing defects and verification status in this plan.
 
-**Gate:** baseline inventory exists, critical paths can be reproduced, and the team can distinguish a verified result from static inspection.
+**Gate:** core interaction paths are reproducible in a real browser. Screenshot-based visual review remains an explicit outstanding task.
 
 ### Phase 1 — Window manager and input reliability
 
@@ -144,7 +144,7 @@ Tasks:
 - Resize and restore do not corrupt window geometry.
 - Keyboard and mobile users can switch, minimize/maximize and close apps.
 
-**Verification:** Chromium smoke run [40809520276](https://github.com/shimleabyte/osbio/actions/runs/40809520276) and deployment [40809520384](https://github.com/shimleabyte/osbio/actions/runs/40809520384) passed for commit `be7e77995580e5d1d7d22d9f804e8e20fbf261e1`.
+**Verification:** Chromium smoke run [40814174899](https://github.com/shimleabyte/osbio/actions/runs/40814174899) and deployment [40814174713](https://github.com/shimleabyte/osbio/actions/runs/40814174713) passed for commit `95cdedb30ddea07cd7d114752ded8c6915ed45fc`.
 
 ### Phase 2 — Shared state and local persistence foundation
 
@@ -154,11 +154,11 @@ Tasks:
 - [x] Define a small storage layer with versioned records and migration strategy (`osbio-workspace` IndexedDB v1, with localStorage/memory fallbacks).
 - [x] Use IndexedDB for the virtual filesystem and localStorage for small preferences and window geometry.
 - [x] Persist user-created files, settings and per-app normal window geometry without storing transient DOM references. Open windows are never restored on reload.
-- [ ] Define safe failure paths for unavailable storage, quota errors, invalid data and schema upgrades.
-- [ ] Add a clear-local-data action with an explicit confirmation and a clear explanation of what will be removed.
+- [x] Define fallback paths for unavailable IndexedDB, localStorage write/quota errors, malformed imports and invalid layout records; IndexedDB v1 has a create-on-upgrade path.
+- [x] Add a Settings action that confirms it removes user-created files/folders while preserving built-in read-only documents.
 - [x] Add export/import for user-created content, rejecting duplicate IDs, invalid parents, non-folder parents and cycles before writing.
 - [x] Keep project metadata separate from built-in read-only file entries and user-created entries.
-- [ ] Make reload recovery deterministic, including stale or invalid saved window positions.
+- [x] Make reload recovery deterministic: never reopen active apps, clamp valid geometry to current viewport bounds, discard malformed geometry and emit recovery events.
 - [x] Document that data is browser-local and is not automatically synced across browsers or devices.
 
 **Acceptance criteria:**
@@ -167,6 +167,8 @@ Tasks:
 - Clearing user data does not silently delete application code or built-in project metadata.
 - Import validation rejects malformed data with a useful message rather than a broken UI.
 - Storage failures are visible and recoverable; the application does not claim a save succeeded before it does.
+
+**Verification:** Chromium run [40814174899](https://github.com/shimleabyte/osbio/actions/runs/40814174899) and deployment [40814174713](https://github.com/shimleabyte/osbio/actions/runs/40814174713) passed for commit `95cdedb30ddea07cd7d114752ded8c6915ed45fc`.
 
 ### Phase 3 — Files and Editor applications
 
@@ -534,3 +536,11 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Refuse an export that would exceed the same ceiling, with a message that suggests splitting large files.
 - [x] Add browser coverage for oversized import rejection and unchanged storage.
 - [ ] Re-run browser validation and deployment before closing Stage 2.
+
+### Stage 2 — fallback durability and byte-safe transfer checks (2026-10-29)
+
+- [x] Enforce the transfer ceiling by UTF-8 byte size to match the browser File API instead of counting UTF-16 characters.
+- [x] Test a Unicode payload that is below the character threshold but exceeds the byte threshold.
+- [x] Test IndexedDB-unavailable localStorage fallback across reload.
+- [x] Test write/quota-failure degradation to memory mode and confirm session-only files are not presented as durable across reload.
+- [ ] Run full CI for these last Stage 2 hardening changes.
