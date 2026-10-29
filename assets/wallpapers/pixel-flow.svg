@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">OSBio Pixel-Flow desktop wallpaper</title>
+  <desc id="desc">A dark green pixel-grid field with split-corner signal-yellow and mint ribbons dissolving into square pixels, beside the OSBio wordmark.</desc>
+  <defs>
+    <pattern id="micro-grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#526657" stroke-width="1"/>
+    </pattern>
+    <pattern id="fine-grid" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M12 0H0V12" fill="none" stroke="#405346" stroke-width="1"/>
+    </pattern>
+    <clipPath id="right-field">
+      <path d="M730 100H1920V1080H730Z"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#101711"/>
+  <rect width="1920" height="1080" fill="url(#fine-grid)" opacity=".08"/>
+  <g clip-path="url(#right-field)">
+    <rect x="730" y="100" width="1190" height="980" fill="url(#micro-grid)" opacity=".28"/>
+    <path d="M730 176H1800M730 272H1800M730 368H1800M730 464H1800M730 560H1800M730 656H1800M730 752H1800M730 848H1800M730 944H1800" stroke="#7f9a82" stroke-width="1" opacity=".12"/>
+    <path d="M820 110V1010M916 110V1010M1012 110V1010M1108 110V1010M1204 110V1010M1300 110V1010M1396 110V1010M1492 110V1010M1588 110V1010M1684 110V1010M1780 110V1010" stroke="#7f9a82" stroke-width="1" opacity=".12"/>
+
+    <path d="M824 255H1412V331H1000V407H924V255Z" fill="#e8d64a" opacity=".96"/>
+    <path d="M851 282H1385V304H973V380H951V282Z" fill="#101711"/>
+    <path d="M1092 719H1548V389H1624V795H1092Z" fill="#76d7b4" opacity=".88"/>
+    <path d="M1120 691H1520V417H1596V767H1120Z" fill="#101711"/>
+    <path d="M1184 665H1468V447H1540V715H1184Z" fill="#17241a"/>
+    <path d="M1212 637H1440V475H1512V687H1212Z" fill="#101711"/>
+
+    <path d="M786 218H1450V346H1030V422H904" fill="none" stroke="#c8c276" stroke-width="2" opacity=".5"/>
+    <path d="M1054 748H1576V361H1664V825H1054" fill="none" stroke="#9be5c7" stroke-width="2" opacity=".46"/>
+    <path d="M756 844H1004V900H1212M1500 184H1748V272H1810" fill="none" stroke="#6e8370" stroke-width="2" opacity=".46"/>
+    <path d="M832 875H930V927H1056M1660 896H1732V824H1800" fill="none" stroke="#6e8370" stroke-width="2" opacity=".46"/>
+
+    <g fill="#e8d64a">
+      <rect x="1450" y="206" width="26" height="26"/>
+      <rect x="1488" y="206" width="12" height="12" opacity=".7"/>
+      <rect x="1512" y="206" width="8" height="8" opacity=".42"/>
+      <rect x="1450" y="244" width="12" height="12" opacity=".68"/>
+      <rect x="1474" y="244" width="8" height="8" opacity=".42"/>
+      <rect x="1536" y="244" width="26" height="26" opacity=".76"/>
+      <rect x="1574" y="244" width="12" height="12" opacity=".48"/>
+      <rect x="1598" y="244" width="8" height="8" opacity=".28"/>
+      <rect x="1536" y="282" width="12" height="12" opacity=".58"/>
+      <rect x="1560" y="282" width="8" height="8" opacity=".35"/>
+      <rect x="1618" y="282" width="26" height="26" opacity=".64"/>
+      <rect x="1656" y="282" width="12" height="12" opacity=".38"/>
+    </g>
+    <g fill="#76d7b4">
+      <rect x="1670" y="676" width="28" height="28"/>
+      <rect x="1710" y="676" width="14" height="14" opacity=".7"/>
+      <rect x="1738" y="676" width="8" height="8" opacity=".42"/>
+      <rect x="1670" y="716" width="14" height="14" opacity=".7"/>
+      <rect x="1698" y="716" width="8" height="8" opacity=".4"/>
+      <rect x="1754" y="716" width="28" height="28" opacity=".66"/>
+      <rect x="1794" y="716" width="14" height="14" opacity=".42"/>
+      <rect x="1822" y="716" width="8" height="8" opacity=".25"/>
+      <rect x="1754" y="756" width="14" height="14" opacity=".55"/>
+      <rect x="1782" y="756" width="8" height="8" opacity=".32"/>
+    </g>
+
+    <g fill="#70866f" opacity=".54">
+      <rect x="784" y="546" width="14" height="14"/>
+      <rect x="806" y="568" width="8" height="8"/>
+      <rect x="836" y="546" width="26" height="26"/>
+      <rect x="874" y="546" width="12" height="12"/>
+      <rect x="902" y="568" width="8" height="8"/>
+      <rect x="784" y="592" width="8" height="8"/>
+      <rect x="824" y="600" width="14" height="14"/>
+      <rect x="868" y="614" width="8" height="8"/>
+      <rect x="906" y="604" width="22" height="22"/>
+    </g>
+
+    <path d="M1004 724H1455" stroke="#293a2c" stroke-width="1"/>
+    <text x="1004" y="796" fill="#e8ede4" font-family="'IBM Plex Mono', 'DejaVu Sans Mono', monospace" font-size="88" font-weight="600" letter-spacing="8">OSBIO</text>
+    <path d="M1008 821H1248" stroke="#e8d64a" stroke-width="4"/>
+    <text x="1008" y="857" fill="#a7b8a7" font-family="'IBM Plex Mono', 'DejaVu Sans Mono', monospace" font-size="18" letter-spacing="3">PIXEL-FLOW / WORKSTATION</text>
+    <text x="1008" y="895" fill="#687d6b" font-family="'IBM Plex Mono', 'DejaVu Sans Mono', monospace" font-size="13" letter-spacing="2">SHIMLEABYTE  ·  DESKTOP ENVIRONMENT  001</text>
+
+    <g transform="translate(1740 454)">
+      <path d="M0 0H88V14H14V88H0Z" fill="#e8d64a"/>
+      <path d="M13 13H75V27H27V75H13Z" fill="#101711"/>
+      <path d="M46 96H100V42H114V110H46Z" fill="#76d7b4"/>
+      <path d="M60 96H86V56H100V96Z" fill="#101711"/>
+      <rect x="42" y="35" width="14" height="14" fill="#17241a"/>
+      <rect x="56" y="49" width="14" height="14" fill="#e8d64a"/>
+      <rect x="70" y="63" width="14" height="14" fill="#76d7b4"/>
+    </g>
+
+    <text x="1704" y="202" fill="#718675" font-family="'IBM Plex Mono', 'DejaVu Sans Mono', monospace" font-size="12" letter-spacing="2">FIELD / 001</text>
+    <text x="1704" y="224" fill="#718675" font-family="'IBM Plex Mono', 'DejaVu Sans Mono', monospace" font-size="12" letter-spacing="2">FLOW STATE: ACTIVE</text>
+    <text x="1704" y="1010" fill="#657967" font-family="'IBM Plex Mono', 'DejaVu Sans Mono', monospace" font-size="12" letter-spacing="2">YELLOW → MINT</text>
+  </g>
+
+  <g fill="#526657">
+    <rect x="684" y="174" width="10" height="10"/>
+    <rect x="708" y="198" width="6" height="6"/>
+    <rect x="672" y="218" width="6" height="6"/>
+    <rect x="688" y="242" width="14" height="14"/>
+    <rect x="708" y="266" width="6" height="6"/>
+    <rect x="680" y="292" width="8" height="8"/>
+    <rect x="702" y="318" width="6" height="6"/>
+    <rect x="674" y="342" width="12" height="12"/>
+    <rect x="704" y="368" width="6" height="6"/>
+    <rect x="686" y="392" width="6" height="6"/>
+    <rect x="710" y="416" width="10" height="10"/>
+    <rect x="680" y="444" width="6" height="6"/>
+    <rect x="700" y="468" width="12" height="12"/>
+    <rect x="674" y="494" width="6" height="6"/>
+    <rect x="692" y="518" width="8" height="8"/>
+    <rect x="706" y="544" width="6" height="6"/>
+    <rect x="680" y="570" width="12" height="12"/>
+    <rect x="704" y="596" width="6" height="6"/>
+    <rect x="684" y="622" width="8" height="8"/>
+    <rect x="708" y="646" width="6" height="6"/>
+    <rect x="674" y="672" width="14" height="14"/>
+    <rect x="698" y="696" width="6" height="6"/>
+    <rect x="686" y="724" width="8" height="8"/>
+    <rect x="708" y="748" width="6" height="6"/>
+    <rect x="676" y="774" width="10" height="10"/>
+    <rect x="700" y="800" width="6" height="6"/>
+    <rect x="684" y="826" width="12" height="12"/>
+    <rect x="708" y="852" width="6" height="6"/>
+  </g>
+
+  <path d="M80 1000H420" fill="none" stroke="#3a4a3b" stroke-width="1"/>
+  <text x="80" y="1032" fill="#5d705e" font-family="'IBM Plex Mono', 'DejaVu Sans Mono', monospace" font-size="12" letter-spacing="2">PERSONAL WORKSPACE / PIXEL-FLOW SYSTEM</text>
+</svg>
