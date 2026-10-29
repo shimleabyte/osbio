@@ -45,17 +45,11 @@
         <button class="desktop-icon" type="button" data-app="terminal"><span class="app-icon app-icon-terminal" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Terminal</span></button>
         <button class="desktop-icon" type="button" data-app="resume"><span class="app-icon app-icon-resume" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Resume</span></button>
       </nav>
-      <section class="desktop-note" aria-label="Workspace introduction">
-        <div class="note-kicker"><span>PF / 01</span><span>PERSONAL WORKSPACE</span></div>
-        <h1>Interfaces should<br><span>earn their place.</span></h1>
-        <p>A small desktop for work on interaction, local data, and the details between a user's action and a system's response.</p>
-        <div class="note-footer"><span>SESSION / LOCAL</span><span>HTML · CSS · JS</span></div>
-      </section>
       <div id="window-layer" class="window-layer" aria-live="polite"></div>
     </main>
 
     <aside id="app-launcher" class="app-launcher" aria-label="Application launcher" hidden>
-      <div class="launcher-heading"><div><span class="launcher-overline">OSBIO / SHELL</span><h2>Applications</h2></div><span class="launcher-count">06 UNITS</span></div>
+      <div class="launcher-heading"><div><span class="launcher-overline">OSBIO / SHELL</span><h2>Applications</h2></div><span class="launcher-count">06 APPS</span></div>
       <label class="app-search-wrap" for="app-search"><span class="search-mark" aria-hidden="true">/</span><input id="app-search" type="search" placeholder="Find an application..." autocomplete="off" spellcheck="false"><kbd>CTRL K</kbd></label>
       <div id="launcher-grid" class="launcher-grid">
         <button class="launcher-item" type="button" data-app="about" data-search="about profile bio information"><span class="app-icon app-icon-about" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Profile</strong><small>IDENTITY / STACK</small></span><span class="launcher-item-index">01</span></button>
@@ -65,6 +59,7 @@
         <button class="launcher-item" type="button" data-app="contact" data-search="contact email github"><span class="app-icon app-icon-contact" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Contact</strong><small>EMAIL / GITHUB</small></span><span class="launcher-item-index">05</span></button>
         <button class="launcher-item" type="button" data-app="memory" data-search="memory match game puzzle"><span class="app-icon app-icon-memory" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Memory Match</strong><small>INTERACTIVE / GAME</small></span><span class="launcher-item-index">06</span></button>
       </div>
+      <p id="launcher-empty" class="launcher-empty" hidden>No matching applications.</p>
       <footer class="launcher-footer"><span>LOCAL / NO ACCOUNT</span><span>ESC TO CLOSE</span></footer>
     </aside>
 

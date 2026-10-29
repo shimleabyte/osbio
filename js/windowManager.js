@@ -188,15 +188,16 @@ const WindowManager = (() => {
             <div class="game-header">
               <h3>Memory Match</h3>
               <div class="game-stats">
-                <span class="moves">Moves: <span id="move-count">0</span></span>
-                <button id="restart-btn" class="btn btn-sm">Restart</button>
+                <span class="moves">Turns: <span id="move-count">0</span></span>
+                <span class="pairs-found"><span id="pair-count">0</span> / 8 pairs</span>
+                <button id="restart-btn" class="btn btn-sm" type="button">New game</button>
               </div>
             </div>
-            <div class="game-board" id="game-board">
+            <div class="game-board" id="game-board" role="group" aria-label="Memory Match cards">
               <!-- Cards will be generated here -->
             </div>
             <div class="game-message" id="game-message">
-              <p>Find all matching pairs of cards</p>
+              <p>Select two cards to reveal their symbols.</p>
             </div>
           </div>
         `
@@ -210,7 +211,7 @@ const WindowManager = (() => {
             <div class="terminal-output">
               <div class="terminal-line">
                 <span class="terminal-prompt">$</span>
-                <span class="terminal-text">Welcome to the portfolio terminal</span>
+                <span class="terminal-text">OSBio / simulated terminal</span>
               </div>
               <div class="terminal-line">
                 <span class="terminal-prompt">$</span>
@@ -254,10 +255,23 @@ const WindowManager = (() => {
     initTaskbarButtons();
 
     document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape') return;
-      const launcher = document.getElementById('app-launcher');
-      if (launcher && !launcher.hidden) return;
-      if (activeWindowId) closeWindow(activeWindowId);
+      if (e.altKey && e.key === 'F4' && activeWindowId) {
+        e.preventDefault();
+        closeWindow(activeWindowId);
+      }
+    });
+    window.addEventListener('resize', constrainWindows);
+  }
+
+  // Keep non-maximized windows inside the available shell after a viewport change.
+  function constrainWindows() {
+    if (!desktopElement) return;
+    openWindows.forEach((win) => {
+      if (win.maximized) return;
+      const maxLeft = Math.max(0, desktopElement.clientWidth - win.element.offsetWidth);
+      const maxTop = Math.max(0, desktopElement.clientHeight - win.element.offsetHeight);
+      win.element.style.left = `${Math.max(0, Math.min(win.element.offsetLeft, maxLeft))}px`;
+      win.element.style.top = `${Math.max(0, Math.min(win.element.offsetTop, maxTop))}px`;
     });
   }
 
@@ -408,7 +422,7 @@ const WindowManager = (() => {
 
     // Dragging functionality
     header.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0 || !(e.target === header || e.target.closest('.window-title'))) return;
+      if (e.button !== 0 || !(e.target === header || e.target.closest('.window-title-group'))) return;
 
       isDragging = true;
       offsetX = e.clientX - windowElement.offsetLeft;
@@ -744,143 +758,136 @@ const WindowManager = (() => {
       terminalInput.focus();
     }
     
-    // Memory Match game logic
+    // Memory Match app logic.
     if (appName === 'memory') {
       const gameBoard = windowElement.querySelector('#game-board');
       const moveCountElement = windowElement.querySelector('#move-count');
+      const pairCountElement = windowElement.querySelector('#pair-count');
       const restartButton = windowElement.querySelector('#restart-btn');
       const gameMessage = windowElement.querySelector('#game-message');
-      
-      // Game state
-      let cards = [];
+
       let flippedCards = [];
       let matchedPairs = 0;
-      let moves = 0;
+      let turns = 0;
       let canFlip = true;
-      
-      // Emoji pairs for the game (8 pairs = 16 cards)
+      let mismatchTimer = null;
+      let roundId = 0;
       const symbols = ['//', '##', '[]', '<>', '::', '++', '..', '=='];
-      
-      // Initialize the game
+
+      function clearPendingTurn() {
+        if (mismatchTimer !== null) {
+          window.clearTimeout(mismatchTimer);
+          mismatchTimer = null;
+        }
+      }
+
       function initGame() {
-        // Reset game state
-        cards = [];
+        roundId += 1;
+        clearPendingTurn();
         flippedCards = [];
         matchedPairs = 0;
-        moves = 0;
+        turns = 0;
         canFlip = true;
-        
-        // Update UI
-        moveCountElement.textContent = moves;
-        gameMessage.innerHTML = '<p>Find all matching pairs of cards</p>';
-        
-        // Create card pairs
-        const gameCards = [];
-        symbols.forEach((symbol) => {
-          gameCards.push(symbol, symbol);
-        });
-        
-        // Shuffle cards
-        const shuffledCards = shuffleArray([...gameCards]);
-        
-        // Clear and create board
-        gameBoard.innerHTML = '';
-        
-        // Create card elements
-        shuffledCards.forEach((symbol, index) => {
-          const card = document.createElement('div');
+
+        moveCountElement.textContent = '0';
+        if (pairCountElement) pairCountElement.textContent = '0';
+        gameMessage.textContent = 'Select two cards to reveal their symbols.';
+        gameMessage.classList.remove('is-complete');
+
+        const values = [];
+        symbols.forEach((symbol) => values.push(symbol, symbol));
+        shuffleArray(values);
+        gameBoard.replaceChildren();
+
+        values.forEach((symbol, index) => {
+          const card = document.createElement('button');
+          card.type = 'button';
           card.className = 'card';
-          card.dataset.index = index;
+          card.dataset.index = String(index);
           card.dataset.symbol = symbol;
           card.textContent = symbol;
+          card.setAttribute('aria-label', `Card ${index + 1}, face down`);
+          card.setAttribute('aria-pressed', 'false');
           card.addEventListener('click', handleCardClick);
           gameBoard.appendChild(card);
-          cards.push(card);
         });
       }
-      
-      // Handle card click
-      function handleCardClick(e) {
-        const selectedCard = e.currentTarget;
-        
-        // Don't do anything if the card is already flipped, matched, or if we're waiting
-        if (!canFlip || selectedCard.classList.contains('flipped') || selectedCard.classList.contains('matched')) {
-          return;
-        }
-        
-        // Flip the card
-        flipCard(selectedCard);
-        
-        // Add to flipped cards
+
+      function handleCardClick(event) {
+        const selectedCard = event.currentTarget;
+        if (!canFlip || selectedCard.classList.contains('flipped') || selectedCard.classList.contains('matched')) return;
+
+        revealCard(selectedCard);
         flippedCards.push(selectedCard);
-        
-        // Check for match if two cards are flipped
-        if (flippedCards.length === 2) {
-          checkForMatch();
-        }
+        if (flippedCards.length === 2) checkForMatch();
       }
-      
-      // Flip a card
-      function flipCard(card) {
+
+      function revealCard(card) {
         card.classList.add('flipped');
+        card.setAttribute('aria-pressed', 'true');
+        card.setAttribute('aria-label', `Card ${Number(card.dataset.index) + 1}: ${card.dataset.symbol}`);
       }
-      
-      // Check if flipped cards match
+
+      function concealCard(card) {
+        card.classList.remove('flipped');
+        card.setAttribute('aria-pressed', 'false');
+        card.setAttribute('aria-label', `Card ${Number(card.dataset.index) + 1}, face down`);
+      }
+
       function checkForMatch() {
         canFlip = false;
-        moves++;
-        moveCountElement.textContent = moves;
-        
+        turns += 1;
+        moveCountElement.textContent = String(turns);
         const [firstCard, secondCard] = flippedCards;
-        
+
         if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
-          // Match found
           firstCard.classList.add('matched');
           secondCard.classList.add('matched');
-          matchedPairs++;
-          
-          // Check for win
+          firstCard.setAttribute('aria-label', `Card ${Number(firstCard.dataset.index) + 1}, matched ${firstCard.dataset.symbol}`);
+          secondCard.setAttribute('aria-label', `Card ${Number(secondCard.dataset.index) + 1}, matched ${secondCard.dataset.symbol}`);
+          matchedPairs += 1;
+          if (pairCountElement) pairCountElement.textContent = String(matchedPairs);
+
           if (matchedPairs === symbols.length) {
-            setTimeout(() => {
-              gameMessage.innerHTML = `<p class="completion-message">Workspace cleared in ${moves} moves.</p>`;
-            }, 500);
+            gameMessage.textContent = `All ${symbols.length} pairs matched in ${turns} turns.`;
+            gameMessage.classList.add('is-complete');
           } else {
-            gameMessage.innerHTML = '<p>Match found! Keep going!</p>';
+            gameMessage.textContent = `Pair found. ${matchedPairs} of ${symbols.length} pairs matched.`;
           }
-          
           resetFlippedCards();
-        } else {
-          // No match
-          gameMessage.innerHTML = '<p>No match. Try again!</p>';
-          
-          // Flip cards back after a delay
-          setTimeout(() => {
-            firstCard.classList.remove('flipped');
-            secondCard.classList.remove('flipped');
-            resetFlippedCards();
-          }, 1000);
+          return;
         }
+
+        gameMessage.textContent = 'No match. Cards will turn back shortly.';
+        const thisRound = roundId;
+        mismatchTimer = window.setTimeout(() => {
+          mismatchTimer = null;
+          if (thisRound !== roundId || !windowElement.isConnected) return;
+          concealCard(firstCard);
+          concealCard(secondCard);
+          resetFlippedCards();
+          gameMessage.textContent = `${matchedPairs} of ${symbols.length} pairs matched.`;
+        }, 800);
       }
-      
-      // Reset flipped cards array and allow new moves
+
       function resetFlippedCards() {
         flippedCards = [];
         canFlip = true;
       }
-      
-      // Fisher-Yates shuffle algorithm
-      function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
+
+      function shuffleArray(values) {
+        for (let i = values.length - 1; i > 0; i -= 1) {
           const j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]];
+          [values[i], values[j]] = [values[j], values[i]];
         }
-        return array;
+        return values;
       }
-      
-      // Event listeners
+
       restartButton.addEventListener('click', initGame);
-      
-      // Initialize the game
+      windowElement.addEventListener('osbio:dispose', () => {
+        roundId += 1;
+        clearPendingTurn();
+      }, { once: true });
       initGame();
     }
   }
@@ -942,6 +949,7 @@ const WindowManager = (() => {
     // Remove from DOM
     const [closedWindow] = openWindows.splice(windowIndex, 1);
     if (closedWindow.element && closedWindow.element.parentNode) {
+      closedWindow.element.dispatchEvent(new Event('osbio:dispose'));
       closedWindow.element.remove();
     }
 

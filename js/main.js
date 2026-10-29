@@ -30,7 +30,6 @@
       desktopScreen.classList.remove('hidden');
       desktopScreen.setAttribute('aria-hidden', 'false');
       document.body.classList.add('desktop-ready');
-      WindowManager.openWindow('about');
       updateClock();
     }, FADE_DURATION);
   }
@@ -56,10 +55,15 @@
 
   function filterApplications(query) {
     const needle = query.trim().toLowerCase();
-    launcher.querySelectorAll('.launcher-item').forEach(function (button) {
+    const buttons = Array.from(launcher.querySelectorAll('.launcher-item'));
+    let visibleCount = 0;
+    buttons.forEach(function (button) {
       const searchable = (button.textContent + ' ' + (button.dataset.search || '')).toLowerCase();
       button.hidden = needle.length > 0 && !searchable.includes(needle);
+      if (!button.hidden) visibleCount += 1;
     });
+    const emptyState = document.getElementById('launcher-empty');
+    if (emptyState) emptyState.hidden = visibleCount > 0;
   }
 
   function launchFromButton(event) {
