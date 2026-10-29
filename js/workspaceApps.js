@@ -407,8 +407,18 @@
     const settings=global.OSBioSettings;
     const wallpaper=win.querySelector('#setting-wallpaper'),accent=win.querySelector('#setting-accent');
     const motion=win.querySelector('#setting-motion'),icons=win.querySelector('#setting-desktop-icons');
+    const wallpaperPreview=win.querySelector('#settings-wallpaper-preview');
+    const wallpaperPreviewLabel=wallpaperPreview&&wallpaperPreview.querySelector('span');
     const statusNode=win.querySelector('#settings-status');
-    function sync(){const value=settings.get();wallpaper.value=value.wallpaper;accent.value=value.accent;motion.value=value.motion;icons.checked=value.desktopIcons;}
+    function sync(){
+      const value=settings.get();
+      wallpaper.value=value.wallpaper;accent.value=value.accent;motion.value=value.motion;icons.checked=value.desktopIcons;
+      if(wallpaperPreview){
+        wallpaperPreview.dataset.wallpaper=value.wallpaper;
+        wallpaperPreview.setAttribute('aria-label','Wallpaper preview: '+(value.wallpaper==='flow'?'Pixel-Flow':value.wallpaper==='grid'?'Grid only':'Plain field'));
+      }
+      if(wallpaperPreviewLabel)wallpaperPreviewLabel.textContent=value.wallpaper==='flow'?'PIXEL-FLOW / ORIGINAL':value.wallpaper==='grid'?'GRID / QUIET FIELD':'PLAIN / MINIMAL FIELD';
+    }
     function message(text,error=false){status(statusNode,text,error);}
     function change(){try{const result=settings.update({wallpaper:wallpaper.value,accent:accent.value,motion:motion.value,desktopIcons:icons.checked});message(result.persistent?'Preferences saved.':'Preferences applied for this session; browser storage is unavailable.',!result.persistent);}catch(e){message(e.message||'Could not update preferences.',true);}}
     [wallpaper,accent,motion].forEach((control)=>control.addEventListener('change',change));
