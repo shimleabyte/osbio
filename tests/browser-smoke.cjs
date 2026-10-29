@@ -180,8 +180,9 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.mouse.up();
     await page.waitForFunction(({ beforeX, beforeY }) => {
       const element = document.querySelector('.window[data-app-name="projects"]');
-      return element && parseFloat(element.style.left) > beforeX + 60 &&
-        parseFloat(element.style.top) > beforeY + 20;
+      if (!element) return false;
+      const rect = element.getBoundingClientRect();
+      return rect.left > beforeX + 60 && rect.top > beforeY + 20;
     }, { beforeX: initialProjectBounds.x, beforeY: initialProjectBounds.y });
     savedProjectBounds = await projectWindow.boundingBox();
 
