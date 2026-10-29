@@ -53,3 +53,13 @@ test('shell has visible keyboard focus and reduced-motion handling', () => {
   assert.match(css, /:focus-visible/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
 });
+
+
+test('launcher focus restoration is deliberate and window overview is available', () => {
+  assert.match(main, /launcherReturnFocus/);
+  assert.match(main, /options\.restoreFocus/);
+  assert.match(windows, /window-overview-toggle/);
+  assert.match(windows, /toggleWindowOverview/);
+  assert.match(windows, /function snapWindow/);
+  assert.match(windows, /osbio:event/);
+});

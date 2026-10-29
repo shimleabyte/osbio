@@ -358,3 +358,19 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 ## Change log
 
 - **Initial plan:** consolidated the OS-behavior benchmarks, comparable browser desktop projects, current known gaps, phased feature roadmap, differentiation concept, quality gates and release checklist.
+
+
+## Implementation progress
+
+### Stage 0 — Baseline and smoke-test harness
+- [x] Add dependency-free Node smoke tests for JavaScript syntax, shell landmarks, app-template references, lifecycle hooks, Memory Match timer cleanup, and focus/reduced-motion styles.
+- [x] Document how to run the checks in the README.
+- [ ] Run the Node test command in a checkout and establish real-browser baseline screenshots. These remain required; source inspection alone does not satisfy them.
+
+### Stage 1 — Window manager and input reliability (first implementation pass)
+- [x] Add an explicit window overview, reachable from the system panel and `Ctrl+Alt+W`.
+- [x] Correct launcher focus behavior so app launch/outside-click dismissal does not forcibly return focus to the launcher button.
+- [x] Align DOM focus with active-window state and restore focus after minimize/close.
+- [x] Add left/right edge snapping and drag-to-restore for maximized/snapped windows on desktop-sized viewports.
+- [x] Emit structured shell events for window lifecycle changes as a foundation for Flow Monitor.
+- [ ] Run full browser pointer/focus/resize tests; this remains unverified without a live browser session.

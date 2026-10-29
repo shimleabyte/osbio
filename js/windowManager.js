@@ -22,6 +22,12 @@ const WindowManager = (() => {
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+  const emitOSBioEvent = (type, detail = {}) => {
+    window.dispatchEvent(new CustomEvent('osbio:event', {
+      detail: { type, timestamp: new Date().toISOString(), ...detail }
+    }));
+  };
+
   // Configuration
   const CONFIG = {
     windowTemplates: {
@@ -238,6 +244,10 @@ const WindowManager = (() => {
   let openWindows = [];
   let activeWindowId = null;
   let windowCounter = 0;
+  let windowOverview;
+  let windowOverviewList;
+  let windowOverviewEmpty;
+  let overviewReturnFocus = null;
 
   // DOM Elements
   let desktopElement;
@@ -250,15 +260,34 @@ const WindowManager = (() => {
       return;
     }
 
-    // Initialize taskbar buttons and their closed/idle state.
+    // Initialize shell controls and their initial state.
     initTaskbarButtons();
+    initWindowOverview();
     updateTaskbarState();
 
     document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'w') {
+        e.preventDefault();
+        toggleWindowOverview(windowOverview.hidden);
+        return;
+      }
+      if (e.key === 'Escape' && windowOverview && !windowOverview.hidden) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleWindowOverview(false, true);
+        return;
+      }
       if (e.altKey && e.key === 'F4' && activeWindowId) {
         e.preventDefault();
         closeWindow(activeWindowId);
       }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!windowOverview || windowOverview.hidden) return;
+      const overviewToggle = document.getElementById('window-overview-toggle');
+      if (windowOverview.contains(event.target) || overviewToggle?.contains(event.target)) return;
+      toggleWindowOverview(false, false);
     });
     window.addEventListener('resize', constrainWindows);
   }
@@ -288,6 +317,89 @@ const WindowManager = (() => {
         });
       }
     });
+  }
+
+  function initWindowOverview() {
+    const overviewToggle = document.getElementById('window-overview-toggle');
+    if (!overviewToggle) return;
+
+    windowOverview = document.createElement('aside');
+    windowOverview.className = 'window-overview';
+    windowOverview.id = 'window-overview';
+    windowOverview.hidden = true;
+    windowOverview.setAttribute('role', 'dialog');
+    windowOverview.setAttribute('aria-label', 'Open windows');
+    windowOverview.innerHTML = `
+      <header class="window-overview-header">
+        <span>OPEN WINDOWS</span>
+        <button class="window-overview-close" type="button" aria-label="Close window overview">×</button>
+      </header>
+      <div class="window-overview-list" id="window-overview-list"></div>
+      <p class="window-overview-empty" id="window-overview-empty">No windows are open.</p>
+    `;
+    windowOverviewList = windowOverview.querySelector('#window-overview-list');
+    windowOverviewEmpty = windowOverview.querySelector('#window-overview-empty');
+    desktopElement.appendChild(windowOverview);
+
+    overviewToggle.addEventListener('click', () => toggleWindowOverview(windowOverview.hidden));
+    windowOverview.querySelector('.window-overview-close').addEventListener('click', () => {
+      toggleWindowOverview(false, true);
+    });
+    windowOverviewList.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-window-id]');
+      if (!button) return;
+      focusWindow(button.dataset.windowId);
+      toggleWindowOverview(false, false);
+    });
+  }
+
+  function renderWindowOverview() {
+    if (!windowOverviewList) return;
+    windowOverviewList.replaceChildren();
+    const ordered = [...openWindows].sort((a, b) => b.zIndex - a.zIndex);
+    ordered.forEach((item) => {
+      const template = CONFIG.windowTemplates[item.appName];
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'window-overview-item';
+      button.dataset.windowId = item.id;
+      if (item.id === activeWindowId) button.classList.add('is-active');
+
+      const name = document.createElement('span');
+      name.className = 'window-overview-name';
+      name.textContent = template.title;
+      const status = document.createElement('small');
+      status.textContent = item.minimized ? 'MINIMIZED' : item.id === activeWindowId ? 'ACTIVE' : 'OPEN';
+      button.setAttribute('aria-label', template.title + ', ' + status.textContent.toLowerCase());
+      button.append(name, status);
+      windowOverviewList.appendChild(button);
+    });
+    if (windowOverviewEmpty) windowOverviewEmpty.hidden = ordered.length > 0;
+  }
+
+  function toggleWindowOverview(open, restoreFocus = false) {
+    if (!windowOverview) return;
+    if (open) overviewReturnFocus = document.activeElement;
+    windowOverview.hidden = !open;
+    if (open) {
+      renderWindowOverview();
+      const first = windowOverviewList.querySelector('button');
+      (first || windowOverview.querySelector('.window-overview-close')).focus({ preventScroll: true });
+      emitOSBioEvent('overview.opened', { windowCount: openWindows.length });
+      return;
+    }
+
+    if (restoreFocus) {
+      const previous = overviewReturnFocus;
+      if (previous instanceof HTMLElement && previous.isConnected && !windowOverview.contains(previous)) {
+        previous.focus({ preventScroll: true });
+      } else {
+        const active = openWindows.find((item) => item.id === activeWindowId);
+        if (active) active.element.focus({ preventScroll: true });
+        else document.getElementById('window-overview-toggle')?.focus({ preventScroll: true });
+      }
+    }
+    overviewReturnFocus = null;
   }
 
   // Toggle window open/close
@@ -331,6 +443,8 @@ const WindowManager = (() => {
     windowElement.id = windowId;
     windowElement.setAttribute('role', 'dialog');
     windowElement.setAttribute('aria-labelledby', `${windowId}-title`);
+    windowElement.setAttribute('aria-modal', 'false');
+    windowElement.tabIndex = -1;
     windowElement.style.zIndex = zIndex;
     windowElement.style.width = template.width;
     windowElement.style.height = template.height;
@@ -377,10 +491,12 @@ const WindowManager = (() => {
       zIndex,
       minimized: false,
       maximized: false,
-      restoreBounds: null
+      restoreBounds: null,
+      snapped: null
     };
 
     openWindows.push(windowData);
+    emitOSBioEvent('window.opened', { app: appName, windowId });
     focusWindow(windowId);
 
     return windowId;
@@ -393,6 +509,7 @@ const WindowManager = (() => {
     const minimizeBtn = windowElement.querySelector('.window-minimize');
     const maximizeBtn = windowElement.querySelector('.window-maximize');
     let isDragging = false;
+    let didMove = false;
     let offsetX, offsetY;
 
     // Focus window when clicked
@@ -424,7 +541,28 @@ const WindowManager = (() => {
     header.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || !(e.target === header || e.target.closest('.window-title-group'))) return;
 
+      const target = openWindows.find((item) => item.id === windowId);
+      if (!target) return;
+
+      // Pull maximized/snapped windows back into a normal, draggable size.
+      if (target.maximized || target.snapped) {
+        const restore = target.restoreBounds || { left: '24px', top: '24px', width: '600px', height: '420px' };
+        target.maximized = false;
+        target.snapped = null;
+        windowElement.classList.remove('maximized', 'snapped-left', 'snapped-right');
+        windowElement.style.width = restore.width;
+        windowElement.style.height = restore.height;
+        const restoredWidth = windowElement.offsetWidth;
+        const left = Math.max(0, Math.min(e.clientX - Math.min(restoredWidth / 2, 150), desktopElement.clientWidth - restoredWidth));
+        const top = Math.max(0, Math.min(e.clientY - header.offsetHeight / 2, desktopElement.clientHeight - header.offsetHeight));
+        windowElement.style.left = left + 'px';
+        windowElement.style.top = top + 'px';
+        target.restoreBounds = null;
+        emitOSBioEvent('window.restored-for-drag', { app: target.appName, windowId });
+      }
+
       isDragging = true;
+      didMove = false;
       offsetX = e.clientX - windowElement.offsetLeft;
       offsetY = e.clientY - windowElement.offsetTop;
       header.setPointerCapture?.(e.pointerId);
@@ -443,16 +581,28 @@ const WindowManager = (() => {
         const maxX = Math.max(0, desktopElement.clientWidth - windowElement.offsetWidth);
         const maxY = Math.max(0, desktopElement.clientHeight - windowElement.offsetHeight);
 
-        windowElement.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
-        windowElement.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
+        const nextX = Math.max(0, Math.min(x, maxX));
+        const nextY = Math.max(0, Math.min(y, maxY));
+        if (Math.abs(nextX - windowElement.offsetLeft) > 1 || Math.abs(nextY - windowElement.offsetTop) > 1) didMove = true;
+        windowElement.style.left = `${nextX}px`;
+        windowElement.style.top = `${nextY}px`;
       }
     }
 
-    function stopDrag() {
+    function stopDrag(event) {
       isDragging = false;
       document.removeEventListener('pointermove', handleDrag);
       document.removeEventListener('pointerup', stopDrag);
       document.removeEventListener('pointercancel', stopDrag);
+
+      if (!didMove || event?.type !== 'pointerup' || desktopElement.clientWidth < 701) return;
+      if (event.clientY <= 8) {
+        maximizeWindow(windowId);
+      } else if (event.clientX <= 8) {
+        snapWindow(windowId, 'left');
+      } else if (desktopElement.clientWidth - event.clientX <= 8) {
+        snapWindow(windowId, 'right');
+      }
     }
 
     // Projects app specific functionality
@@ -861,18 +1011,57 @@ const WindowManager = (() => {
     }
   }
 
-  // Bring a window to the front and mark it active
+  function getWindowBounds(target) {
+    return {
+      left: target.element.offsetLeft + 'px',
+      top: target.element.offsetTop + 'px',
+      width: target.element.offsetWidth + 'px',
+      height: target.element.offsetHeight + 'px'
+    };
+  }
+
+  function snapWindow(windowId, side) {
+    const target = openWindows.find((item) => item.id === windowId);
+    if (!target || (side !== 'left' && side !== 'right') || desktopElement.clientWidth < 701) return;
+    if (!target.maximized && !target.snapped) target.restoreBounds = getWindowBounds(target);
+    target.maximized = false;
+    target.snapped = side;
+    target.element.classList.remove('maximized', 'snapped-left', 'snapped-right');
+    target.element.classList.add(side === 'left' ? 'snapped-left' : 'snapped-right');
+    focusWindow(windowId);
+    emitOSBioEvent('window.snapped', { app: target.appName, windowId, side });
+    updateTaskbarState();
+  }
+
+  // Bring a window to the front and align browser focus with shell focus.
   function focusWindow(windowId) {
     const target = openWindows.find((w) => w.id === windowId);
     if (!target) return;
+    const wasActive = activeWindowId === windowId && !target.minimized;
     target.minimized = false;
     target.element.classList.remove('minimized');
-    const top = Math.max(CONFIG.zIndex, ...openWindows.map((w) => w.zIndex)) + 1;
-    target.zIndex = top;
-    target.element.style.zIndex = String(top);
-    openWindows.forEach((w) => w.element.classList.toggle('active', w.id === windowId));
-    activeWindowId = windowId;
+
+    if (!wasActive) {
+      const top = Math.max(CONFIG.zIndex, ...openWindows.map((w) => w.zIndex)) + 1;
+      target.zIndex = top;
+      target.element.style.zIndex = String(top);
+      activeWindowId = windowId;
+      openWindows.forEach((w) => w.element.classList.toggle('active', w.id === windowId));
+      emitOSBioEvent('window.focused', { app: target.appName, windowId });
+    } else {
+      openWindows.forEach((w) => w.element.classList.toggle('active', w.id === windowId));
+    }
+
+    if (!target.element.contains(document.activeElement)) {
+      target.element.focus({ preventScroll: true });
+    }
     updateTaskbarState();
+  }
+
+  function focusTaskbarButton(appName) {
+    const button = document.querySelector('.taskbar-btn[data-app="' + appName + '"]');
+    if (button) button.focus({ preventScroll: true });
+    else document.getElementById('desktop-surface')?.focus({ preventScroll: true });
   }
 
   function minimizeWindow(windowId) {
@@ -886,6 +1075,9 @@ const WindowManager = (() => {
       .sort((a, b) => b.zIndex - a.zIndex)[0];
     activeWindowId = nextWindow ? nextWindow.id : null;
     openWindows.forEach((w) => w.element.classList.toggle('active', w.id === activeWindowId));
+    if (nextWindow) focusWindow(nextWindow.id);
+    else focusTaskbarButton(target.appName);
+    emitOSBioEvent('window.minimized', { app: target.appName, windowId });
     updateTaskbarState();
   }
 
@@ -894,9 +1086,12 @@ const WindowManager = (() => {
     if (!target) return;
     focusWindow(windowId);
     if (!target.maximized) {
-      target.restoreBounds = { left: target.element.style.left, top: target.element.style.top, width: target.element.style.width, height: target.element.style.height };
+      if (!target.snapped) target.restoreBounds = getWindowBounds(target);
       target.maximized = true;
+      target.snapped = null;
+      target.element.classList.remove('snapped-left', 'snapped-right');
       target.element.classList.add('maximized');
+      emitOSBioEvent('window.maximized', { app: target.appName, windowId });
     } else {
       target.maximized = false;
       target.element.classList.remove('maximized');
@@ -906,6 +1101,9 @@ const WindowManager = (() => {
         target.element.style.width = target.restoreBounds.width;
         target.element.style.height = target.restoreBounds.height;
       }
+      target.restoreBounds = null;
+      emitOSBioEvent('window.restored', { app: target.appName, windowId });
+      constrainWindows();
     }
     updateTaskbarState();
   }
@@ -922,6 +1120,8 @@ const WindowManager = (() => {
       closedWindow.element.remove();
     }
 
+    emitOSBioEvent('window.closed', { app: closedWindow.appName, windowId });
+
     // If the active window was closed, focus the highest visible window.
     if (activeWindowId === windowId) {
       const nextWindow = [...openWindows]
@@ -929,6 +1129,7 @@ const WindowManager = (() => {
         .sort((a, b) => b.zIndex - a.zIndex)[0];
       activeWindowId = nextWindow ? nextWindow.id : null;
       if (nextWindow) focusWindow(nextWindow.id);
+      else focusTaskbarButton(closedWindow.appName);
     }
 
     // Update taskbar state
@@ -951,6 +1152,7 @@ const WindowManager = (() => {
     if (activeLabel) {
       activeLabel.textContent = activeWindow ? 'RUNNING / ' + CONFIG.windowTemplates[activeWindow.appName].title.toUpperCase() : 'WORKSPACE / DESKTOP';
     }
+    if (windowOverview && !windowOverview.hidden) renderWindowOverview();
   }
 
   // Public API

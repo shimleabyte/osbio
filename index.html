@@ -33,12 +33,12 @@
         <button id="launcher-toggle" class="launcher-toggle" type="button" aria-expanded="false" aria-controls="app-launcher">
           <span class="pixel-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-wordmark">OSBIO</span><span class="panel-chevron" aria-hidden="true">+</span>
         </button>
-        <span class="panel-divider" aria-hidden="true"></span><span id="active-app-label" class="active-app-label">WORKSPACE / DESKTOP</span>
+        <span class="panel-divider" aria-hidden="true"></span><button id="window-overview-toggle" class="panel-mini-button" type="button" title="Open windows (Ctrl+Alt+W)" aria-label="Open window overview">WINDOWS</button><span class="panel-divider" aria-hidden="true"></span><span id="active-app-label" class="active-app-label">WORKSPACE / DESKTOP</span>
       </div>
       <div class="panel-right"><span class="local-status"><span class="status-square" aria-hidden="true"></span> LOCAL SESSION</span><span class="panel-divider" aria-hidden="true"></span><div class="panel-clock"><span id="system-clock">00:00</span><span id="system-date">01 JAN 2000</span></div></div>
     </header>
 
-    <main id="desktop-surface" class="desktop-surface">
+    <main id="desktop-surface" class="desktop-surface" tabindex="-1">
       <nav class="desktop-icons" aria-label="Desktop shortcuts">
         <button class="desktop-icon" type="button" data-app="projects"><span class="app-icon app-icon-projects" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Projects</span></button>
         <button class="desktop-icon" type="button" data-app="about"><span class="app-icon app-icon-about" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Profile</span></button>

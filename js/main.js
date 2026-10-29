@@ -17,6 +17,7 @@
   const date = document.getElementById('system-date');
   let bootComplete = false;
   let bootTimer = null;
+  let launcherReturnFocus = null;
 
   function showDesktop() {
     if (bootComplete) return;
@@ -39,17 +40,34 @@
     showDesktop();
   }
 
-  function setLauncherOpen(open) {
+  function setLauncherOpen(open, options = {}) {
+    if (open && !launcher.hidden) {
+      appSearch.focus({ preventScroll: true });
+      return;
+    }
+
+    if (open) {
+      launcherReturnFocus = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : launcherToggle;
+    }
+
     launcher.hidden = !open;
     launcher.classList.toggle('is-open', open);
     launcherToggle.setAttribute('aria-expanded', String(open));
     launcherToggle.classList.toggle('is-active', open);
+
     if (open) {
       appSearch.value = '';
       filterApplications('');
-      appSearch.focus();
-    } else {
-      launcherToggle.focus({ preventScroll: true });
+      appSearch.focus({ preventScroll: true });
+      return;
+    }
+
+    const returnFocus = launcherReturnFocus;
+    launcherReturnFocus = null;
+    if (options.restoreFocus && returnFocus instanceof HTMLElement && returnFocus.isConnected) {
+      returnFocus.focus({ preventScroll: true });
     }
   }
 
@@ -95,11 +113,11 @@
     document.addEventListener('keydown', function (event) {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        setLauncherOpen(launcher.hidden);
+        setLauncherOpen(launcher.hidden, { restoreFocus: !launcher.hidden });
       } else if (event.key === 'Escape' && !launcher.hidden) {
         event.preventDefault();
         event.stopPropagation();
-        setLauncherOpen(false);
+        setLauncherOpen(false, { restoreFocus: true });
       }
     });
     updateClock();
