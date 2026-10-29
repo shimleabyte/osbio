@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   source-smoke:
@@ -37,8 +37,33 @@ jobs:
             sleep 1
           done
           node tests/browser-smoke.cjs
+      - name: Upload real desktop screenshots
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: osbio-readme-screenshots
+          path: artifacts/*.png
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-screenshots:
+    name: Publish README screenshots
+    needs: source-smoke
+    if: success() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the current main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Download screenshot artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: osbio-readme-screenshots
+          path: artifacts
       - name: Publish README screenshots
-        if: success() && github.ref == 'refs/heads/main'
         run: |
           mkdir -p docs/screenshots
           refresh_requested=false
