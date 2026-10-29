@@ -277,20 +277,19 @@ const WindowManager = (() => {
 
   // Toggle window open/close
   function toggleWindow(appName) {
-    const existingWindow = openWindows.find(w => w.appName === appName);
-    
-    if (existingWindow) {
-      if (existingWindow.id === activeWindowId) {
-        // Window is already active, do nothing
-        return;
-      } else {
-        // Window exists but not active, bring to front
-        focusWindow(existingWindow.id);
-      }
-    } else {
-      // Window doesn't exist, create it
+    const existingWindow = openWindows.find((w) => w.appName === appName);
+
+    if (!existingWindow) {
       createWindow(appName);
+      return;
     }
+
+    if (existingWindow.id === activeWindowId && !existingWindow.minimized) {
+      minimizeWindow(existingWindow.id);
+      return;
+    }
+
+    focusWindow(existingWindow.id);
   }
 
   // Create a new window
@@ -303,12 +302,14 @@ const WindowManager = (() => {
 
     windowCounter++;
     const windowId = `${appName}-${windowCounter}`;
-    const zIndex = CONFIG.zIndex + openWindows.length;
-    
-    // Calculate position to cascade windows
-    const offset = openWindows.length * CONFIG.windowOffset;
-    const top = 50 + offset;
-    const left = 50 + offset;
+    const zIndex = Math.max(CONFIG.zIndex, ...openWindows.map((w) => w.zIndex)) + 1;
+
+    // Cascade new windows while keeping their headers reachable.
+    const offset = (openWindows.length % 6) * CONFIG.windowOffset;
+    const maxLeft = Math.max(0, window.innerWidth - 160);
+    const maxTop = Math.max(0, window.innerHeight - 100);
+    const top = Math.min(50 + offset, maxTop);
+    const left = Math.min(50 + offset, maxLeft);
 
     // Create window element
     const windowElement = document.createElement('div');
@@ -350,9 +351,10 @@ const WindowManager = (() => {
       id: windowId,
       appName,
       element: windowElement,
-      zIndex
+      zIndex,
+      minimized: false
     };
-    
+
     openWindows.push(windowData);
     focusWindow(windowId);
 
@@ -381,14 +383,16 @@ const WindowManager = (() => {
 
     // Dragging functionality
     header.addEventListener('pointerdown', (e) => {
-      if (e.target === header || e.target.closest('.window-title')) {
-        isDragging = true;
-        offsetX = e.clientX - windowElement.offsetLeft;
-        offsetY = e.clientY - windowElement.offsetTop;
-        document.addEventListener('pointermove', handleDrag);
-        document.addEventListener('pointerup', stopDrag);
-        focusWindow(windowId);
-      }
+      if (e.button !== 0 || !(e.target === header || e.target.closest('.window-title'))) return;
+
+      isDragging = true;
+      offsetX = e.clientX - windowElement.offsetLeft;
+      offsetY = e.clientY - windowElement.offsetTop;
+      header.setPointerCapture?.(e.pointerId);
+      document.addEventListener('pointermove', handleDrag);
+      document.addEventListener('pointerup', stopDrag);
+      document.addEventListener('pointercancel', stopDrag);
+      focusWindow(windowId);
     });
 
     function handleDrag(e) {
@@ -397,9 +401,9 @@ const WindowManager = (() => {
         const y = e.clientY - offsetY;
         
         // Keep window within viewport
-        const maxX = window.innerWidth - windowElement.offsetWidth;
-        const maxY = window.innerHeight - windowElement.offsetHeight;
-        
+        const maxX = Math.max(0, window.innerWidth - windowElement.offsetWidth);
+        const maxY = Math.max(0, window.innerHeight - windowElement.offsetHeight);
+
         windowElement.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
         windowElement.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
       }
@@ -409,6 +413,7 @@ const WindowManager = (() => {
       isDragging = false;
       document.removeEventListener('pointermove', handleDrag);
       document.removeEventListener('pointerup', stopDrag);
+      document.removeEventListener('pointercancel', stopDrag);
     }
 
     // Projects app specific functionality
@@ -857,13 +862,34 @@ const WindowManager = (() => {
 
   // Bring a window to the front and mark it active
   function focusWindow(windowId) {
-    const target = openWindows.find(w => w.id === windowId);
+    const target = openWindows.find((w) => w.id === windowId);
     if (!target) return;
-    const top = Math.max(CONFIG.zIndex, ...openWindows.map(w => w.zIndex)) + 1;
+
+    target.minimized = false;
+    target.element.classList.remove('minimized');
+    const top = Math.max(CONFIG.zIndex, ...openWindows.map((w) => w.zIndex)) + 1;
     target.zIndex = top;
-    target.element.style.zIndex = top;
-    openWindows.forEach(w => w.element.classList.toggle('active', w.id === windowId));
+    target.element.style.zIndex = String(top);
+    openWindows.forEach((w) => w.element.classList.toggle('active', w.id === windowId));
     activeWindowId = windowId;
+    updateTaskbarState();
+  }
+
+  // Minimize without destroying the window's app state.
+  function minimizeWindow(windowId) {
+    const target = openWindows.find((w) => w.id === windowId);
+    if (!target) return;
+
+    target.minimized = true;
+    target.element.classList.remove('active');
+    target.element.classList.add('minimized');
+
+    const nextWindow = [...openWindows]
+      .filter((w) => w.id !== windowId && !w.minimized)
+      .sort((a, b) => b.zIndex - a.zIndex)[0];
+
+    activeWindowId = nextWindow ? nextWindow.id : null;
+    if (nextWindow) nextWindow.element.classList.add('active');
     updateTaskbarState();
   }
 
@@ -878,12 +904,13 @@ const WindowManager = (() => {
       closedWindow.element.remove();
     }
 
-    // Update active window if needed
+    // If the active window was closed, focus the highest visible window.
     if (activeWindowId === windowId) {
-      activeWindowId = openWindows.length > 0 ? openWindows[openWindows.length - 1].id : null;
-      if (activeWindowId) {
-        focusWindow(activeWindowId);
-      }
+      const nextWindow = [...openWindows]
+        .filter((w) => !w.minimized)
+        .sort((a, b) => b.zIndex - a.zIndex)[0];
+      activeWindowId = nextWindow ? nextWindow.id : null;
+      if (nextWindow) focusWindow(nextWindow.id);
     }
 
     // Update taskbar state
