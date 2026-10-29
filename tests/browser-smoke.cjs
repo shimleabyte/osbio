@@ -8,7 +8,11 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
   const pageErrors = [];
+  const externalFontRequests = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('request', (request) => {
+    if (/fonts\.(googleapis|gstatic)\.com/.test(request.url())) externalFontRequests.push(request.url());
+  });
   await page.route('https://fonts.googleapis.com/**', (route) => route.abort());
   await page.route('https://fonts.gstatic.com/**', (route) => route.abort());
 
@@ -16,6 +20,18 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.body.classList.contains('desktop-ready'), { timeout: 6000 });
     assert.equal(await page.locator('#desktop-screen').getAttribute('aria-hidden'), 'false');
+    await page.evaluate(() => document.fonts.ready);
+    assert.equal(await page.evaluate(() => document.fonts.check('16px "IBM Plex Sans"')), true,
+      'self-hosted IBM Plex Sans should be available');
+    assert.equal(await page.evaluate(() => document.fonts.check('16px "IBM Plex Mono"')), true,
+      'self-hosted IBM Plex Mono should be available');
+    assert.deepEqual(externalFontRequests, [], 'the shell must not request Google Fonts at runtime');
+    assert.deepEqual(await page.locator('.taskbar-btn[data-pinned="true"]').evaluateAll((buttons) =>
+      buttons.map((button) => button.dataset.app)), ['projects', 'about', 'files', 'editor', 'contact']);
+    assert.equal(await page.locator('#taskbar-recent-divider').evaluate((element) => element.hidden), true,
+      'the recent-app separator starts hidden until a supporting app launches');
+    assert.deepEqual(await page.locator('.launcher-tier').evaluateAll((tiers) => tiers.map((tier) => tier.dataset.tier)),
+      ['core', 'supporting', 'utility']);
     assert.equal(await page.evaluate(() => window.WindowManager.getSnapshot().windows.length), 0,
       'a fresh page load must begin with the empty desktop');
     await page.evaluate(() => localStorage.setItem('osbio.window-layout.v1', '{ malformed layout'));
@@ -166,9 +182,17 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const projectWindow = page.locator('.window[data-app-name="projects"]');
     await projectWindow.waitFor({ state: 'visible' });
     assert.equal(await projectWindow.locator('.project-card').count(), 3);
-    assert.ok(await projectWindow.locator('.project-status').count() >= 3);
+    assert.equal(await projectWindow.locator('.project-detail-status').count(), 1);
     assert.equal(await projectWindow.evaluate((element) => element.classList.contains('active')), true);
     assert.equal(await page.locator('.window.active').count(), 1, 'opening another app must not leave two active windows');
+    assert.equal(await projectWindow.locator('#project-detail-title').textContent(), 'Mutabaah CLI',
+      'the detail pane should open on the first project');
+    await projectWindow.locator('.project-card[data-project-select="simpul"]').click();
+    await page.waitForFunction(() => document.querySelector('#project-detail-title')?.textContent === 'Simpul');
+    assert.equal(await projectWindow.locator('.project-card[data-project-select="simpul"]').getAttribute('aria-pressed'), 'true');
+    assert.equal(await projectWindow.locator('.project-card[data-project-select="mutabaah-cli"]').getAttribute('aria-pressed'), 'false');
+    assert.equal(await projectWindow.locator('#project-detail a.project-source-link').getAttribute('href'),
+      'https://github.com/shimleabyte/simpul');
 
     const initialProjectBounds = await projectWindow.boundingBox();
     const projectTitleGroup = projectWindow.locator('.window-title-group');
@@ -758,7 +782,8 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await memoryPage.close();
 
     assert.deepEqual(pageErrors, [], 'no uncaught browser JavaScript errors');
-    console.log('Browser smoke passed: launcher, overview, shared projects, file persistence, settings, Memory Match, mobile layout.');
+    assert.deepEqual(externalFontRequests, [], 'no external font service requests should be made');
+    console.log('Browser smoke passed: local fonts, tiered launcher, recent-app taskbar, project detail, overview, persistence, settings, Memory Match, and mobile layout.');
   } finally {
     await browser.close();
   }

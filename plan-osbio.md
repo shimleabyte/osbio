@@ -2,7 +2,7 @@
 
 > **Status:** Proposed roadmap  
 > **Target branch:** `main`  
-> **Implementation status:** Planning only. Items in this document are not complete until implemented and verified.  
+> **Implementation status:** Previously verified phases remain documented below. The Product-grade Pixel-Flow revision is tracked in the implementation record at the end; each new acceptance gate remains open until its checks pass.  
 > **Product direction:** A browser-based, local-first desktop environment with a distinctive Pixel-Flow identity—not a portfolio landing page decorated with window chrome.
 
 ## 1. Product definition
@@ -586,3 +586,18 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Verify clear-user-data confirmation removes user-created content but preserves built-in read-only documents.
 - [x] Verify System Monitor values match the live WindowManager snapshot and OSBioStorage stats/event history.
 - [x] Run Chromium and deployment for this Stage 4 commit; both completed successfully.
+
+
+## Product-grade Pixel-Flow revision — implementation record
+
+**Direction:** product-grade browser workstation with exploratory multi-source research; Pixel-Flow remains the original visual identity. Reference patterns are evaluated across desktop environments, window managers, and interactive portfolios rather than copying one source.
+
+**Delivered in this revision:**
+- Self-host IBM Plex Sans and IBM Plex Mono WOFF2 assets with the original SIL Open Font License in `assets/fonts/OFL.txt`.
+- Group the launcher into Core, Supporting, and Utilities tiers; search hides empty tier headings.
+- Keep five core applications pinned in the taskbar. Supporting and utility apps are appended as session-recent controls on first launch and remain available after their windows close.
+- Replace the Projects app's expandable-card interaction with a compact keyboard-operable selection list and a dedicated project detail pane.
+- Add source and browser regression assertions for tier structure, local fonts, dynamic taskbar behavior, and project selection.
+- Update README behavior and app-tier documentation.
+
+**Acceptance gate:** the source checks and Chromium browser suite must pass on the resulting `main` commit. Visual review at desktop and mobile widths remains separate from automated interaction checks.

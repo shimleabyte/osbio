@@ -8,14 +8,16 @@ OSBio is a browser-based desktop environment built with plain HTML, CSS and Java
 
 - A short, skippable boot sequence opens to an empty desktop. No app auto-opens and no profile is requested.
 - The top panel identifies the active app and shows local-session status, clock and date.
-- The application launcher supports search. Open it from the OSBio panel button or press `Ctrl+K`.
-- Desktop shortcuts and the bottom taskbar open apps. Selecting the active taskbar item minimizes it; selecting it again restores it.
+- The searchable launcher groups apps into **Core**, **Supporting**, and **Utilities**. Open it from the OSBio panel button or press `Ctrl+K`.
+- The taskbar pins five core workspace apps. Supporting apps and utilities appear as session-recent taskbar items the first time they launch; all apps remain available from the launcher. Selecting the active taskbar item minimizes it; selecting it again restores it.
 - App windows can be focused, dragged, resized on desktop, maximized/restored, minimized, and closed. Double-click a title bar to toggle maximize.
 - On narrow screens, the shell becomes a single-window workspace with touch-sized controls and a launcher.
 - Files and Editor share a browser-local virtual workspace with IndexedDB-backed persistence, explicit fallback status, a keyboard-accessible context menu, destination-aware moves, and an in-app Save/Discard/Keep editing prompt for unsaved documents.
 - Settings changes persist browser-local appearance preferences; System Monitor reports actual OSBio state only (not host CPU/RAM).
 - Flow Monitor records up to 160 events in the current tab, lets users filter/inspect/export them as JSON, and does not upload the trace.
 - Memory Match uses keyboard-operable symbol cards. Restart cancels pending turn timers.
+- Projects presents a compact selection list beside a dedicated detail pane for verified repository metadata.
+- IBM Plex Sans and IBM Plex Mono are self-hosted in `assets/fonts/` under the accompanying SIL Open Font License; the runtime does not request Google Fonts.
 - Resume shows an explicit unavailable state until the real PDF is published.
 
 ## Local workspace data
@@ -26,19 +28,19 @@ The storage layer supports text files and folders, rename/move/delete validation
 
 ## Apps
 
-| App | Purpose |
-|---|---|
-| Files | Browse the browser-local virtual workspace; create folders and text files, rename/move/delete user items, and import/export user data |
-| Editor | Open and save virtual text documents, with read-only built-in documents and Save Copy |
-| Settings | Persist local wallpaper, accent, motion and desktop shortcut preferences |
-| System Monitor | Show real in-session windows, virtual workspace counts, storage mode and recent events |
-| Flow Monitor | Inspect, filter and export a bounded trace of real OSBio state transitions |
-| Profile | Background, current focus, and technologies used in the portfolio projects |
-| Projects | Verified repositories: Mutabaah CLI, Simpul, and Optical Anchor Button |
-| Terminal | Simulated prompt for exploring project links and opening apps |
-| Resume | Unavailable state until a real PDF is published; no fabricated preview or download |
-| Contact | Email and GitHub |
-| Memory Match | Small symbol-matching game |
+| Tier | App | Purpose |
+|---|---|---|
+| Core | Projects | Compact project list with a dedicated detail pane and verified repository links |
+| Core | Profile | Background, current focus, and technologies used in the portfolio projects |
+| Core | Files | Browse the browser-local virtual workspace; create folders and text files, rename/move/delete user items, and import/export user data |
+| Core | Editor | Open and save virtual text documents, with read-only built-in documents and Save Copy |
+| Core | Contact | Email and GitHub |
+| Supporting | Terminal | Simulated prompt for exploring project links and opening apps |
+| Supporting | Resume | Unavailable state until a real PDF is published; no fabricated preview or download |
+| Supporting | Settings | Persist local wallpaper, accent, motion and desktop shortcut preferences |
+| Utilities | System Monitor | Show real in-session windows, virtual workspace counts, storage mode and recent events |
+| Utilities | Flow Monitor | Inspect, filter and export a bounded trace of real OSBio state transitions |
+| Utilities | Memory Match | Small symbol-matching game |
 
 The terminal is a UI simulation for navigating this browser workspace. It does not execute host operating-system commands.
 
@@ -58,7 +60,8 @@ The actual resume PDF is not published in this repository. When ready, add the r
 
 ```
 index.html          shell panels, desktop shortcuts, launcher, taskbar
-css/main.css        design tokens, Pixel-Flow shell, and app styles
+css/main.css        design tokens, local font faces, Pixel-Flow shell, and app styles
+assets/fonts/       self-hosted IBM Plex WOFF2 assets and OFL license
 js/osbioCore.js     IndexedDB/local fallback, virtual filesystem and event history
 js/osbioSettings.js browser-local shell preferences
 js/projectData.js  canonical project metadata

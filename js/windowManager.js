@@ -22,19 +22,40 @@ const WindowManager = (() => {
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+  function buildProjectDetailMarkup(project, index) {
+    if (!project) {
+      return '<div class="project-detail-empty"><p class="project-detail-kicker">PROJECT / NONE</p><h2>No project selected</h2><p>Choose a project from the list to inspect its details.</p></div>';
+    }
+    const technologies = project.technologies.map((technology) => '<span class="project-tech">' + esc(technology) + '</span>').join('');
+    return '<div class="project-detail-inner">' +
+      '<p class="project-detail-kicker">PROJECT / ' + String(index + 1).padStart(2, '0') + '</p>' +
+      '<div class="project-detail-status">' + esc(project.statusLabel) + '</div>' +
+      '<h2 id="project-detail-title">' + esc(project.name) + '</h2>' +
+      '<p class="project-detail-summary">' + esc(project.summary) + '</p>' +
+      '<div class="project-detail-tech" aria-label="Technologies used">' + technologies + '</div>' +
+      '<section class="project-detail-focus"><p class="project-detail-section-label">ENGINEERING FOCUS</p><p>' + esc(project.focus) + '</p></section>' +
+      '<footer class="project-detail-footer">' +
+      '<a href="' + esc(project.url) + '" class="project-source-link" target="_blank" rel="noopener noreferrer">' +
+      '<span class="project-source-icon" aria-hidden="true">' + ICON.github + '</span><span>Open source repository</span><span class="project-source-arrow" aria-hidden="true">↗</span></a>' +
+      '<span class="project-detail-footnote">PUBLIC REPOSITORY</span></footer></div>';
+  }
+
   function buildProjectsMarkup() {
     const projects = Array.isArray(window.OSBioProjects) ? window.OSBioProjects : [];
-    const cards = projects.map((project) => {
-      const technologies = project.technologies.map(esc).join(', ');
-      return '<article class="project-card" data-project="' + esc(project.id) + '">' +
-        '<div class="project-header"><h3 class="project-title">' + esc(project.name) + '</h3><div class="project-stack">' + technologies + '</div></div>' +
-        '<p class="project-desc">' + esc(project.summary) + '</p>' +
-        '<div class="project-details"><div class="project-status">' + esc(project.statusLabel) + '</div>' +
-        '<div class="project-learned"><strong>Focus:</strong> ' + esc(project.focus) + '</div>' +
-        '<div class="project-links"><a href="' + esc(project.url) + '" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer"><span class="icon">' + ICON.github + '</span> Source Code</a></div>' +
-        '</div></article>';
-    }).join('');
-    return '<div class="projects-app"><div class="projects-grid">' + cards + '</div></div>';
+    const cards = projects.map((project, index) =>
+      '<button type="button" class="project-card' + (index === 0 ? ' active' : '') + '"' +
+      ' data-project-select="' + esc(project.id) + '"' +
+      ' aria-pressed="' + String(index === 0) + '"' +
+      ' aria-controls="project-detail">' +
+      '<span class="project-card-index">' + String(index + 1).padStart(2, '0') + '</span>' +
+      '<span class="project-card-copy"><strong>' + esc(project.name) + '</strong><small>' + esc(project.statusLabel) + '</small></span>' +
+      '<span class="project-card-indicator" aria-hidden="true">+</span></button>'
+    ).join('');
+    return '<div class="projects-app">' +
+      '<header class="projects-heading"><div><p class="projects-kicker">OSBIO / WORKSPACE</p><h2>Projects</h2></div>' +
+      '<span class="projects-count">' + String(projects.length).padStart(2, '0') + ' ENTRIES</span></header>' +
+      '<div class="projects-workspace"><div class="projects-list" role="group" aria-label="Select a project">' + cards + '</div>' +
+      '<section class="project-detail" id="project-detail" aria-live="polite">' + buildProjectDetailMarkup(projects[0], 0) + '</section></div></div>';
   }
 
   const emitOSBioEvent = (type, detail = {}) => {
@@ -484,6 +505,39 @@ const WindowManager = (() => {
     return { persistent, resetWindows: openWindows.length };
   }
 
+  function ensureTaskbarButton(appName) {
+    const existing = document.querySelector('.taskbar-btn[data-app="' + appName + '"]');
+    if (existing) return existing;
+    const launcherItem = document.querySelector('.launcher-item[data-app="' + appName + '"]');
+    const taskbarApps = document.querySelector('.taskbar-apps');
+    const recentDivider = document.getElementById('taskbar-recent-divider');
+    if (!launcherItem || !taskbarApps || !recentDivider) return null;
+    const title = launcherItem.querySelector('.launcher-item-copy strong')?.textContent?.trim() ||
+      CONFIG.windowTemplates[appName]?.title || appName;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'taskbar-btn';
+    button.dataset.app = appName;
+    button.dataset.pinned = 'false';
+    button.dataset.tier = launcherItem.dataset.tier || 'supporting';
+    button.setAttribute('aria-label', title);
+    button.setAttribute('aria-pressed', 'false');
+    button.title = title;
+    const icon = launcherItem.querySelector('.app-icon');
+    if (icon) button.appendChild(icon.cloneNode(true));
+    const tooltip = document.createElement('span');
+    tooltip.className = 'taskbar-tooltip';
+    tooltip.textContent = title;
+    button.appendChild(tooltip);
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleWindow(appName);
+    });
+    taskbarApps.appendChild(button);
+    recentDivider.hidden = false;
+    return button;
+  }
+
   // Initialize taskbar button event listeners
   function initTaskbarButtons() {
     const taskbarButtons = document.querySelectorAll('.taskbar-btn');
@@ -702,6 +756,7 @@ const WindowManager = (() => {
       snapped: null
     };
 
+    ensureTaskbarButton(appName);
     openWindows.push(windowData);
     emitOSBioEvent('window.opened', { app: appName, windowId });
     focusWindow(windowId);
@@ -841,49 +896,25 @@ const WindowManager = (() => {
 
     if (window.OSBioWorkspaceApps) window.OSBioWorkspaceApps.mount(windowElement, appName);
 
-    // Projects app specific functionality
+    // Projects use one compact selection list and a dedicated detail pane.
     if (appName === 'projects') {
-      const projectCards = windowElement.querySelectorAll('.project-card');
-      
-      projectCards.forEach(card => {
-        card.addEventListener('click', (e) => {
-          // Don't toggle if clicking on a link or button
-          if (e.target.tagName === 'A' || e.target.closest('a, button, .btn')) {
-            return;
-          }
-          
-          const wasActive = card.classList.contains('active');
-          
-          // Close all other project cards
-          projectCards.forEach(c => c.classList.remove('active'));
-          
-          // Toggle the clicked card if it wasn't active
-          if (!wasActive) {
-            card.classList.add('active');
-            
-            // Scroll the card into view if it's near the bottom of the window
-            const rect = card.getBoundingClientRect();
-            const isInViewport = (
-              rect.top >= 0 &&
-              rect.left >= 0 &&
-              rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-              rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-            );
-            
-            if (!isInViewport) {
-              card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-          }
+      const projectCards = Array.from(windowElement.querySelectorAll('.project-card[data-project-select]'));
+      const detailPane = windowElement.querySelector('#project-detail');
+      const projects = Array.isArray(window.OSBioProjects) ? window.OSBioProjects : [];
+      function selectProject(projectId) {
+        const index = projects.findIndex((project) => project.id === projectId);
+        if (index < 0 || !detailPane) return;
+        const project = projects[index];
+        projectCards.forEach((card) => {
+          const selected = card.dataset.projectSelect === projectId;
+          card.classList.toggle('active', selected);
+          card.setAttribute('aria-pressed', String(selected));
         });
-      });
-      
-      // Handle clicks on project links (prevent event bubbling)
-      const projectLinks = windowElement.querySelectorAll('.project-links a');
-      projectLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.stopPropagation();
-        });
-      });
+        detailPane.innerHTML = buildProjectDetailMarkup(project, index);
+        emitOSBioEvent('project.selected', { project: project.id, name: project.name });
+      }
+      projectCards.forEach((card) => card.addEventListener('click', () => selectProject(card.dataset.projectSelect)));
+      if (projects.length) selectProject(projects[0].id);
     }
     
     // Resume app specific functionality

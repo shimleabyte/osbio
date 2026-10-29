@@ -174,16 +174,52 @@ test('window manager is exposed for cross-module storage and monitor integration
   assert.match(workspaceApps, /global\.WindowManager.*getSnapshot/);
 });
 
-test('every app has a taskbar control and event-prefix listeners match real events', () => {
-  const taskbarStart = html.indexOf('<nav class="taskbar"');
-  const taskbarEnd = html.indexOf('</nav>', taskbarStart);
-  const taskbarMarkup = taskbarStart >= 0 && taskbarEnd > taskbarStart ? html.slice(taskbarStart, taskbarEnd) : '';
-  const taskbarApps = new Set([...taskbarMarkup.matchAll(/data-app="([a-z][a-z0-9-]*)"/g)].map((match) => match[1]));
+test('launcher groups every app into Core, Supporting and Utilities tiers', () => {
+  assert.ok(html.includes('<section class="launcher-tier" data-tier="core"'));
+  assert.ok(html.includes('<section class="launcher-tier" data-tier="supporting"'));
+  assert.ok(html.includes('<section class="launcher-tier" data-tier="utility"'));
+  const launcherStart = html.indexOf('<div id="launcher-grid" class="launcher-grid">');
+  const launcherEnd = html.indexOf('<p id="launcher-empty"', launcherStart);
+  const launcherMarkup = launcherStart >= 0 && launcherEnd > launcherStart ? html.slice(launcherStart, launcherEnd) : '';
+  const launcherApps = new Set([...launcherMarkup.matchAll(/data-app="([a-z][a-z0-9-]*)"/g)].map((match) => match[1]));
   const templateBlock = windows.match(/windowTemplates:\s*\{([\s\S]*?)\n\s{4}\},\n\s{4}zIndex/);
   assert.ok(templateBlock, 'window template block can be located');
   const templateNames = new Set([...templateBlock[1].matchAll(/^\s{6}([a-z][a-z0-9-]*):\s*\{/gm)].map((match) => match[1]));
-  for (const appName of templateNames) assert.ok(taskbarApps.has(appName), 'missing taskbar control for ' + appName);
+  assert.deepEqual([...launcherApps].sort(), [...templateNames].sort(), 'every app template must remain discoverable through the launcher');
+  assert.match(main, /launcher\.querySelectorAll\('\.launcher-tier'\)/, 'search should hide empty tier headings');
+});
+
+test('taskbar pins only core apps and adds other apps as session recents', () => {
+  const taskbarStart = html.indexOf('<nav class="taskbar"');
+  const taskbarEnd = html.indexOf('</nav>', taskbarStart);
+  const taskbarMarkup = taskbarStart >= 0 && taskbarEnd > taskbarStart ? html.slice(taskbarStart, taskbarEnd) : '';
+  const pinnedApps = [...taskbarMarkup.matchAll(/class="taskbar-btn" data-pinned="true" data-tier="core" data-app="([a-z][a-z0-9-]*)"/g)].map((match) => match[1]);
+  assert.deepEqual(pinnedApps, ['projects', 'about', 'files', 'editor', 'contact']);
+  assert.match(taskbarMarkup, /id="taskbar-recent-divider"/);
+  assert.match(windows, /function ensureTaskbarButton\(appName\)/);
+  assert.match(windows, /button\.dataset\.pinned = 'false'/);
+  assert.match(windows, /recentDivider\.hidden = false/);
   assert.ok(workspaceApps.includes("type.startsWith('file.')"), 'Files must listen for file events');
   assert.ok(workspaceApps.includes("type.startsWith('folder.')"), 'Files must listen for folder events');
   assert.ok(workspaceApps.includes("type.startsWith(prefix)"), 'System Monitor must match dot-delimited event prefixes');
+});
+
+test('IBM Plex fonts are bundled locally with no external font runtime dependency', () => {
+  assert.doesNotMatch(html, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
+  assert.ok(html.includes('assets/fonts/IBMPlexSans-Regular.woff2'));
+  assert.ok(html.includes('assets/fonts/IBMPlexMono-Regular.woff2'));
+  assert.ok(css.includes('font-family: "IBM Plex Sans"'));
+  assert.ok(css.includes('font-family: "IBM Plex Mono"'));
+  assert.ok(css.includes('IBMPlexSans-SemiBold.woff2'));
+  assert.ok(css.includes('IBMPlexMono-SemiBold.woff2'));
+  assert.match(read('assets/fonts/OFL.txt'), /SIL OPEN FONT LICENSE Version 1\.1/);
+});
+
+test('Projects has a keyboard-operable list and separate project detail surface', () => {
+  assert.match(windows, /data-project-select/);
+  assert.match(windows, /function buildProjectDetailMarkup\(/);
+  assert.match(windows, /id="project-detail"/);
+  assert.match(windows, /aria-pressed/);
+  assert.ok(css.includes('.projects-workspace') && css.includes('grid-template-columns:minmax(12.5rem,.82fr)'));
+  assert.ok(css.includes('.project-detail') && css.includes('border:1px solid var(--color-window-border)'));
 });

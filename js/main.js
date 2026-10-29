@@ -83,6 +83,11 @@
       button.hidden = needle.length > 0 && !searchable.includes(needle);
       if (!button.hidden) visibleCount += 1;
     });
+    launcher.querySelectorAll('.launcher-tier').forEach(function (tier) {
+      tier.hidden = !tier.querySelector('.launcher-item:not([hidden])');
+    });
+    const count = document.getElementById('launcher-count');
+    if (count) count.textContent = String(visibleCount).padStart(2, '0') + ' APPS';
     const emptyState = document.getElementById('launcher-empty');
     if (emptyState) emptyState.hidden = visibleCount > 0;
   }
