@@ -184,17 +184,23 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       const rect = element.getBoundingClientRect();
       return rect.left > beforeX + 60 && rect.top > beforeY + 20;
     }, { beforeX: initialProjectBounds.x, beforeY: initialProjectBounds.y });
-    savedProjectBounds = await projectWindow.boundingBox();
+    savedProjectBounds = await projectWindow.evaluate((element) => ({
+      left: element.offsetLeft, top: element.offsetTop,
+      width: element.offsetWidth, height: element.offsetHeight
+    }));
 
     await projectWindow.locator('.window-close').click();
     await projectWindow.waitFor({ state: 'detached' });
     await page.locator('.taskbar-btn[data-app="projects"]').click();
     await projectWindow.waitFor({ state: 'visible' });
-    const reopenedProjectBounds = await projectWindow.boundingBox();
+    const reopenedProjectBounds = await projectWindow.evaluate((element) => ({
+      left: element.offsetLeft, top: element.offsetTop,
+      width: element.offsetWidth, height: element.offsetHeight
+    }));
     assert.ok(savedProjectBounds && reopenedProjectBounds &&
-      Math.abs(reopenedProjectBounds.x - savedProjectBounds.x) <= 1 &&
-      Math.abs(reopenedProjectBounds.y - savedProjectBounds.y) <= 1,
-      'closing and reopening Projects should restore its saved position: ' +
+      ['left', 'top', 'width', 'height'].every((key) =>
+        Math.abs(reopenedProjectBounds[key] - savedProjectBounds[key]) <= 1),
+      'closing and reopening Projects should restore its saved geometry: ' +
         JSON.stringify({ savedProjectBounds, reopenedProjectBounds }));
     await projectWindow.locator('.window-close').click();
     await projectWindow.waitFor({ state: 'detached' });
@@ -228,11 +234,14 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.locator('.taskbar-btn[data-app="projects"]').click();
     const persistedProjectWindow = page.locator('.window[data-app-name="projects"]');
     await persistedProjectWindow.waitFor({ state: 'visible' });
-    const persistedProjectBounds = await persistedProjectWindow.boundingBox();
+    const persistedProjectBounds = await persistedProjectWindow.evaluate((element) => ({
+      left: element.offsetLeft, top: element.offsetTop,
+      width: element.offsetWidth, height: element.offsetHeight
+    }));
     assert.ok(savedProjectBounds && persistedProjectBounds &&
-      Math.abs(persistedProjectBounds.x - savedProjectBounds.x) <= 1 &&
-      Math.abs(persistedProjectBounds.y - savedProjectBounds.y) <= 1,
-      'saved position should survive page reload: ' + JSON.stringify({ savedProjectBounds, persistedProjectBounds }));
+      ['left', 'top', 'width', 'height'].every((key) =>
+        Math.abs(persistedProjectBounds[key] - savedProjectBounds[key]) <= 1),
+      'saved geometry should survive page reload: ' + JSON.stringify({ savedProjectBounds, persistedProjectBounds }));
     await persistedProjectWindow.locator('.window-close').click();
     await persistedProjectWindow.waitFor({ state: 'detached' });
     await page.locator('.taskbar-btn[data-app="files"]').click();
