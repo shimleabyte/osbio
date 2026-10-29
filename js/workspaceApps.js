@@ -284,7 +284,9 @@
     const store=global.OSBioStorage,name=win.querySelector('#editor-name'),body=win.querySelector('#editor-content');
     const save=win.querySelector('#editor-save'),copy=win.querySelector('#editor-save-copy'),badge=win.querySelector('#editor-dirty-state');
     const statusNode=win.querySelector('#editor-status-text'),count=win.querySelector('#editor-character-count'),title=win.querySelector('.window-title');
+    const closeDialog=win.querySelector('#editor-close-dialog');
     let id=null,parent='root',readOnly=false,hasFile=false,dirty=false,savedName='untitled.md',savedBody='',loadRequestId=0;
+    let closeDialogReturnFocus=null,allowCloseOnce=false,pendingOpenFileId=null;
     const update=()=>{
       dirty=name.value!==savedName||body.value!==savedBody;
       count.textContent=body.value.length+' chars';
@@ -306,7 +308,7 @@
     }
     async function saveDocument(asCopy=false){
       try{
-        if(readOnly&&!asCopy){status(statusNode,'This document is read-only. Use Save copy.',true);return;}
+        if(readOnly&&!asCopy){status(statusNode,'This document is read-only. Use Save copy.',true);return false;}
         let fileName=name.value.trim()||'untitled.md',fileId=id,folder=parent;
         if(readOnly||asCopy||!hasFile){
           if(readOnly||asCopy){if(fileName===savedName){const dot=fileName.lastIndexOf('.');fileName=dot>0?fileName.slice(0,dot)+' copy'+fileName.slice(dot):fileName+' copy';}folder='root';}
@@ -315,19 +317,73 @@
         const item=await store.saveFile({id:fileId,name:fileName,parentId:folder,content:body.value});
         id=item.id;parent=item.parentId;readOnly=false;hasFile=true;name.readOnly=false;body.readOnly=false;name.value=item.name;savedName=item.name;savedBody=item.content;
         status(statusNode,store.getMode()==='memory'?'Saved for this session only · browser storage is unavailable':'Saved locally · '+item.updatedAt);update();
-      }catch(e){status(statusNode,e.message||'Save failed.',true);}
+        return true;
+      }catch(e){status(statusNode,e.message||'Save failed.',true);return false;}
     }
     save.addEventListener('click',()=>saveDocument(false));copy.addEventListener('click',()=>saveDocument(true));
     win.addEventListener('keydown',(event)=>{
+      if(!closeDialog.hidden&&event.key==='Escape'){
+        event.preventDefault();event.stopPropagation();pendingOpenFileId=null;hideCloseDialog(true);return;
+      }
       if(!(event.ctrlKey||event.metaKey)||event.key.toLowerCase()!=='s')return;
       event.preventDefault();
       if(event.shiftKey)saveDocument(true);else saveDocument(false);
     });
     name.addEventListener('input',update);body.addEventListener('input',update);
+    function showCloseDialog() {
+      if (!closeDialog.hidden) return;
+      closeDialogReturnFocus=document.activeElement;
+      closeDialog.hidden=false;
+      closeDialog.querySelector('[data-editor-close-action="save"]').focus({preventScroll:true});
+      emit('editor.close-prompt-opened',{entryId:id,name:name.value});
+    }
+    function hideCloseDialog(restoreFocus=true) {
+      closeDialog.hidden=true;
+      if(restoreFocus&&closeDialogReturnFocus instanceof HTMLElement&&closeDialogReturnFocus.isConnected) {
+        closeDialogReturnFocus.focus({preventScroll:true});
+      }
+      closeDialogReturnFocus=null;
+    }
+    closeDialog.addEventListener('click',async(event)=>{
+      const button=event.target.closest('[data-editor-close-action]');
+      if(!button)return;
+      const choice=button.dataset.editorCloseAction;
+      if(choice==='cancel') {
+        pendingOpenFileId=null;
+        hideCloseDialog(true);
+        emit('editor.close-cancelled',{entryId:id});
+        return;
+      }
+      const targetFileId=pendingOpenFileId;
+      if(choice==='save') {
+        const saved=await saveDocument(false);
+        if(!saved)return;
+        pendingOpenFileId=null;
+        hideCloseDialog(false);
+        if(targetFileId) load(targetFileId);
+        else global.WindowManager.closeWindow(win.id);
+        return;
+      }
+      pendingOpenFileId=null;
+      hideCloseDialog(false);
+      if(targetFileId) {
+        load(targetFileId);
+        return;
+      }
+      allowCloseOnce=true;
+      global.WindowManager.closeWindow(win.id);
+      if(win.isConnected) {
+        allowCloseOnce=false;
+        showCloseDialog();
+      }
+    });
+
     const onOpen=(e)=>{
       if(!e.detail||!e.detail.id||!win.isConnected)return;
       update();
-      if(dirty&&!global.confirm('Discard unsaved changes to "'+name.value+'" before opening another document?')){
+      if(dirty){
+        pendingOpenFileId=e.detail.id;
+        showCloseDialog();
         e.preventDefault();
         return;
       }
@@ -335,7 +391,11 @@
     };
     global.addEventListener('osbio:open-file',onOpen);
     win.addEventListener('osbio:dispose',()=>{loadRequestId+=1;global.removeEventListener('osbio:open-file',onOpen);},{once:true});
-    win.addEventListener('osbio:before-close',(e)=>{update();if(dirty&&!global.confirm('Discard unsaved changes to "'+name.value+'"?'))e.preventDefault();});
+    win.addEventListener('osbio:before-close',(event)=>{
+      update();
+      if(allowCloseOnce){allowCloseOnce=false;return;}
+      if(dirty){event.preventDefault();showCloseDialog();}
+    });
     name.value=savedName;
     body.value='';
     status(statusNode,'New document · not saved');

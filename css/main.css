@@ -1544,3 +1544,38 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
   cursor: pointer;
 }
 .files-move-error { min-height: 1rem; color: #a52d26; font-size: .72rem; }
+
+/* Editor close decision stays in the app surface and preserves visible keyboard focus. */
+.editor-app { position: relative; }
+.editor-close-dialog {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(16,21,18,.38);
+}
+.editor-close-dialog[hidden] { display: none !important; }
+.editor-close-prompt {
+  width: min(27rem,100%);
+  padding: 1.1rem;
+  border: 1px solid #9fa99a;
+  background: #eef0e6;
+  color: #1b2820;
+  box-shadow: 0 14px 30px rgba(0,0,0,.28);
+}
+.editor-close-prompt h3 { margin: 0 0 .55rem; font: 600 .92rem var(--font-ui); }
+.editor-close-prompt p { margin: 0 0 1rem; color: #566457; font-size: .78rem; line-height: 1.5; }
+.editor-close-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .4rem; }
+.editor-close-actions button {
+  min-height: 2.2rem;
+  padding: .4rem .6rem;
+  border: 1px solid #b4beb0;
+  background: #f7f8f1;
+  color: #263128;
+  font: 500 .72rem var(--font-ui);
+  cursor: pointer;
+}
+.editor-close-actions button:hover { border-color: #7b8a7d; background: #fff; }
+.editor-close-actions button:focus-visible { outline: 2px solid #8c7b18; outline-offset: 2px; }

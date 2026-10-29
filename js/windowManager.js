@@ -134,7 +134,22 @@ const WindowManager = (() => {
       editor: {
         title: 'Editor', width: '760px', height: '560px',
         content: `
-          <div class="editor-app"><div class="editor-toolbar"><label for="editor-name">Document</label><input id="editor-name" type="text" maxlength="120" value="untitled.md" autocomplete="off"><span id="editor-dirty-state" class="editor-dirty-state">NEW DOCUMENT</span><button id="editor-save" type="button">Save</button><button id="editor-save-copy" type="button">Save copy</button></div><textarea id="editor-content" spellcheck="false" aria-label="Document contents" placeholder="Start writing…"></textarea><footer class="editor-status"><span id="editor-status-text" role="status" aria-live="polite">New document · not saved</span><span id="editor-character-count">0 chars</span></footer></div>
+          <div class="editor-app">
+            <div class="editor-toolbar"><label for="editor-name">Document</label><input id="editor-name" type="text" maxlength="120" value="untitled.md" autocomplete="off"><span id="editor-dirty-state" class="editor-dirty-state">NEW DOCUMENT</span><button id="editor-save" type="button">Save</button><button id="editor-save-copy" type="button">Save copy</button></div>
+            <textarea id="editor-content" spellcheck="false" aria-label="Document contents" placeholder="Start writing…"></textarea>
+            <footer class="editor-status"><span id="editor-status-text" role="status" aria-live="polite">New document · not saved</span><span id="editor-character-count">0 chars</span></footer>
+            <div class="editor-close-dialog" id="editor-close-dialog" role="dialog" aria-modal="true" aria-labelledby="editor-close-title" hidden>
+              <section class="editor-close-prompt">
+                <h3 id="editor-close-title">Unsaved changes</h3>
+                <p>This document has changes that have not been saved.</p>
+                <div class="editor-close-actions">
+                  <button type="button" data-editor-close-action="cancel">Keep editing</button>
+                  <button type="button" data-editor-close-action="discard">Discard</button>
+                  <button type="button" data-editor-close-action="save">Save changes</button>
+                </div>
+              </section>
+            </div>
+          </div>
         `
       },
       settings: {
