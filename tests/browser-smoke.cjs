@@ -296,10 +296,38 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       return node && node.textContent.includes('Saved locally') &&
         document.querySelector('#editor-content')?.value === text;
     }, expectedText);
+    const legacyWorkspacePrepared = await page.evaluate(async () => {
+      if (window.OSBioStorage.getMode() !== 'indexeddb') return false;
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('osbio-workspace', 1);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          const db = request.result;
+          const transaction = db.transaction('entries', 'readwrite');
+          transaction.objectStore('entries').delete('file-system-notes');
+          transaction.oncomplete = () => { db.close(); resolve(true); };
+          transaction.onerror = () => { db.close(); reject(transaction.error); };
+          transaction.onabort = () => { db.close(); reject(transaction.error); };
+        };
+      });
+    });
+    assert.equal(legacyWorkspacePrepared, true, 'test requires the normal IndexedDB-backed workspace');
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.body.classList.contains('desktop-ready'), { timeout: 6000 });
     assert.equal(await page.evaluate(() => window.WindowManager.getSnapshot().windows.length), 0,
       'saved geometry must not auto-open windows after reload');
+    const migratedWorkspace = await page.evaluate(async () => {
+      await window.OSBioStorage.ready();
+      const all = await window.OSBioStorage.listAll();
+      const notes = all.find((entry) => entry.id === 'file-system-notes');
+      const userFile = all.find((entry) => entry.name === 'browser-smoke-renamed.md');
+      return {
+        notesPresent: Boolean(notes && notes.system && notes.readOnly && notes.parentId === 'folder-documents'),
+        userContentPreserved: Boolean(userFile && userFile.content.includes('OSBio browser persistence'))
+      };
+    });
+    assert.equal(migratedWorkspace.notesPresent, true, 'System Notes should be added to an existing workspace');
+    assert.equal(migratedWorkspace.userContentPreserved, true, 'seed migration must preserve the existing user file');
     await page.locator('.taskbar-btn[data-app="projects"]').click();
     const persistedProjectWindow = page.locator('.window[data-app-name="projects"]');
     await persistedProjectWindow.waitFor({ state: 'visible' });

@@ -86,7 +86,10 @@ test('local workspace storage exposes safe file operations and bounded event his
   for (const api of ['ready', 'list', 'listAll', 'createFolder', 'saveFile', 'rename', 'move', 'remove', 'stats', 'exportData', 'importData', 'clearUserData']) {
     assert.ok(core.includes(api), 'missing storage API: ' + api);
   }
-  assert.match(core, /indexedDB\.open/);
+  assert.match(core, /indexedDB\\.open/);
+  assert.match(core, /file-system-notes/);
+  assert.match(core, /missingBuiltIns/);
+  assert.match(core, /storage\\.migrated/);
   assert.match(core, /localStorage/);
   assert.match(core, /storage\.degraded/);
   assert.match(core, /EVENT_LIMIT/);

@@ -144,7 +144,7 @@ Tasks:
 - Resize and restore do not corrupt window geometry.
 - Keyboard and mobile users can switch, minimize/maximize and close apps.
 
-**Verification:** Chromium smoke run [40814174899](https://github.com/shimleabyte/osbio/actions/runs/40814174899) and deployment [40814174713](https://github.com/shimleabyte/osbio/actions/runs/40814174713) passed for commit `95cdedb30ddea07cd7d114752ded8c6915ed45fc`.
+**Verification:** Chromium [40815679109](https://github.com/shimleabyte/osbio/actions/runs/40815679109) and deployment [40815678169](https://github.com/shimleabyte/osbio/actions/runs/40815678169) passed for commit `2aaf2264cb5aaa19550e5c2dbb9e3b2eea0366c8`.
 
 ### Phase 2 — Shared state and local persistence foundation
 
@@ -175,29 +175,31 @@ Tasks:
 **Goal:** make the virtual environment useful beyond portfolio navigation.
 
 #### Files app
-- [ ] Folder and file listing.
-- [ ] Breadcrumb navigation and a defined root.
-- [ ] Create, rename, move and delete operations.
-- [ ] Open supported text files in the Editor.
-- [ ] Context menu for common operations, with keyboard equivalents.
-- [ ] Empty, loading, error and permission/read-only states.
-- [ ] Clear distinction between built-in files and user-created files.
-- [ ] Mobile-friendly list layout and touch-sized targets.
+- [x] Folder and file listing.
+- [x] Breadcrumb navigation and a defined root.
+- [x] Create, rename, move and delete operations.
+- [x] Open supported text files in the Editor.
+- [x] Context menu for common operations, with keyboard equivalents.
+- [x] Empty, loading, error and permission/read-only states.
+- [x] Clear distinction between built-in files and user-created files.
+- [x] Mobile-friendly list layout and touch-sized targets.
 
 #### Editor app
-- [ ] Open and edit text documents.
-- [ ] Save and reopen documents through the shared storage layer.
-- [ ] Unsaved-change indicator.
-- [ ] Explicit behavior for closing a dirty document: save, discard or cancel.
-- [ ] Basic plain-text editing and file metadata; avoid feature creep into a full IDE.
-- [ ] Useful empty, saved, failed-save and conflict states where applicable.
+- [x] Open and edit text documents.
+- [x] Save and reopen documents through the shared storage layer.
+- [x] Unsaved-change indicator.
+- [x] Explicit in-app Save, Discard and Keep editing actions for dirty close or file switching.
+- [x] Basic plain-text editing and file metadata; avoid feature creep into a full IDE.
+- [x] Empty, saved, failed-save and session-only states; multi-writer conflict handling is not claimed.
 
 #### Seeded content
-- [ ] Provide a small set of real OSBio/project documents: workspace notes, verified project descriptions and system documentation.
-- [ ] Keep seeded content accurate and link back to the real repositories.
-- [ ] Avoid fake personal documents or invented artifacts merely to make the filesystem look populated.
+- [x] Provide real built-in workspace notes, System Notes and a project index with repository links.
+- [x] Keep seeded content accurate and link back to the real repositories.
+- [x] Avoid fake personal documents or invented artifacts merely to make the filesystem look populated.
 
-**Acceptance criteria:** create a file, edit it, save it, close the app, reopen it and reload the page; the file and contents remain intact. Destructive actions are recoverable or explicitly confirmed.
+**Acceptance criteria:** create a file, edit it, save it, close the app, reopen it and reload the page; the file and contents remain intact. Destructive actions are explicitly confirmed.
+
+**Verification:** Chromium [40815679109](https://github.com/shimleabyte/osbio/actions/runs/40815679109) and deployment [40815678169](https://github.com/shimleabyte/osbio/actions/runs/40815678169) passed for commit `2aaf2264cb5aaa19550e5c2dbb9e3b2eea0366c8`. The seed-migration check added in the current commit awaits a fresh run.
 
 ### Phase 4 — Settings and honest system information
 
@@ -565,3 +567,10 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Reuse the same decision prompt when opening a different file while the current document has unsaved changes.
 - [x] Add browser tests for all three decisions and for saved content surviving reopen.
 - [ ] Run Chromium and deployment for this commit before fully closing Phase 3.
+
+### Stage 3 — seeded system documentation and migration safety (2026-10-29)
+
+- [x] Add read-only `System Notes.md` documenting actual shell shortcuts, storage behavior, transfer limits and host OS limitations.
+- [x] Migrate newly introduced built-in documents into existing workspaces without replacing user-created records.
+- [x] Add a browser regression that removes the new built-in record from an otherwise populated workspace, reloads, and verifies System Notes is restored while user content remains.
+- [ ] Run Chromium and deployment for this migration change.

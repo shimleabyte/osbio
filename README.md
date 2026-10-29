@@ -88,3 +88,5 @@ node --test tests/source-smoke.test.mjs
 ```
 
 GitHub Actions runs source-contract tests and a Chromium smoke suite on pushes to `main` and pull requests. The browser suite checks launcher/window navigation, shared project rendering, file persistence across reload, settings persistence, Memory Match, mobile layout, and uncaught JavaScript errors.
+
+Built-in read-only documents include `Welcome.md`, `System Notes.md` and `Project Index.md`. The storage layer seeds new built-in notes into older workspaces without replacing user-created files.
