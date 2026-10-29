@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { chromium } = require('playwright');
 
-fs.mkdirSync('.artifacts', { recursive: true });
+fs.mkdirSync('artifacts', { recursive: true });
 
 const BASE_URL = process.env.OSBIO_BASE_URL || 'http://127.0.0.1:4173';
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -75,10 +75,10 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     assert.deepEqual(visibleShellText, [], 'idle shell chrome should show icons and the clock, not labels');
     assert.match(await page.locator('#system-clock').textContent(), /\d{2}:\d{2}/);
     // Capture real shell states for the repository documentation artifact.
-    await page.screenshot({ path: '.artifacts/osbio-desktop.png', animations: 'disabled' });
+    await page.screenshot({ path: 'artifacts/osbio-desktop.png', animations: 'disabled' });
     await page.locator('#launcher-toggle').click();
     await page.locator('#app-launcher').waitFor({ state: 'visible' });
-    await page.screenshot({ path: '.artifacts/osbio-launcher.png', animations: 'disabled' });
+    await page.screenshot({ path: 'artifacts/osbio-launcher.png', animations: 'disabled' });
     await page.keyboard.press('Escape');
     assert.equal(await page.locator('#app-launcher').isVisible(), false,
       'capturing the launcher screenshot should leave the shell closed for the rest of the suite');
