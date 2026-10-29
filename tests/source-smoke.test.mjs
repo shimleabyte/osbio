@@ -100,7 +100,7 @@ test('Settings and System Monitor use real local preference and session APIs', (
   assert.match(windows, /settings: \{/);
   assert.match(windows, /system: \{/);
   assert.match(windows, /getSnapshot/);
-  assert.match(workspaceApps, /OSBioSettings\.update/);
+  assert.match(workspaceApps, /settings\.update/);
   assert.match(workspaceApps, /OSBioStorage\.clearUserData/);
   assert.match(workspaceApps, /OSBioEvents\.recent/);
   assert.match(settingsModule, /localStorage/);
