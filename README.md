@@ -11,7 +11,7 @@ My portfolio, built as a small desktop OS: a boot screen, a dock, draggable wind
 | About | Bio, stack, interests |
 | Projects | Expandable project cards |
 | Contact | Email and GitHub |
-| Resume | PDF preview and download |
+| Resume | Honest unavailable state until a PDF is published |
 | Terminal | `help`, `about`, `projects`, `contact`, `open <app>`, `clear` |
 | Memory Match | Card-matching game |
 
@@ -27,7 +27,7 @@ python3 -m http.server 8000
 
 Open http://localhost:8000. Any static server works.
 
-To enable the Resume app, add your PDF at the repo root as `resume.pdf`.
+The Resume app currently shows an explicit unavailable state because `resume.pdf` is not published in the repository. When the actual resume is ready, add it at the repo root as `resume.pdf` and restore the preview/download controls.
 
 ## Structure
 
