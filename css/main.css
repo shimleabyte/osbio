@@ -928,6 +928,45 @@ body {
   background: white;
 }
 
+.resume-unavailable {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 15rem;
+  max-width: 38rem;
+  margin: auto;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  border: 1px solid var(--color-window-border);
+  background: var(--color-window-header-bg);
+}
+
+.resume-status-code {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+}
+
+.resume-unavailable h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.resume-unavailable > p:not(.resume-status-code) {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.resume-unavailable .project-links {
+  margin-top: 0.5rem;
+}
+
 /* Hide PDF controls when printing */
 @media print {
   .resume-actions {
