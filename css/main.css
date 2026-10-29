@@ -1441,3 +1441,7 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
 @media (prefers-reduced-motion: reduce) {
   .window-content button:not(:disabled):active { transform: none; }
 }
+
+
+/* The active shell owns the full-width taskbar; discard the earlier floating-bar offset. */
+#desktop-screen > .taskbar { left: 0; right: 0; transform: none; max-width: none; border-radius: 0; box-shadow: none; }

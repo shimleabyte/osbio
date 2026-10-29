@@ -442,3 +442,9 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 ### Browser-test follow-up
 - [x] Explicitly expose the window manager on `window` so the Files-to-Editor bridge, System Monitor snapshot and browser lifecycle tests can access the same manager instance.
 - [x] Make Editor save feedback distinguish durable browser storage from a memory-only session fallback.
+
+
+### Browser-driven layout fix
+- [x] Reset the legacy floating-taskbar horizontal transform, which shifted the full-width system taskbar off-screen after the shell rules took over.
+- [x] Add a strict Chromium viewport-bounds assertion for taskbar controls before activating Files.
+- [ ] Re-run the complete browser suite on the final commit and review the deployment.

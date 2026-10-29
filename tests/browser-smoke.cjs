@@ -42,7 +42,11 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     assert.ok(await projectWindow.locator('.project-status').count() >= 3);
 
     // Create a file, edit and save it, then reload and confirm it persisted.
-    await page.locator('.taskbar-btn[data-app="files"]').click();
+    const filesTaskbarButton = page.locator('.taskbar-btn[data-app="files"]');
+    const taskbarBounds = await filesTaskbarButton.boundingBox();
+    assert.ok(taskbarBounds && taskbarBounds.x >= 0 && taskbarBounds.x + taskbarBounds.width <= 1440,
+      'taskbar buttons must stay inside the viewport: ' + JSON.stringify(taskbarBounds));
+    await filesTaskbarButton.click();
     const filesWindow = page.locator('.window[data-app-name="files"]');
     await filesWindow.waitFor({ state: 'visible' });
     await filesWindow.locator('[data-files-action="new-file"]').click();
