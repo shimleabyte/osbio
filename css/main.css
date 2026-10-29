@@ -1466,3 +1466,13 @@ body {
   .boot-progress span { animation:none; width:100%; }
   .window,.project-card,.taskbar-btn,.launcher-item { animation:none!important; transition:none!important; }
 }
+
+/* A dark terminal keeps its own contrast tokens inside the light app-window system. */
+.terminal-app {
+  --color-bg: #101714;
+  --color-text: #e8ede4;
+  --color-text-muted: #9ba99f;
+  --color-window-border: #354239;
+  --color-success: #76d7b4;
+  --color-accent: #e8d64a;
+}
