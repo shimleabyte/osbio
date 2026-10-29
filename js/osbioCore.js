@@ -155,6 +155,7 @@
       { id: 'folder-documents', name: 'Documents', type: 'folder', parentId: 'root', content: '', createdAt: now, updatedAt: now, readOnly: true, system: true },
       { id: 'folder-projects', name: 'Projects', type: 'folder', parentId: 'root', content: '', createdAt: now, updatedAt: now, readOnly: true, system: true },
       { id: 'file-welcome', name: 'Welcome.md', type: 'file', parentId: 'folder-documents', content: '# OSBio workspace\n\nThis browser workspace stores user-created notes locally. It does not access your host file system.\n\nCreate a text file from Files to save your own notes. Built-in documents are read-only; use Save Copy to make an editable version.\n', createdAt: now, updatedAt: now, readOnly: true, system: true },
+      { id: 'file-system-notes', name: 'System Notes.md', type: 'file', parentId: 'folder-documents', content: '# OSBio system notes\\n\\nOSBio is a browser desktop simulation, not a native operating system. It does not run host shell commands or read and write your computer file system.\\n\\n## Window and keyboard controls\\n- Ctrl/Cmd+K opens the application launcher.\\n- Ctrl+Alt+W opens the window overview; Escape dismisses it.\\n- Alt+F4 closes the active app window.\\n- Use title-bar controls to minimize, maximize/restore or close an app. Drag a title bar to move a desktop window; drag to an edge to snap it.\\n- In Files: Enter opens a selected item, F2 renames, Delete removes after confirmation, Ctrl/Cmd+N creates a text file, Ctrl/Cmd+Shift+N creates a folder, Ctrl/Cmd+Shift+M moves, and Alt+Up navigates to the parent folder.\\n- In Editor: Ctrl/Cmd+S saves; Ctrl/Cmd+Shift+S saves a copy. Closing a dirty document offers Save, Discard and Keep editing.\\n\\n## Local workspace data\\n- User-created files and folders stay in this browser profile. They do not sync across browsers or devices.\\n- IndexedDB is the primary virtual filesystem. Browser fallback may use localStorage or temporary memory; memory-mode changes do not survive a reload.\\n- Built-in documents are read-only. Use Save Copy to edit one. Workspace export includes user-created content, not built-in documents.\\n- Imports are limited to 12 MiB UTF-8, 500 items, and 2 MiB characters per text file; malformed IDs and invalid or cyclic folder relationships are rejected.\\n\\n## System Monitor\\nSystem Monitor reports OSBio window state, virtual file counts and this-tab event history. It does not expose actual host CPU, memory, battery, network or process metrics.\\n', createdAt: now, updatedAt: now, readOnly: true, system: true },
       { id: 'file-project-index', name: 'Project Index.md', type: 'file', parentId: 'folder-projects', content: '# Project Index\n\n- [Mutabaah CLI](https://github.com/shimleabyte/mutabaah-cli) — Go CLI for activity tracking.\n- [Simpul](https://github.com/shimleabyte/simpul) — order and payment workflow backend concept.\n- [Optical Anchor Button](https://github.com/shimleabyte/optical-anchor-button) — pointer-driven interaction component.\n- [OSBio](https://github.com/shimleabyte/osbio) — this browser desktop environment.\n', createdAt: now, updatedAt: now, readOnly: true, system: true }
     ];
   };
@@ -168,9 +169,20 @@
       readFallback();
       entries = await readAllRaw();
     }
+    const defaults = builtInEntries();
     if (!entries.length) {
-      await writeAllRaw(builtInEntries());
+      await writeAllRaw(defaults);
       entries = await readAllRaw();
+    } else {
+      // Add newly introduced built-in documents to old workspaces without replacing
+      // or resetting any existing user-created content.
+      const existingIds = new Set(entries.map((entry) => entry.id));
+      const missingBuiltIns = defaults.filter((entry) => entry.system && !existingIds.has(entry.id));
+      if (missingBuiltIns.length) {
+        await writeAllRaw(entries.concat(missingBuiltIns));
+        entries = await readAllRaw();
+        emit('storage.migrated', { addedBuiltIns: missingBuiltIns.map((entry) => entry.id) });
+      }
     }
     emit('storage.ready', { mode, entryCount: entries.length });
     return { mode, entryCount: entries.length };
