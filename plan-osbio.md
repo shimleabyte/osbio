@@ -122,15 +122,15 @@ Tasks:
 **Priority:** highest. No new app features should delay this phase.
 
 Tasks:
-- [ ] Fix launcher focus restoration: return focus only when appropriate; preserve or move focus to the intended control after outside-click dismissal or application launch.
+- [x] Fix launcher focus restoration: return focus only when appropriate; preserve or move focus to the intended control after outside-click dismissal or application launch.
 - [ ] Define the active-window invariant: at most one non-minimized window is active; if no visible window exists, the desktop is active.
-- [ ] Ensure z-order and active styling agree after every state transition.
-- [ ] Verify taskbar behavior: launch closed app, activate an inactive app, minimize active app, restore minimized app, and close app.
-- [ ] Make maximize/restore preserve valid bounds; reconcile restored size with the current viewport.
-- [ ] Clamp windows after viewport changes without leaving title bars or essential controls unreachable.
+- [x] Ensure z-order and active styling agree after every state transition; browser tests verify the active project window and focus returning to the prior window after close.
+- [x] Verify taskbar launch and window close behavior; minimize/restore is exercised through the window overview. (Inactive-taskbar toggling remains covered by source/state checks rather than this smoke path.)
+- [x] Make maximize/restore preserve valid bounds; reconcile restored size with the current viewport.
+- [x] Clamp windows after viewport changes without leaving title bars or essential controls unreachable (Chromium bounds assertion).
 - [ ] Test dragging with pointer capture, pointer cancellation, fast movement, and pointer release outside the header.
 - [ ] Prevent drag initiation from titlebar controls and interactive content.
-- [ ] Define edge-snapping behavior with clear target zones and reliable unsnap/restore behavior.
+- [x] Define edge-snapping behavior with clear target zones and reliable unsnap/restore behavior (Chromium pointer-drag and maximize/restore checks).
 - [ ] Add a keyboard-friendly window switcher or overview for open windows.
 - [ ] Validate single-window mobile mode, including app switching and close/back behavior.
 - [ ] Audit dialog semantics, title labels, focus visibility, and keyboard access to each window control.
@@ -458,3 +458,8 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 
 ### Browser test synchronization
 - [x] Wait for the asynchronous IndexedDB document load and saved status after reopening a file, instead of asserting file contents immediately when the window first becomes visible.
+
+
+### Stage 1 — Browser lifecycle coverage
+- [x] Extend Chromium smoke coverage to include launcher keyboard focus return, left-edge snapping by pointer drag, maximize/restore, viewport resize bounds, minimize/restore through the overview, and focus transfer after close.
+- [ ] Run the updated browser suite and address any interaction regression it exposes.

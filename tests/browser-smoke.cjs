@@ -26,20 +26,62 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     assert.ok(await flowWindow.evaluate((element) => element.offsetLeft >= 116), 'new windows should not cover the desktop shortcut lane');
     await page.locator('#flow-event-list').waitFor({ state: 'visible' });
 
-    // Window overview shows open windows and can focus one.
+    // The launcher shortcut returns focus to the prior control when dismissed with Escape.
+    await page.keyboard.press('Control+k');
+    await page.locator('#app-search').waitFor({ state: 'visible' });
+    await page.keyboard.press('Escape');
+    assert.equal(await page.locator('#app-launcher').isVisible(), false);
+    assert.equal(await flowWindow.evaluate((element) => document.activeElement === element), true);
+
+    // Exercise real pointer snap, maximize/restore, and viewport constraint behavior.
+    const titleGroup = flowWindow.locator('.window-title-group');
+    const titleBounds = await titleGroup.boundingBox();
+    assert.ok(titleBounds, 'window title group should have visible geometry');
+    await page.mouse.move(titleBounds.x + 40, titleBounds.y + titleBounds.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(3, titleBounds.y + titleBounds.height / 2, { steps: 10 });
+    await page.mouse.up();
+    await page.waitForFunction(() => document.querySelector('.window[data-app-name="flow"]')?.classList.contains('snapped-left'));
+    await flowWindow.locator('.window-maximize').click();
+    await page.waitForFunction(() => document.querySelector('.window[data-app-name="flow"]')?.classList.contains('maximized'));
+    await flowWindow.locator('.window-maximize').click();
+    await page.waitForFunction(() => {
+      const element = document.querySelector('.window[data-app-name="flow"]');
+      return element && !element.classList.contains('maximized') && !element.classList.contains('snapped-left');
+    });
+
+    await page.setViewportSize({ width: 900, height: 700 });
+    const resizedBounds = await flowWindow.boundingBox();
+    const desktopBounds = await page.locator('#desktop-surface').boundingBox();
+    assert.ok(resizedBounds && desktopBounds && resizedBounds.x >= desktopBounds.x - 1 &&
+      resizedBounds.x + resizedBounds.width <= desktopBounds.x + desktopBounds.width + 1 &&
+      resizedBounds.y + resizedBounds.height <= desktopBounds.y + desktopBounds.height + 1,
+      'window should remain constrained after viewport resize: ' + JSON.stringify({ resizedBounds, desktopBounds }));
+    await page.setViewportSize({ width: 1440, height: 960 });
+
+    // Minimized windows remain discoverable in the overview and restore when selected.
+    await flowWindow.locator('.window-minimize').click();
+    await page.waitForFunction(() => document.querySelector('.window[data-app-name="flow"]')?.classList.contains('minimized'));
     await page.locator('#window-overview-toggle').click();
     const overview = page.locator('.window-overview');
     await overview.waitFor({ state: 'visible' });
-    assert.ok(await overview.locator('[data-window-id]').count() >= 1);
-    await overview.locator('[data-window-id]').first().click();
+    const flowOverviewItem = overview.locator('[data-window-id]').filter({ hasText: 'Flow Monitor' });
+    await flowOverviewItem.waitFor({ state: 'visible' });
+    await flowOverviewItem.click();
+    await flowWindow.waitFor({ state: 'visible' });
+    assert.equal(await flowWindow.evaluate((element) => element.classList.contains('active')), true);
     await overview.waitFor({ state: 'hidden' });
 
-    // Project cards render from the shared catalogue.
+    // Project cards render from the shared catalogue, and closing the foreground window restores focus.
     await page.locator('.desktop-icon[data-app="projects"]').click();
     const projectWindow = page.locator('.window[data-app-name="projects"]');
     await projectWindow.waitFor({ state: 'visible' });
     assert.equal(await projectWindow.locator('.project-card').count(), 3);
     assert.ok(await projectWindow.locator('.project-status').count() >= 3);
+    assert.equal(await projectWindow.evaluate((element) => element.classList.contains('active')), true);
+    await projectWindow.locator('.window-close').click();
+    await projectWindow.waitFor({ state: 'detached' });
+    assert.equal(await flowWindow.evaluate((element) => element.classList.contains('active')), true);
 
     // Create a file, edit and save it, then reload and confirm it persisted.
     const filesTaskbarButton = page.locator('.taskbar-btn[data-app="files"]');
