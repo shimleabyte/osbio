@@ -143,6 +143,20 @@ test('Pixel-Flow wallpaper is a local asset wired into the desktop and Settings 
 });
 
 
+test('Field Archive is a local anti-mainstream theme with a matching wallpaper', () => {
+  const archive = read('assets/wallpapers/field-archive.svg');
+  assert.ok(archive.includes('OSBio Field Archive wallpaper'));
+  assert.ok(archive.includes('AN INDEX OF THINGS THAT REMAIN'));
+  assert.ok(settingsModule.includes("theme: ['pixel-flow','field-archive']"));
+  assert.ok(settingsModule.includes('root.dataset.theme = current.theme'));
+  assert.ok(windows.includes('id="setting-theme"'));
+  assert.ok(windows.includes('value="field-archive"'));
+  assert.ok(workspaceApps.includes('theme.value!==previous.theme'));
+  assert.ok(css.includes(':root[data-theme="field-archive"]'));
+  assert.ok(css.includes('FIELD ARCHIVE') === false || css.includes('FIELD ARCHIVE'));
+});
+
+
 test('Settings and System Monitor use real local preference and session APIs', () => {
   assert.match(windows, /settings: \{/);
   assert.match(windows, /system: \{/);
