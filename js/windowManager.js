@@ -158,6 +158,7 @@ const WindowManager = (() => {
           <div class="settings-app">
             <header class="settings-heading"><p class="settings-kicker">OSBIO / LOCAL WORKSPACE</p><h2>Settings</h2><p>Changes apply to this browser workspace and are stored locally when browser storage allows.</p></header>
             <section class="settings-section"><h3>Appearance</h3><label>Wallpaper <select id="setting-wallpaper"><option value="flow">Pixel-Flow</option><option value="grid">Grid only</option><option value="plain">Plain field</option></select></label><label>Accent signal <select id="setting-accent"><option value="yellow">Signal yellow</option><option value="green">Flow green</option></select></label><label>Motion <select id="setting-motion"><option value="system">Follow system</option><option value="reduced">Reduced motion</option></select></label><label class="settings-check"><input id="setting-desktop-icons" type="checkbox" checked> Show desktop shortcuts</label></section>
+            <section class="settings-section"><h3>Window layout</h3><p>Return open windows to their default cascade and clear saved geometry. Preferences and user files remain unchanged.</p><div class="settings-actions"><button id="settings-reset-layout" type="button">Reset window layout</button></div></section>
             <section class="settings-section"><h3>Workspace data</h3><p>Files are local to this browser. Export user files from Files before clearing them.</p><div class="settings-actions"><button id="settings-reset" type="button">Reset preferences</button><button id="settings-clear-data" type="button" class="settings-danger">Clear user files</button></div></section>
             <p id="settings-status" class="settings-status" role="status" aria-live="polite">Loading preferences…</p>
           </div>
@@ -437,6 +438,50 @@ const WindowManager = (() => {
     const saved = writeWindowLayouts(layouts);
     if (saved) emitOSBioEvent('layout.saved', { app: appName });
     return saved;
+  }
+
+  function resetWindowLayouts() {
+    let persistent = true;
+    try {
+      window.localStorage.removeItem(WINDOW_LAYOUT_KEY);
+    } catch (error) {
+      persistent = false;
+      emitOSBioEvent('layout.persistence-degraded', { reason: 'Saved window geometry could not be cleared.' });
+    }
+
+    const layerWidth = desktopElement ? desktopElement.clientWidth : 0;
+    const layerHeight = desktopElement ? desktopElement.clientHeight : 0;
+    openWindows.forEach((target, index) => {
+      const template = CONFIG.windowTemplates[target.appName];
+      const desktopSized = layerWidth >= 701;
+      const preferredWidth = Number.parseFloat(template.width) || 480;
+      const shortcutLane = desktopSized
+        ? Math.min(124, Math.max(0, layerWidth - 320))
+        : 0;
+      const availableWidth = desktopSized
+        ? Math.max(320, layerWidth - shortcutLane - 12)
+        : layerWidth;
+      const width = desktopSized ? Math.min(preferredWidth, availableWidth) : preferredWidth;
+      const maxLeft = Math.max(0, layerWidth - Math.min(width, layerWidth));
+      const maxTop = Math.max(0, layerHeight - 96);
+      const offset = (index % 6) * CONFIG.windowOffset;
+      const left = Math.min((desktopSized ? shortcutLane : 12) + offset, maxLeft);
+      const top = Math.min(24 + offset, maxTop);
+
+      target.maximized = false;
+      target.snapped = null;
+      target.restoreBounds = null;
+      target.element.classList.remove('maximized', 'snapped-left', 'snapped-right');
+      target.element.style.width = desktopSized ? width + 'px' : template.width;
+      target.element.style.height = template.height;
+      target.element.style.left = left + 'px';
+      target.element.style.top = top + 'px';
+    });
+
+    constrainWindows();
+    updateTaskbarState();
+    emitOSBioEvent('layout.reset', { persistent, windowCount: openWindows.length });
+    return { persistent, resetWindows: openWindows.length };
   }
 
   // Initialize taskbar button event listeners
@@ -1365,6 +1410,7 @@ const WindowManager = (() => {
       }
     },
     closeWindow,
+    resetWindowLayouts,
     getSnapshot: () => ({
       activeWindowId,
       windows: openWindows.map((item) => ({

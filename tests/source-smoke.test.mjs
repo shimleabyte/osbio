@@ -136,6 +136,10 @@ test('Settings and System Monitor use real local preference and session APIs', (
   assert.match(workspaceApps, /settings\.update/);
   assert.match(workspaceApps, /OSBioStorage\.clearUserData/);
   assert.match(workspaceApps, /OSBioEvents\.recent/);
+  assert.match(windows, /function resetWindowLayouts\(/);
+  assert.match(workspaceApps, /resetWindowLayouts/);
+  assert.match(windows, /layout\.reset/);
+  assert.match(windows, /id="settings-reset-layout"/);
   assert.match(settingsModule, /localStorage/);
 });
 

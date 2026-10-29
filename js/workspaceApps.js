@@ -414,6 +414,12 @@
     [wallpaper,accent,motion].forEach((control)=>control.addEventListener('change',change));
     icons.addEventListener('change',change);
     win.querySelector('#settings-reset').addEventListener('click',()=>{const result=settings.reset();sync();message(result.persistent?'Preferences reset to defaults.':'Defaults applied for this session; browser storage is unavailable.',!result.persistent);});
+    win.querySelector('#settings-reset-layout').addEventListener('click',()=>{
+      try {
+        const result=global.WindowManager.resetWindowLayouts();
+        message(result.persistent?'Window layout reset. Preferences and user files were left unchanged.':'Open windows were reset for this session, but saved geometry could not be cleared.',!result.persistent);
+      } catch(error) { message(error.message||'Could not reset window layout.',true); }
+    });
     win.querySelector('#settings-clear-data').addEventListener('click',async()=>{
       if(!global.confirm('Delete all user-created workspace files and folders? Built-in documents will remain. Export first if you need a backup.'))return;
       try{const result=await global.OSBioStorage.clearUserData();message('User files and folders cleared.');emit('settings.user-data-cleared',result);}
