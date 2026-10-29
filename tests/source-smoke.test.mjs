@@ -153,7 +153,6 @@ test('Field Archive is a local anti-mainstream theme with a matching wallpaper',
   assert.ok(windows.includes('value="field-archive"'));
   assert.ok(workspaceApps.includes('theme.value!==previous.theme'));
   assert.ok(css.includes(':root[data-theme="field-archive"]'));
-  assert.ok(css.includes('FIELD ARCHIVE') === false || css.includes('FIELD ARCHIVE'));
 });
 
 
