@@ -1852,8 +1852,8 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
   background: #e8d64a;
 }
 .guide-toggle { color: #e8d64a; border-color: transparent; white-space: nowrap; }
-.guide-toggle .panel-nav-glyph { color: #e8d64a; }
-.guide-toggle .panel-nav-copy { margin-left: 0; font-size: inherit; }
+.guide-toggle .panel-nav-glyph { color: #e8d64a; margin-left: 0; font-size: inherit; }
+.guide-toggle .panel-nav-copy { margin-left: 0; color: inherit; font-size: inherit; }
 .guide-toggle .panel-count {
   display: inline-grid;
   place-items: center;
