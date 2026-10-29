@@ -37,3 +37,11 @@ jobs:
             sleep 1
           done
           node tests/browser-smoke.cjs
+      - name: Upload real desktop screenshots
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: osbio-readme-screenshots
+          path: .artifacts/*.png
+          if-no-files-found: error
+          retention-days: 1
