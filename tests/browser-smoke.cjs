@@ -51,6 +51,12 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       const element = document.querySelector('.window[data-app-name="flow"]');
       return element && !element.classList.contains('maximized') && !element.classList.contains('snapped-left');
     });
+    const restoredFlowBounds = await flowWindow.boundingBox();
+    const projectShortcutBounds = await page.locator('.desktop-icon[data-app="projects"]').boundingBox();
+    assert.ok(restoredFlowBounds && projectShortcutBounds &&
+      restoredFlowBounds.x >= projectShortcutBounds.x + projectShortcutBounds.width - 1,
+      'restoring a snapped window should not leave it covering desktop shortcuts: ' +
+        JSON.stringify({ restoredFlowBounds, projectShortcutBounds }));
 
     await page.setViewportSize({ width: 900, height: 700 });
     await page.waitForFunction(() => {

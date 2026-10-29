@@ -47,6 +47,9 @@ test('window lifecycle safeguards remain present', () => {
   assert.match(windows, /addEventListener\('resize', scheduleConstrainWindows\)/);
   assert.match(windows, /ResizeObserver/);
   assert.match(windows, /function scheduleConstrainWindows\(/);
+  assert.match(windows, /function snapWindow\(windowId, side, restoreBounds = null\)/);
+  assert.match(windows, /function maximizeWindow\(windowId, restoreBounds = null\)/);
+  assert.match(windows, /dragStartBounds = getWindowBounds\(target\)/);
 });
 
 test('Memory Match has restart, mismatch-timer cleanup and stale-round guard', () => {

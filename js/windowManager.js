@@ -559,6 +559,7 @@ const WindowManager = (() => {
     const maximizeBtn = windowElement.querySelector('.window-maximize');
     let isDragging = false;
     let didMove = false;
+    let dragStartBounds = null;
     let offsetX, offsetY;
 
     // Focus window when clicked
@@ -610,6 +611,8 @@ const WindowManager = (() => {
         emitOSBioEvent('window.restored-for-drag', { app: target.appName, windowId });
       }
 
+      // Capture a usable restore rectangle before pointer movement or snapping changes it.
+      dragStartBounds = getWindowBounds(target);
       isDragging = true;
       didMove = false;
       offsetX = e.clientX - windowElement.offsetLeft;
@@ -644,13 +647,15 @@ const WindowManager = (() => {
       document.removeEventListener('pointerup', stopDrag);
       document.removeEventListener('pointercancel', stopDrag);
 
+      const restoreBounds = dragStartBounds;
+      dragStartBounds = null;
       if (!didMove || event?.type !== 'pointerup' || desktopElement.clientWidth < 701) return;
       if (event.clientY <= 8) {
-        maximizeWindow(windowId);
+        maximizeWindow(windowId, restoreBounds);
       } else if (event.clientX <= 8) {
-        snapWindow(windowId, 'left');
+        snapWindow(windowId, 'left', restoreBounds);
       } else if (desktopElement.clientWidth - event.clientX <= 8) {
-        snapWindow(windowId, 'right');
+        snapWindow(windowId, 'right', restoreBounds);
       }
     }
 
@@ -1063,10 +1068,10 @@ const WindowManager = (() => {
     };
   }
 
-  function snapWindow(windowId, side) {
+  function snapWindow(windowId, side, restoreBounds = null) {
     const target = openWindows.find((item) => item.id === windowId);
     if (!target || (side !== 'left' && side !== 'right') || desktopElement.clientWidth < 701) return;
-    if (!target.maximized && !target.snapped) target.restoreBounds = getWindowBounds(target);
+    if (!target.maximized && !target.snapped) target.restoreBounds = restoreBounds || getWindowBounds(target);
     target.maximized = false;
     target.snapped = side;
     target.element.classList.remove('maximized', 'snapped-left', 'snapped-right');
@@ -1124,12 +1129,12 @@ const WindowManager = (() => {
     updateTaskbarState();
   }
 
-  function maximizeWindow(windowId) {
+  function maximizeWindow(windowId, restoreBounds = null) {
     const target = openWindows.find((w) => w.id === windowId);
     if (!target) return;
     focusWindow(windowId);
     if (!target.maximized) {
-      if (!target.snapped) target.restoreBounds = getWindowBounds(target);
+      if (!target.snapped) target.restoreBounds = restoreBounds || getWindowBounds(target);
       target.maximized = true;
       target.snapped = null;
       target.element.classList.remove('snapped-left', 'snapped-right');

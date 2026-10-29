@@ -481,3 +481,11 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Make Settings reset feedback distinguish durable preferences from session-only fallback.
 - [x] Extend browser smoke coverage for settled resizing and taskbar minimize/restore.
 - [ ] Re-run the browser workflow for this implementation commit. Resize, pointer, overview and persistence gates remain open until CI passes.
+
+### Browser-driven snap/restore regression (2026-10-29)
+
+- [x] Preserve the normal window rectangle captured before dragging to a snap edge or maximize target.
+- [x] Pass that rectangle into snap/maximize state transitions so the restore geometry is not captured after the drag has already clamped the window at the edge.
+- [x] Add a Chromium regression assertion that snap → maximize → restore leaves the window outside the desktop-shortcut lane.
+- [x] Keep the desktop taskbar tooltip visible at normal widths; constrain horizontal scrolling to narrow workspace widths.
+- [ ] Re-run Chromium to verify the restore bounds, overview hit targets, taskbar toggling and remaining smoke scenarios.
