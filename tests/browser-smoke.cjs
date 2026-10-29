@@ -21,6 +21,27 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.waitForFunction(() => document.body.classList.contains('desktop-ready'), { timeout: 6000 });
     assert.equal(await page.locator('#desktop-screen').getAttribute('aria-hidden'), 'false');
     assert.equal(await page.title(), 'osbio', 'the browser tab title should use the product name only');
+    const logoFrame = await page.locator('.osbio-logo-frame').evaluate((element) => ({
+      backgroundImage: getComputedStyle(element).backgroundImage,
+      symbol: element.querySelector('use')?.getAttribute('href'),
+      symbolParts: document.querySelector('#pf-logo-mark')?.querySelectorAll('path,rect').length
+    }));
+    assert.ok(logoFrame.backgroundImage.includes('linear-gradient'),
+      'the logo surround should use the split-corner outline rails');
+    assert.equal(logoFrame.symbol, '#pf-logo-mark');
+    assert.ok(logoFrame.symbolParts >= 12, 'the pixel-flow mark should retain its layered outlined geometry');
+    const firstIconOutline = await page.locator('.desktop-icon .app-icon').first()
+      .evaluate((element) => getComputedStyle(element).backgroundImage);
+    assert.ok(firstIconOutline.includes('linear-gradient'),
+      'desktop app icons should inherit the segmented outline style');
+    const shellOutlineAudit = await page.evaluate(() => ({
+      launcher: getComputedStyle(document.querySelector('#app-launcher')).backgroundImage,
+      dock: getComputedStyle(document.querySelector('.taskbar-apps')).backgroundImage,
+      nav: getComputedStyle(document.querySelector('.panel-navigation')).backgroundImage
+    }));
+    assert.ok(shellOutlineAudit.launcher.includes('linear-gradient'), 'launcher should use segmented edges');
+    assert.ok(shellOutlineAudit.dock.includes('linear-gradient'), 'dock should use segmented edges');
+    assert.ok(shellOutlineAudit.nav.includes('linear-gradient'), 'top navigation should use segmented edges');
     const visitorGuide = page.locator('#visitor-guide');
     assert.equal(await visitorGuide.isVisible(), false, 'the default desktop should open without a copy-heavy guide');
     const visibleShellText = await page.evaluate(() => {

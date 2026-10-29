@@ -2431,3 +2431,219 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
   .launcher-toggle .osbio-logo-frame,.panel-chevron { transition:none; }
   .boot-logo { animation:none; }
 }
+
+
+/* Shared outline language: segmented rails, open corners, and no decorative glow. */
+:root {
+  --pf-outline-dark: #0b130e;
+  --pf-outline-low: #2d4031;
+  --pf-outline-mid: #506a52;
+  --pf-outline-high: #81977a;
+  --pf-outline-yellow: #e8d64a;
+  --pf-outline-mint: #76d7b4;
+}
+
+/* The OSBio mark uses an interrupted frame instead of a generic rectangular badge. */
+.osbio-logo-frame {
+  --mark-edge-a: var(--pf-outline-yellow);
+  --mark-edge-b: var(--pf-outline-mint);
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  box-sizing: border-box;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 4px;
+  border: 0;
+  background:
+    linear-gradient(var(--mark-edge-a),var(--mark-edge-a)) 4px 0 / calc(100% - 8px) 2px no-repeat,
+    linear-gradient(var(--mark-edge-a),var(--mark-edge-a)) 0 4px / 2px calc(100% - 8px) no-repeat,
+    linear-gradient(var(--mark-edge-b),var(--mark-edge-b)) 4px 100% / calc(100% - 8px) 2px no-repeat,
+    linear-gradient(var(--mark-edge-b),var(--mark-edge-b)) 100% 4px / 2px calc(100% - 8px) no-repeat,
+    #111812;
+  box-shadow: 2px 2px 0 #070d09;
+}
+.osbio-logo-mark { display:block; width:100%; height:100%; overflow:visible; shape-rendering:crispEdges; }
+.launcher-toggle .osbio-logo-frame { transition:transform 150ms steps(3,end),box-shadow 150ms linear; }
+.launcher-toggle:hover .osbio-logo-frame,
+.launcher-toggle:focus-visible .osbio-logo-frame {
+  --mark-edge-a: #fff09a;
+  --mark-edge-b: #b4eed7;
+  transform: translate(-1px,-1px);
+  box-shadow: 3px 3px 0 #070d09;
+}
+.launcher-toggle.is-active .osbio-logo-frame { --mark-edge-a: var(--pf-outline-mint); --mark-edge-b: var(--pf-outline-yellow); }
+
+/* App tiles share the same missing-corner contour; the tiny accent pixel completes the frame. */
+.app-icon {
+  --icon-edge: var(--pf-outline-mid);
+  border: 0;
+  background:
+    linear-gradient(var(--icon-edge),var(--icon-edge)) 4px 0 / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--icon-edge),var(--icon-edge)) 0 4px / 1px calc(100% - 8px) no-repeat,
+    linear-gradient(var(--pf-outline-dark),var(--pf-outline-dark)) 4px 100% / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-dark),var(--pf-outline-dark)) 100% 4px / 1px calc(100% - 8px) no-repeat,
+    linear-gradient(135deg, rgba(239,247,225,.075), transparent 42%),
+    linear-gradient(315deg, rgba(0,0,0,.28), transparent 54%),
+    var(--icon-ground, #1a281e);
+  box-shadow: none;
+}
+.app-icon::before {
+  inset: 4px;
+  border-top: 1px solid rgba(239,247,225,.12);
+  border-left: 1px solid rgba(239,247,225,.1);
+}
+.app-icon-projects { --icon-edge: #b4a44d; }
+.app-icon-about { --icon-edge: #779880; }
+.app-icon-files { --icon-edge: #a4a75b; }
+.app-icon-editor { --icon-edge: #9eaa87; }
+.app-icon-contact { --icon-edge: #8ea68d; }
+.app-icon-terminal { --icon-edge: #738d78; }
+.app-icon-resume { --icon-edge: #b6ae71; }
+.app-icon-settings { --icon-edge: #9e9c58; }
+.app-icon-memory { --icon-edge: #829c7b; }
+.app-icon-system { --icon-edge: #7d9e91; }
+.app-icon-flow { --icon-edge: #8daa91; }
+.desktop-icon:hover .app-icon,
+.desktop-icon:focus-visible .app-icon,
+.launcher-item:hover .app-icon,
+.launcher-item:focus-visible .app-icon,
+.taskbar-btn:hover .app-icon,
+.taskbar-btn:focus-visible .app-icon {
+  --icon-edge: var(--icon-accent, var(--pf-outline-yellow));
+  transform: translate(-1px,-1px);
+  box-shadow: none;
+}
+.taskbar-btn.active .app-icon { --icon-edge: var(--pf-outline-yellow); }
+
+/* Dark-shell surfaces use interrupted keylines; window frames inside apps remain conventional. */
+.panel-navigation {
+  border: 0;
+  background:
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 4px 0 / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 0 4px / 1px calc(100% - 8px) no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 4px 100% / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 100% 4px / 1px calc(100% - 8px) no-repeat,
+    #101612;
+}
+.local-status {
+  border: 0;
+  background:
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 3px 0 / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 0 3px / 1px calc(100% - 6px) no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 3px 100% / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 100% 3px / 1px calc(100% - 6px) no-repeat,
+    #111812;
+}
+.app-launcher {
+  border: 0;
+  border-top: 0;
+  background:
+    linear-gradient(var(--pf-outline-yellow),var(--pf-outline-yellow)) 5px 0 / 29px 2px no-repeat,
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 34px 0 / calc(100% - 39px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 0 5px / 1px calc(100% - 10px) no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 5px 100% / calc(100% - 10px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 100% 5px / 1px calc(100% - 10px) no-repeat,
+    #151d17;
+}
+.app-launcher .launcher-item {
+  --tile-edge: #2d4031;
+  --tile-surface: #101711;
+  border: 0;
+  background:
+    linear-gradient(var(--tile-edge),var(--tile-edge)) 4px 0 / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--tile-edge),var(--tile-edge)) 0 4px / 1px calc(100% - 8px) no-repeat,
+    linear-gradient(var(--tile-edge),var(--tile-edge)) 4px 100% / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--tile-edge),var(--tile-edge)) 100% 4px / 1px calc(100% - 8px) no-repeat,
+    var(--tile-surface);
+}
+.app-launcher .launcher-item:hover,
+.app-launcher .launcher-item:focus-visible {
+  --tile-edge: var(--icon-accent, var(--pf-outline-yellow));
+  --tile-surface: #202b22;
+  border: 0;
+  box-shadow: none;
+}
+.app-launcher .launcher-item:focus-visible { outline: 2px solid var(--pf-outline-yellow); outline-offset: 2px; }
+.taskbar-apps {
+  border: 0;
+  background:
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 4px 0 / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 0 4px / 1px calc(100% - 8px) no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 4px 100% / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 100% 4px / 1px calc(100% - 8px) no-repeat,
+    #111813;
+  box-shadow: 0 8px 22px rgba(0,0,0,.28);
+}
+.taskbar-btn:hover {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 3px 0 / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 0 3px / 1px calc(100% - 6px) no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 3px 100% / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 100% 3px / 1px calc(100% - 6px) no-repeat,
+    #202b23;
+  box-shadow: none;
+}
+.taskbar-btn.open,
+.taskbar-btn.active {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 3px 0 / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 0 3px / 1px calc(100% - 6px) no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 3px 100% / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 100% 3px / 1px calc(100% - 6px) no-repeat,
+    #1b271e;
+  box-shadow: none;
+}
+.taskbar-btn.active { --pf-outline-mid: var(--pf-outline-yellow); }
+.taskbar-btn.active::after { background: var(--pf-outline-yellow); }
+
+/* App markers carry the same split-corner frame into window title bars. */
+.window-app-marker {
+  border: 0;
+  padding: 2px;
+  background:
+    linear-gradient(#708a68,#708a68) 3px 0 / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(#708a68,#708a68) 0 3px / 1px calc(100% - 6px) no-repeat,
+    linear-gradient(#27362a,#27362a) 3px 100% / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(#27362a,#27362a) 100% 3px / 1px calc(100% - 6px) no-repeat,
+    #17251b;
+  box-shadow: none;
+}
+@media (prefers-reduced-motion:reduce) {
+  .app-icon,.launcher-toggle .osbio-logo-frame { transition:none; }
+  .desktop-icon:hover .app-icon,
+  .desktop-icon:focus-visible .app-icon,
+  .launcher-item:hover .app-icon,
+  .launcher-item:focus-visible .app-icon,
+  .taskbar-btn:hover .app-icon,
+  .taskbar-btn:focus-visible .app-icon { transform:none; }
+}
+
+/* Hover outlines use corner rails too; keyboard focus keeps a clear full focus ring. */
+.launcher-toggle:hover,
+.launcher-toggle.is-active { border-color: transparent; background: transparent; }
+.panel-nav-button:hover,
+.panel-nav-button:focus-visible {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 3px 0 / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 0 3px / 1px calc(100% - 6px) no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 3px 100% / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 100% 3px / 1px calc(100% - 6px) no-repeat,
+    #202a22;
+  box-shadow: none;
+}
+.panel-nav-button:focus-visible { outline: 2px solid var(--pf-outline-yellow); outline-offset: 2px; }
+.guide-toggle:hover,.guide-toggle:focus-visible { border-color: transparent; color: #f0f2e9; }
+.desktop-icon:hover,
+.desktop-icon:focus-visible {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 4px 0 / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-mid),var(--pf-outline-mid)) 0 4px / 1px calc(100% - 8px) no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 4px 100% / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 100% 4px / 1px calc(100% - 8px) no-repeat,
+    rgba(20,34,25,.72);
+}

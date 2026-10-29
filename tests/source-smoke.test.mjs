@@ -7,6 +7,7 @@ import { dirname, resolve } from 'node:path';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
 const html = read('index.html');
+const logoAsset = read('assets/osbio-mark.svg');
 const main = read('js/main.js');
 const windows = read('js/windowManager.js');
 const css = read('css/main.css');
@@ -303,4 +304,24 @@ test('idle shell is icon-only, keeps time, and uses the osbio identity', () => {
   assert.match(css, /#visitor-guide \{ display:none; \}/);
   assert.match(html, /id="system-clock"/);
   assert.match(html, /id="system-date"/);
+});
+
+
+test('Pixel-Flow outline system uses split corners across the mark and shell surfaces', () => {
+  assert.match(html, /<symbol id="pf-logo-mark" viewBox="0 0 48 48">[\s\S]*?fill="#e8d64a"[\s\S]*?fill="#76d7b4"[\s\S]*?<\/symbol>/);
+  assert.match(logoAsset, /M4 4H34V14H14V23H4Z/);
+  assert.match(logoAsset, /M13 35H35V14H44V44H13Z/);
+  assert.match(logoAsset, /stroke="#7b9672"/);
+  assert.match(css, /--pf-outline-yellow: #e8d64a/);
+  assert.match(css, /\.app-icon \{[\s\S]*?linear-gradient\(var\(--icon-edge\),var\(--icon-edge\)\) 4px 0/);
+  assert.match(css, /\.app-launcher \{[\s\S]*?linear-gradient\(var\(--pf-outline-yellow\),var\(--pf-outline-yellow\)\) 5px 0/);
+  assert.match(css, /\.taskbar-apps \{[\s\S]*?linear-gradient\(var\(--pf-outline-mid\),var\(--pf-outline-mid\)\) 4px 0/);
+  assert.match(css, /\.window-app-marker \{[\s\S]*?linear-gradient\(#708a68,#708a68\) 3px 0/);
+});
+
+test('interactive shell edges preserve consistent split-corner treatment and focus visibility', () => {
+  assert.match(css, /\.panel-nav-button:hover,[\s\S]*?linear-gradient\(var\(--pf-outline-mid\),var\(--pf-outline-mid\)\) 3px 0/);
+  assert.match(css, /\.desktop-icon:hover,[\s\S]*?linear-gradient\(var\(--pf-outline-mid\),var\(--pf-outline-mid\)\) 4px 0/);
+  assert.match(css, /\.panel-nav-button:focus-visible \{ outline: 2px solid var\(--pf-outline-yellow\)/);
+  assert.match(css, /\.app-launcher \.launcher-item:focus-visible \{ outline: 2px solid var\(--pf-outline-yellow\)/);
 });
