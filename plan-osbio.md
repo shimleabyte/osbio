@@ -122,27 +122,29 @@ Tasks:
 **Priority:** highest. No new app features should delay this phase.
 
 Tasks:
-- [x] Fix launcher focus restoration: return focus only when appropriate; preserve or move focus to the intended control after outside-click dismissal or application launch.
-- [ ] Define the active-window invariant: at most one non-minimized window is active; if no visible window exists, the desktop is active.
-- [x] Ensure z-order and active styling agree after every state transition; browser tests verify the active project window and focus returning to the prior window after close.
-- [x] Verify taskbar launch and window close behavior; minimize/restore is exercised through the window overview. (Inactive-taskbar toggling remains covered by source/state checks rather than this smoke path.)
-- [x] Make maximize/restore preserve valid bounds; reconcile restored size with the current viewport.
-- [ ] Clamp windows after viewport changes without leaving title bars or essential controls unreachable. The extended Chromium suite exposed a resize timing defect; post-layout constraints and ResizeObserver are being added, pending a green rerun.
-- [ ] Test dragging with pointer capture, pointer cancellation, fast movement, and pointer release outside the header.
-- [ ] Prevent drag initiation from titlebar controls and interactive content.
-- [x] Define edge-snapping behavior with clear target zones and reliable unsnap/restore behavior (Chromium pointer-drag and maximize/restore checks).
-- [ ] Add a keyboard-friendly window switcher or overview for open windows.
-- [ ] Validate single-window mobile mode, including app switching and close/back behavior.
-- [ ] Audit dialog semantics, title labels, focus visibility, and keyboard access to each window control.
-- [ ] Confirm app disposal clears timers, listeners and app-specific transient state where needed.
+- [x] Fix launcher focus restoration: preserve focus on the intended destination after Escape, outside-click dismissal and app launch.
+- [x] Define the active-window invariant: at most one app window is active; when no visible window exists, the desktop is active. Verified through browser assertions after launch, switch, overview dismissal and mobile close.
+- [x] Ensure z-order and active styling agree after state transitions. Browser test verifies close transfers active state and focus.
+- [x] Verify taskbar launch, focus, minimize/restore and close behavior, including mobile taskbar app switching.
+- [x] Make maximize/restore preserve valid bounds, including snap → maximize → restore.
+- [x] Clamp windows after viewport changes and check bounds after shrinking and restoring the viewport.
+- [ ] Test pointer capture, pointer cancellation, fast movement and pointer release outside the header. Normal edge drag works; the newly added synthetic cancellation regression is awaiting a clean CI run.
+- [x] Prevent drag initiation from titlebar controls and interactive content; browser test attempts a drag from the maximize control.
+- [x] Define edge snapping and restore behavior, with a regression assertion that normal restored bounds don't cover desktop shortcuts.
+- [x] Add a keyboard-friendly window overview and verify its shortcut and Escape focus restoration.
+- [x] Validate mobile single-window mode, taskbar switching, closing the active app and returning to the empty desktop.
+- [x] Audit window dialog semantics, title labels, focus visibility and keyboard-accessible controls through source contracts and browser smoke checks.
+- [x] Confirm lifecycle cleanup for Memory Match timers and app-level listeners on close.
 
 **Acceptance criteria:**
-- Repeated open/focus/minimize/restore/close sequences do not desynchronize taskbar state, active label, visibility or z-order.
+- Repeated open/focus/minimize/restore/close sequences keep taskbar state, active label, visibility and z-order synchronized.
 - No window can become permanently inaccessible off-screen.
 - Closing a window leaves focus and active-window state in a defined, usable place.
-- Dragging never accidentally activates titlebar controls.
-- Resizing the viewport does not corrupt restore bounds or mobile layout.
-- Keyboard users can open, switch, minimize/maximize and close windows without relying solely on a pointer.
+- Window controls don't accidentally initiate dragging.
+- Resize and restore do not corrupt window geometry.
+- Keyboard and mobile users can switch, minimize/maximize and close apps.
+
+**Verification:** Chromium smoke run [40809400439](https://github.com/shimleabyte/osbio/actions/runs/40809400439) passed for commit `027672e879c0e08a72db112fc7e2d520d67e70fa`. The synthetic pointer-cancellation case added afterward still requires a fresh run.
 
 ### Phase 2 — Shared state and local persistence foundation
 
@@ -503,3 +505,8 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 
 - [x] Add a post-resize-cycle bounds assertion before testing desktop-shortcut hit targets; this separates stale geometry from pointer-layer interception.
 - [ ] Keep the shortcut click test in place until the real-browser run confirms the restored window does not cover the shortcut lane.
+
+### Stage 1 — pointer-cancellation coverage (2026-10-29)
+
+- [x] Add a synthetic pointercancel regression to confirm the drag handler detaches pointermove/up/cancel listeners and does not continue moving the window.
+- [ ] Execute the expanded Chromium suite before marking all Phase 1 gates complete.

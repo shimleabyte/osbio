@@ -69,6 +69,35 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     assert.equal(await flowWindow.evaluate((element) => element.classList.contains('snapped-left') || element.classList.contains('maximized')), false,
       'dragging from a titlebar control must not move or snap the window');
 
+    // Simulate pointer cancellation and ensure the document-level drag listeners are removed.
+    const cancelledDrag = await flowWindow.evaluate((element) => {
+      const header = element.querySelector('.window-header');
+      const originalCapture = header.setPointerCapture;
+      const originalLeft = element.style.left;
+      const originalTop = element.style.top;
+      header.setPointerCapture = () => {};
+      const startX = element.offsetLeft + 220;
+      const startY = element.offsetTop + header.offsetHeight / 2;
+      const pointer = (type, x) => new PointerEvent(type, {
+        bubbles: true, cancelable: true, pointerId: 771, pointerType: 'mouse',
+        button: 0, clientX: x, clientY: startY
+      });
+      header.dispatchEvent(pointer('pointerdown', startX));
+      document.dispatchEvent(pointer('pointermove', startX + 2));
+      const afterMove = element.style.left;
+      document.dispatchEvent(pointer('pointercancel', startX + 2));
+      const afterCancel = element.style.left;
+      document.dispatchEvent(pointer('pointermove', startX + 120));
+      const afterLaterMove = element.style.left;
+      if (originalCapture) header.setPointerCapture = originalCapture;
+      else delete header.setPointerCapture;
+      element.style.left = originalLeft;
+      element.style.top = originalTop;
+      return { moved: afterMove !== originalLeft, stayedAfterCancel: afterLaterMove === afterCancel };
+    });
+    assert.equal(cancelledDrag.moved, true, 'synthetic pointer drag should exercise the move handler');
+    assert.equal(cancelledDrag.stayedAfterCancel, true, 'pointercancel must remove active drag listeners');
+
     await page.setViewportSize({ width: 900, height: 700 });
     await page.waitForFunction(() => {
       const windowElement = document.querySelector('.window[data-app-name="flow"]');
