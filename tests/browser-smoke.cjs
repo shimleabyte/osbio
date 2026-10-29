@@ -289,6 +289,9 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
           rejected.push(true);
         }
       }
+      let oversizedRejected = false;
+      try { await store.importData(' '.repeat(store.getLimits().maxImportCharacters + 1)); }
+      catch (error) { oversizedRejected = /12 MB transfer limit/.test(error.message); }
       const afterInvalid = await store.listAll();
       const validResult = await store.importData(JSON.stringify({
         format: 'osbio-workspace-export-v1',
@@ -335,6 +338,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
       return {
         rejected,
+        oversizedRejected,
         baselineCount: baseline.length,
         afterInvalidCount: afterInvalid.length,
         validImportCount: validResult.imported,
@@ -343,6 +347,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         portableHierarchyValid
       };
     });
+    assert.equal(importValidation.oversizedRejected, true, 'oversized imports must reject before JSON parsing');
     assert.deepEqual(importValidation.rejected, [true, true, true, true, true],
       'malformed imports should reject duplicates, cycles, missing/non-folder parents and non-text contents');
     assert.equal(importValidation.afterInvalidCount, importValidation.baselineCount,

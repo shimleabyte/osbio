@@ -526,3 +526,11 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Rebase a user's direct child of an excluded built-in folder to the export root; preserve references between user-created folders and files.
 - [x] Add a browser round-trip check that exports a nested user folder from built-in Documents, imports it, verifies its hierarchy and cleans up the test entries.
 - [ ] Re-run the full validation and deployment workflow after this edge-case fix.
+
+### Stage 2 — bounded workspace transfer (2026-10-29)
+
+- [x] Add a 12 MiB serialized transfer ceiling before JSON parsing to prevent oversized import payloads from being parsed into memory.
+- [x] Reject files over the transfer ceiling before calling `File.text()` in the Files app.
+- [x] Refuse an export that would exceed the same ceiling, with a message that suggests splitting large files.
+- [x] Add browser coverage for oversized import rejection and unchanged storage.
+- [ ] Re-run browser validation and deployment before closing Stage 2.

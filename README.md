@@ -22,7 +22,7 @@ OSBio is a browser-based desktop environment built with plain HTML, CSS and Java
 
 OSBio now initializes a browser-local workspace using IndexedDB, with a localStorage or in-memory fallback when IndexedDB is unavailable. The first run seeds read-only Documents and Projects folders. User-created files are stored locally in this browser; they are not synced to other browsers or devices. Storage capability and limitations are exposed to the desktop instead of pretending that persistence always succeeded.
 
-The storage layer supports text files and folders, rename/move/delete validation, strict JSON import validation (duplicate IDs, missing/non-folder parents and cycles are rejected), portable export that rebases user content out of omitted built-in folders, bounded event history, and explicit storage status. Desktop-mode geometry is persisted per app, but open windows are never restored on reload. It does not read or write the host operating system's file system.
+The storage layer supports text files and folders, rename/move/delete validation, strict JSON import validation (duplicate IDs, missing/non-folder parents, cycles and transfers above 12 MiB are rejected), portable export that rebases user content out of omitted built-in folders, a bounded event history, and explicit storage status. Desktop-mode geometry is persisted per app, but open windows are never restored on reload. It does not read or write the host operating system's file system.
 
 ## Apps
 
