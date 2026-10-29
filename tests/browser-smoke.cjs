@@ -261,10 +261,6 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await filesWindow.locator('[data-files-parent="root"]').click();
     const rootFileRow = filesWindow.locator('.file-row').filter({ hasText: 'browser-smoke-renamed.md' });
     await rootFileRow.waitFor({ state: 'visible' });
-    await rootFileRow.press('Enter');
-    await editorWindow.waitFor({ state: 'visible' });
-    await page.waitForFunction(() =>
-      document.querySelector('.window[data-app-name="editor"] #editor-name')?.value === 'browser-smoke-renamed.md');
 
     // A folder cannot be moved into itself or one of its descendants.
     const moveGuardFixture = await page.evaluate(async () => {
@@ -286,6 +282,11 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       await window.OSBioStorage.remove(childId);
       await window.OSBioStorage.remove(parentId);
     }, moveGuardFixture);
+
+    await rootFileRow.press('Enter');
+    await editorWindow.waitFor({ state: 'visible' });
+    await page.waitForFunction(() =>
+      document.querySelector('.window[data-app-name="editor"] #editor-name')?.value === 'browser-smoke-renamed.md');
 
     const expectedText = 'OSBio browser persistence ' + Date.now();
     await editorWindow.locator('#editor-content').fill(expectedText);
