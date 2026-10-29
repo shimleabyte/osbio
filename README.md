@@ -36,7 +36,7 @@ The storage layer supports text files and folders, rename/move/delete validation
 | Profile | Background, current focus, and technologies used in the portfolio projects |
 | Projects | Verified repositories: Mutabaah CLI, Simpul, and Optical Anchor Button |
 | Terminal | Simulated prompt for exploring project links and opening apps |
-| Resume | Explicit unavailable state; no fabricated preview or download |
+| Resume | Unavailable state until a real PDF is published; no fabricated preview or download |
 | Contact | Email and GitHub |
 | Memory Match | Small symbol-matching game |
 

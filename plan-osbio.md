@@ -409,3 +409,9 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 - [x] Add Flow Monitor filtering, event detail inspection, trace export and clear-history controls.
 - [x] Keep event details small and avoid recording document bodies or host-machine telemetry.
 - [ ] Browser-test event order, history cap, clear/export behavior, and cleanup while opening/closing Flow Monitor.
+
+
+### Stage 6 — Project/content integration (first implementation pass)
+- [x] Create `js/projectData.js` as the canonical project metadata catalogue with verified repository links and status labels.
+- [x] Remove the unavailable Resume shortcut from the desktop and label its launcher entry as unpublished.
+- [ ] Connect Projects and Terminal to the shared catalogue; verify all routes and project claims in a real browser.
