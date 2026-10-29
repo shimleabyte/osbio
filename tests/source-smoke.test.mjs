@@ -73,7 +73,7 @@ test('launcher focus restoration is deliberate and window overview is available'
 
 test('local workspace storage exposes safe file operations and bounded event history', () => {
   for (const api of ['ready', 'list', 'listAll', 'createFolder', 'saveFile', 'rename', 'move', 'remove', 'stats', 'exportData', 'importData', 'clearUserData']) {
-    assert.match(core, new RegExp('\\\\b' + api + '\\\\b'));
+    assert.ok(core.includes(api), 'missing storage API: ' + api);
   }
   assert.match(core, /indexedDB\.open/);
   assert.match(core, /localStorage/);

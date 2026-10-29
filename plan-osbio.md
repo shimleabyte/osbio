@@ -423,3 +423,10 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 - [x] Normalize feedback for disabled controls, pressed buttons and keyboard focus while preserving the Pixel-Flow palette.
 - [x] Replace brittle escaped URL regex assertions with explicit string checks.
 - [ ] Browser-check visual density, keyboard focus contrast, and mobile window/app styles before considering this stage complete.
+
+
+### Stage 8 — Regression testing and release gate (first implementation pass)
+- [x] Add a GitHub Actions workflow for the dependency-free source smoke tests on `main`, pull requests and manual dispatch.
+- [x] Correct test assertions so the suite checks the intended identifiers and source contracts.
+- [ ] Wait for and inspect the Actions run for the exact implementation commit.
+- [ ] Run real-browser interaction checks at desktop and mobile widths; this remains an explicit release gate.
