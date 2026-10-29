@@ -415,3 +415,11 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 - [x] Create `js/projectData.js` as the canonical project metadata catalogue with verified repository links and status labels.
 - [x] Remove the unavailable Resume shortcut from the desktop and label its launcher entry as unpublished.
 - [ ] Connect Projects and Terminal to the shared catalogue; verify all routes and project claims in a real browser.
+
+
+### Stage 7 — Pixel-Flow visual system (first implementation pass)
+- [x] Remove unused sign-in screen styling and legacy welcome/tagline styling from the active shell.
+- [x] Remove old PDF preview/iframe styles that no longer match the honest Resume unavailable state.
+- [x] Normalize feedback for disabled controls, pressed buttons and keyboard focus while preserving the Pixel-Flow palette.
+- [x] Replace brittle escaped URL regex assertions with explicit string checks.
+- [ ] Browser-check visual density, keyboard focus contrast, and mobile window/app styles before considering this stage complete.

@@ -121,9 +121,11 @@ test('Flow Monitor exposes bounded event filtering and trace export', () => {
 test('shared project catalogue is loaded and unavailable Resume is not a desktop shortcut', () => {
   const projects = read('js/projectData.js');
   assert.doesNotThrow(() => new Function(projects));
-  assert.match(html, /js\\/projectData\\.js/);
-  assert.match(projects, /https:\\/\\/github\\.com\\/shimleabyte\\/mutabaah-cli/);
-  assert.match(projects, /BACKEND \/ IN PROGRESS/);
-  const shortcuts = html.match(/<nav class="desktop-icons"[\\s\\S]*?<\\/nav>/)?.[0] || '';
+  assert.ok(html.includes('js/projectData.js'));
+  assert.ok(projects.includes('https://github.com/shimleabyte/mutabaah-cli'));
+  assert.ok(projects.includes('BACKEND / IN PROGRESS'));
+  const navStart = html.indexOf('<nav class="desktop-icons"');
+  const navEnd = html.indexOf('</nav>', navStart);
+  const shortcuts = navStart >= 0 && navEnd > navStart ? html.slice(navStart, navEnd) : '';
   assert.doesNotMatch(shortcuts, /data-app="resume"/);
 });
