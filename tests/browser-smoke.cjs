@@ -676,6 +676,9 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.locator('.launcher-item[data-app="settings"]').click();
     const settings = page.locator('.window[data-app-name="settings"]');
     await settings.waitFor({ state: 'visible' });
+    const wallpaperArt = page.locator('.desktop-wallpaper .wallpaper-art');
+    assert.equal(await wallpaperArt.evaluate((image) => image.complete && image.naturalWidth > 0), true,
+      'the bundled Pixel-Flow wallpaper SVG should load locally');
     await settings.locator('#setting-wallpaper').selectOption('grid');
     await settings.locator('#setting-accent').selectOption('green');
     await settings.locator('#setting-motion').selectOption('reduced');
@@ -688,6 +691,9 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.waitForFunction(() => document.body.classList.contains('desktop-ready'), { timeout: 6000 });
     assert.equal(await page.locator('html').getAttribute('data-accent'), 'green');
     assert.equal(await page.locator('.desktop-wallpaper').getAttribute('data-wallpaper'), 'grid');
+    assert.equal(await wallpaperArt.evaluate((image) => getComputedStyle(image).display), 'none',
+      'the SVG artwork should be hidden when Grid only is selected');
+    assert.equal(await settings.locator('#settings-wallpaper-preview').getAttribute('data-wallpaper'), 'grid');
     assert.equal(await page.locator('html').getAttribute('data-motion'), 'reduced');
     assert.equal(await page.locator('.desktop-icons').evaluate((element) => element.hidden), true);
 
@@ -696,6 +702,11 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.locator('.launcher-item[data-app="settings"]').click();
     await settings.waitFor({ state: 'visible' });
     await settings.locator('#settings-reset').click();
+    await page.waitForFunction(() =>
+      document.querySelector('.desktop-wallpaper')?.dataset.wallpaper === 'flow' &&
+      document.querySelector('#settings-wallpaper-preview')?.dataset.wallpaper === 'flow');
+    assert.notEqual(await wallpaperArt.evaluate((image) => getComputedStyle(image).display), 'none',
+      'the SVG artwork should return when Pixel-Flow is restored');
     await page.waitForFunction(() => {
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       return document.documentElement.dataset.accent === 'yellow' &&
