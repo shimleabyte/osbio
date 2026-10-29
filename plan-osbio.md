@@ -414,7 +414,8 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 ### Stage 6 — Project/content integration (first implementation pass)
 - [x] Create `js/projectData.js` as the canonical project metadata catalogue with verified repository links and status labels.
 - [x] Remove the unavailable Resume shortcut from the desktop and label its launcher entry as unpublished.
-- [ ] Connect Projects and Terminal to the shared catalogue; verify all routes and project claims in a real browser.
+- [x] Connect Projects and Terminal to the shared catalogue; use one source for titles, descriptions, technologies, status and URLs.
+- [ ] Verify all routes and project claims in a real browser.
 
 
 ### Stage 7 — Pixel-Flow visual system (first implementation pass)

@@ -87,8 +87,8 @@ test('Files and Editor have real templates and shared storage integration', () =
   assert.match(windows, /files: \{/);
   assert.match(windows, /editor: \{/);
   assert.match(windows, /OSBioWorkspaceApps\.mount/);
-  assert.match(workspaceApps, /OSBioStorage\.createFolder/);
-  assert.match(workspaceApps, /OSBioStorage\.saveFile/);
+  assert.match(workspaceApps, /store\.createFolder/);
+  assert.match(workspaceApps, /store\.saveFile/);
   assert.match(workspaceApps, /osbio:open-file/);
   assert.match(workspaceApps, /osbio:before-close/);
   assert.match(html, /data-app="files"/);
@@ -113,7 +113,7 @@ test('Flow Monitor exposes bounded event filtering and trace export', () => {
   assert.match(workspaceApps, /function mountFlow/);
   assert.match(workspaceApps, /OSBioEvents\.recent\(160\)/);
   assert.match(workspaceApps, /osbio-event-trace-v1/);
-  assert.match(wm, /game\.completed/);
+  assert.match(windows, /game\.completed/);
   assert.match(main, /launcher\.opened/);
 });
 
