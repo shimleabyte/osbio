@@ -13,6 +13,7 @@ const css = read('css/main.css');
 const core = read('js/osbioCore.js');
 const workspaceApps = read('js/workspaceApps.js');
 const settingsModule = read('js/osbioSettings.js');
+const visitorGuide = read('js/visitorGuide.js');
 
 test('shell JavaScript parses without syntax errors', () => {
   assert.doesNotThrow(() => new Function(main));
@@ -20,6 +21,7 @@ test('shell JavaScript parses without syntax errors', () => {
   assert.doesNotThrow(() => new Function(core));
   assert.doesNotThrow(() => new Function(workspaceApps));
   assert.doesNotThrow(() => new Function(settingsModule));
+  assert.doesNotThrow(() => new Function(visitorGuide));
 });
 
 test('desktop landmarks and launcher controls exist exactly once', () => {
@@ -222,4 +224,21 @@ test('Projects has a keyboard-operable list and separate project detail surface'
   assert.match(windows, /aria-pressed/);
   assert.ok(css.includes('.projects-workspace') && css.includes('grid-template-columns:minmax(12.5rem,.82fr)'));
   assert.ok(css.includes('.project-detail') && css.includes('border:1px solid var(--color-window-border)'));
+});
+
+
+test('first-visit field guide has real destinations and a persistent, dismissible state', () => {
+  for (const id of ['visitor-guide', 'visitor-guide-toggle', 'visitor-guide-hide', 'visitor-guide-progress-label', 'visitor-guide-progress-fill']) {
+    assert.equal((html.match(new RegExp('id="' + id + '"', 'g')) || []).length, 1, id);
+  }
+  assert.match(html, /data-guide-app="projects"/);
+  assert.match(html, /data-guide-app="about"/);
+  assert.match(html, /data-guide-app="editor"/);
+  assert.ok(html.includes('js/visitorGuide.js'));
+  assert.match(visitorGuide, /osbio\.wayfinder\.v1/);
+  assert.match(visitorGuide, /detail\.type === 'window\.opened'/);
+  assert.match(visitorGuide, /global\.WindowManager\.openWindow\(app\)/);
+  assert.match(visitorGuide, /state\.dismissed/);
+  assert.match(css, /\.visitor-guide[\s\S]*border-top:3px solid #e8d64a/);
+  assert.match(css, /\.visitor-guide-route:focus-visible/);
 });

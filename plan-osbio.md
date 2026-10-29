@@ -601,3 +601,18 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - Update README behavior and app-tier documentation.
 
 **Acceptance gate:** the source checks and Chromium browser suite must pass on the resulting `main` commit. Visual review at desktop and mobile widths remains separate from automated interaction checks.
+
+
+## First-visit retention — field guide
+
+**Problem:** a newcomer initially encounters a desktop metaphor with no explanation of which app is useful or what is safe to try.
+
+**Implemented approach:**
+- Render a non-modal Pixel-Flow field guide within the desktop, rather than adding a marketing hero or auto-opening an app window.
+- Offer three concrete entry routes: Projects (inspect actual repositories), Profile (get context), and Editor (try a browser-local note).
+- Track those three stops based on actual window-open events; show progress, update the completion copy, and mark completed routes.
+- Hide the guide when a destination is selected, while keeping it reopenable through a compact GUIDE control in the system panel.
+- Persist explored stops and explicit dismissal using a versioned localStorage key. If storage is blocked or malformed, the guide remains usable with in-memory state.
+- Explain the keyboard launcher and local/no-sign-in boundary directly in the guide; use no external icon kit or extra app window.
+
+**Verification gate:** source contracts and Chromium smoke tests must cover initial visibility, route launch, progress, hide/reopen, accessibility semantics, and no new uncaught errors. Confirm desktop and narrow mobile layouts separately.

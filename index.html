@@ -32,7 +32,7 @@
         <button id="launcher-toggle" class="launcher-toggle" type="button" aria-expanded="false" aria-controls="app-launcher">
           <span class="pixel-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-wordmark">OSBIO</span><span class="panel-chevron" aria-hidden="true">+</span>
         </button>
-        <span class="panel-divider" aria-hidden="true"></span><button id="window-overview-toggle" class="panel-mini-button" type="button" title="Open windows (Ctrl+Alt+W)" aria-label="Open window overview">WINDOWS</button><span class="panel-divider" aria-hidden="true"></span><span id="active-app-label" class="active-app-label">WORKSPACE / DESKTOP</span>
+        <span class="panel-divider" aria-hidden="true"></span><button id="window-overview-toggle" class="panel-mini-button" type="button" title="Open windows (Ctrl+Alt+W)" aria-label="Open window overview">WINDOWS</button><span class="panel-divider" aria-hidden="true"></span><button id="visitor-guide-toggle" class="panel-mini-button guide-toggle" type="button" aria-controls="visitor-guide" aria-expanded="true" aria-label="Toggle the OSBio field guide">GUIDE <span id="visitor-guide-toggle-count">0/3</span></button><span class="panel-divider" aria-hidden="true"></span><span id="active-app-label" class="active-app-label">WORKSPACE / DESKTOP</span>
       </div>
       <div class="panel-right"><span class="local-status"><span class="status-square" aria-hidden="true"></span> LOCAL SESSION</span><span class="panel-divider" aria-hidden="true"></span><div class="panel-clock"><span id="system-clock">00:00</span><span id="system-date">01 JAN 2000</span></div></div>
     </header>
@@ -45,6 +45,41 @@
         <button class="desktop-icon" type="button" data-app="about"><span class="app-icon app-icon-about" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Profile</span></button>
         <button class="desktop-icon" type="button" data-app="terminal"><span class="app-icon app-icon-terminal" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Terminal</span></button>
       </nav>
+      <aside id="visitor-guide" class="visitor-guide" aria-labelledby="visitor-guide-title" aria-describedby="visitor-guide-copy">
+        <header class="visitor-guide-heading">
+          <div>
+            <p class="visitor-guide-kicker"><span class="visitor-guide-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span> OSBIO / FIELD GUIDE</p>
+            <h1 id="visitor-guide-title">Make yourself at home.</h1>
+          </div>
+          <button id="visitor-guide-hide" class="visitor-guide-hide" type="button" aria-label="Hide field guide" title="Hide guide">×</button>
+        </header>
+        <p id="visitor-guide-copy" class="visitor-guide-copy">This is a working browser desktop, not a screenshot. Start with one stop; the rest of the workspace is yours to explore.</p>
+        <div class="visitor-guide-progress">
+          <span id="visitor-guide-progress-label">0 / 3 STOPS VISITED</span>
+          <span class="visitor-guide-progress-track" aria-hidden="true"><span id="visitor-guide-progress-fill"></span></span>
+        </div>
+        <div class="visitor-guide-routes" aria-label="Suggested places to start">
+          <button class="visitor-guide-route" type="button" data-guide-app="projects">
+            <span class="visitor-guide-index">01</span>
+            <span class="visitor-guide-route-copy"><strong>See the work</strong><small>Projects / Repositories, real scope, and source links.</small></span>
+            <span class="visitor-guide-route-state">OPEN</span>
+          </button>
+          <button class="visitor-guide-route" type="button" data-guide-app="about">
+            <span class="visitor-guide-index">02</span>
+            <span class="visitor-guide-route-copy"><strong>Get the context</strong><small>Profile / What I build and the decisions behind it.</small></span>
+            <span class="visitor-guide-route-state">OPEN</span>
+          </button>
+          <button class="visitor-guide-route" type="button" data-guide-app="editor">
+            <span class="visitor-guide-index">03</span>
+            <span class="visitor-guide-route-copy"><strong>Try the workspace</strong><small>Editor / Write a note saved in this browser.</small></span>
+            <span class="visitor-guide-route-state">OPEN</span>
+          </button>
+        </div>
+        <footer class="visitor-guide-footer">
+          <span>CTRL + K <span class="visitor-guide-footer-muted">/ APP LAUNCHER</span></span>
+          <span class="visitor-guide-local">LOCAL / NO SIGN-IN</span>
+        </footer>
+      </aside>
       <div id="window-layer" class="window-layer" aria-live="polite"></div>
     </main>
 
@@ -100,6 +135,7 @@
   <script src="js/projectData.js"></script>
   <script src="js/windowManager.js"></script>
   <script src="js/workspaceApps.js"></script>
+  <script src="js/visitorGuide.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

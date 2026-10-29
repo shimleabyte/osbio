@@ -6,9 +6,9 @@ OSBio is a browser-based desktop environment built with plain HTML, CSS and Java
 
 ## Shell behavior
 
-- A short, skippable boot sequence opens to an empty desktop. No app auto-opens and no profile is requested.
+- A short, skippable boot sequence opens to the desktop with a non-modal first-visit field guide. It offers three concrete routes (Projects, Profile, Editor), tracks visited stops locally, can be dismissed, and can be reopened from the system panel. No app window auto-opens.
 - The top panel identifies the active app and shows local-session status, clock and date.
-- The searchable launcher groups apps into **Core**, **Supporting**, and **Utilities**. Open it from the OSBio panel button or press `Ctrl+K`.
+- The searchable launcher groups apps into **Core**, **Supporting**, and **Utilities**. Open it from the OSBio panel button or press `Ctrl+K`. The field guide remains available independently of the launcher.
 - The taskbar pins five core workspace apps. Supporting apps and utilities appear as session-recent taskbar items the first time they launch; all apps remain available from the launcher. Selecting the active taskbar item minimizes it; selecting it again restores it.
 - App windows can be focused, dragged, resized on desktop, maximized/restored, minimized, and closed. Double-click a title bar to toggle maximize.
 - On narrow screens, the shell becomes a single-window workspace with touch-sized controls and a launcher.
@@ -19,6 +19,8 @@ OSBio is a browser-based desktop environment built with plain HTML, CSS and Java
 - Projects presents a compact selection list beside a dedicated detail pane for verified repository metadata.
 - IBM Plex Sans and IBM Plex Mono are self-hosted in `assets/fonts/` under the accompanying SIL Open Font License; the runtime does not request Google Fonts.
 - Resume shows an explicit unavailable state until the real PDF is published.
+
+The field guide uses a versioned browser-local preference (`osbio.wayfinder.v1`) for its dismissal and explored-stop progress. It does not require sign-in and does not transmit visitor activity.
 
 ## Local workspace data
 

@@ -1665,3 +1665,73 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
   .project-detail-inner,.project-detail-empty { padding:.8rem; }
 }
 @media(prefers-reduced-motion:reduce) { .project-card { transition:none; } }
+
+
+/* First-visit wayfinder: a practical field guide, not a marketing hero. */
+.guide-toggle { border-color:#435247; color:#e8d64a; white-space:nowrap; }
+.guide-toggle span { margin-left:.18rem; color:#9ba99f; font-size:.52rem; }
+.guide-toggle:hover,.guide-toggle:focus-visible { border-color:#e8d64a; color:#f0f2e9; }
+.visitor-guide {
+  position:absolute;
+  z-index:4;
+  top:50%;
+  right:clamp(1rem,5vw,4.25rem);
+  width:min(33rem,calc(100% - 2rem));
+  max-height:calc(100% - 2rem);
+  overflow:auto;
+  padding:1.15rem 1.2rem 1rem;
+  border:1px solid #526452;
+  border-top:3px solid #e8d64a;
+  background:#151d17;
+  color:#e8ede4;
+  box-shadow:0 16px 38px rgba(0,0,0,.34);
+  transform:translateY(-50%);
+  scrollbar-width:thin;
+  scrollbar-color:#526452 transparent;
+}
+.visitor-guide[hidden] { display:none!important; }
+.visitor-guide-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; }
+.visitor-guide-kicker { display:flex; align-items:center; gap:.5rem; color:#a7b6a8; font:600 .55rem/1.4 var(--font-mono); letter-spacing:.12em; }
+.visitor-guide-mark { display:grid; grid-template-columns:repeat(2,4px); grid-template-rows:repeat(2,4px); gap:2px; }
+.visitor-guide-mark i { width:4px; height:4px; background:#e8d64a; }
+.visitor-guide-mark i:nth-child(2) { background:#76d7b4; }
+.visitor-guide-mark i:nth-child(3) { background:#536456; }
+.visitor-guide-heading h1 { margin-top:.55rem; color:#f0f2e9; font:600 clamp(1.35rem,2.4vw,1.8rem)/1.12 var(--font-ui); letter-spacing:-.04em; }
+.visitor-guide-hide { display:grid; place-items:center; flex:0 0 auto; width:2rem; height:2rem; border:1px solid #435247; background:transparent; color:#9ba99f; font:400 1.1rem/1 var(--font-mono); cursor:pointer; }
+.visitor-guide-hide:hover,.visitor-guide-hide:focus-visible { border-color:#e8d64a; color:#f0f2e9; }
+.visitor-guide-copy { max-width:33rem; margin-top:.8rem; color:#b8c4b9; font:400 .78rem/1.65 var(--font-ui); }
+.visitor-guide-progress { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:1rem; padding-top:.7rem; border-top:1px solid #344237; color:#a8b6aa; font:500 .53rem/1.4 var(--font-mono); letter-spacing:.06em; }
+.visitor-guide-progress-track { width:5.5rem; height:3px; flex:0 0 auto; overflow:hidden; background:#344237; }
+.visitor-guide-progress-track span { display:block; width:0; height:100%; background:#e8d64a; transition:width 180ms ease; }
+.visitor-guide-routes { display:flex; flex-direction:column; gap:.35rem; margin-top:.75rem; }
+.visitor-guide-route { display:grid; grid-template-columns:1.7rem minmax(0,1fr) 3.7rem; align-items:center; gap:.65rem; width:100%; min-width:0; padding:.72rem .62rem; border:1px solid #344237; border-left:2px solid transparent; background:#18221b; color:#e8ede4; text-align:left; cursor:pointer; transition:border-color 120ms ease,background-color 120ms ease; }
+.visitor-guide-route:hover,.visitor-guide-route:focus-visible { border-color:#667867; border-left-color:#e8d64a; background:#202b23; }
+.visitor-guide-route:focus-visible { outline:2px solid #e8d64a; outline-offset:2px; }
+.visitor-guide-index { align-self:start; padding-top:.08rem; color:#e8d64a; font:500 .62rem/1.4 var(--font-mono); }
+.visitor-guide-route-copy { display:flex; min-width:0; flex-direction:column; gap:.2rem; }
+.visitor-guide-route-copy strong { color:#edf1e9; font:600 .8rem/1.3 var(--font-ui); }
+.visitor-guide-route-copy small { color:#9ba99f; font:400 .65rem/1.45 var(--font-ui); overflow-wrap:anywhere; }
+.visitor-guide-route-state { justify-self:end; color:#9ba99f; font:600 .49rem/1.3 var(--font-mono); letter-spacing:.04em; }
+.visitor-guide-route.is-visited { border-left-color:#76d7b4; background:#19251e; }
+.visitor-guide-route.is-visited .visitor-guide-route-state { color:#76d7b4; }
+.visitor-guide-footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.5rem 1rem; margin-top:.85rem; padding-top:.7rem; border-top:1px solid #344237; color:#e8d64a; font:600 .51rem/1.4 var(--font-mono); letter-spacing:.04em; }
+.visitor-guide-footer-muted { color:#839386; font-weight:400; }
+.visitor-guide-local { color:#839386; font-weight:500; }
+.visitor-guide.is-complete { border-top-color:#76d7b4; }
+.visitor-guide.is-complete .visitor-guide-progress-track span { background:#76d7b4; }
+@media(max-width:700px) {
+  .visitor-guide { top:.7rem; right:.65rem; left:.65rem; width:auto; max-height:calc(100% - 1.4rem); padding:.95rem .85rem .8rem; transform:none; }
+  .visitor-guide-heading h1 { max-width:17rem; font-size:1.4rem; }
+  .visitor-guide-copy { font-size:.75rem; }
+  .visitor-guide-route { grid-template-columns:1.45rem minmax(0,1fr) 3.5rem; gap:.5rem; padding:.65rem .5rem; }
+  .visitor-guide-route-copy small { font-size:.64rem; }
+  .visitor-guide-footer { font-size:.47rem; }
+}
+@media(max-width:420px) {
+  #window-overview-toggle { display:none; }
+  .guide-toggle { padding:.2rem .35rem; font-size:.56rem; }
+  .guide-toggle span { font-size:.48rem; }
+  .visitor-guide { left:.4rem; right:.4rem; padding:.8rem .7rem; }
+  .visitor-guide-route-copy small { font-size:.61rem; }
+}
+@media(prefers-reduced-motion:reduce) { .visitor-guide-progress-track span,.visitor-guide-route { transition:none; } }
