@@ -44,7 +44,9 @@ test('window lifecycle safeguards remain present', () => {
   assert.match(windows, /function minimizeWindow\(/);
   assert.match(windows, /function maximizeWindow\(/);
   assert.match(windows, /function closeWindow\(/);
-  assert.match(windows, /addEventListener\('resize', constrainWindows\)/);
+  assert.match(windows, /addEventListener\('resize', scheduleConstrainWindows\)/);
+  assert.match(windows, /ResizeObserver/);
+  assert.match(windows, /function scheduleConstrainWindows\(/);
 });
 
 test('Memory Match has restart, mismatch-timer cleanup and stale-round guard', () => {
@@ -135,4 +137,18 @@ test('window manager is exposed for cross-module storage and monitor integration
   assert.match(windows, /window\.WindowManager = WindowManager/);
   assert.match(core, /global\.WindowManager/);
   assert.match(workspaceApps, /global\.WindowManager.*getSnapshot/);
+});
+
+test('every app has a taskbar control and event-prefix listeners match real events', () => {
+  const taskbarStart = html.indexOf('<nav class="taskbar"');
+  const taskbarEnd = html.indexOf('</nav>', taskbarStart);
+  const taskbarMarkup = taskbarStart >= 0 && taskbarEnd > taskbarStart ? html.slice(taskbarStart, taskbarEnd) : '';
+  const taskbarApps = new Set([...taskbarMarkup.matchAll(/data-app="([a-z][a-z0-9-]*)"/g)].map((match) => match[1]));
+  const templateBlock = windows.match(/windowTemplates:\s*\{([\s\S]*?)\n\s{4}\},\n\s{4}zIndex/);
+  assert.ok(templateBlock, 'window template block can be located');
+  const templateNames = new Set([...templateBlock[1].matchAll(/^\s{6}([a-z][a-z0-9-]*):\s*\{/gm)].map((match) => match[1]));
+  for (const appName of templateNames) assert.ok(taskbarApps.has(appName), 'missing taskbar control for ' + appName);
+  assert.ok(workspaceApps.includes("type.startsWith('file.')"), 'Files must listen for file events');
+  assert.ok(workspaceApps.includes("type.startsWith('folder.')"), 'Files must listen for folder events');
+  assert.ok(workspaceApps.includes("type.startsWith(prefix)"), 'System Monitor must match dot-delimited event prefixes');
 });

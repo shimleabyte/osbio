@@ -25,6 +25,8 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await flowWindow.waitFor({ state: 'visible' });
     assert.ok(await flowWindow.evaluate((element) => element.offsetLeft >= 116), 'new windows should not cover the desktop shortcut lane');
     await page.locator('#flow-event-list').waitFor({ state: 'visible' });
+    const flowTaskbarButton = page.locator('.taskbar-btn[data-app="flow"]');
+    await flowTaskbarButton.waitFor({ state: 'visible' });
 
     // The launcher shortcut returns focus to the prior control when dismissed with Escape.
     await page.keyboard.press('Control+k');
@@ -51,13 +53,34 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     });
 
     await page.setViewportSize({ width: 900, height: 700 });
+    await page.waitForFunction(() => {
+      const windowElement = document.querySelector('.window[data-app-name="flow"]');
+      const desktopElement = document.querySelector('#desktop-surface');
+      if (!windowElement || !desktopElement) return false;
+      const windowRect = windowElement.getBoundingClientRect();
+      const desktopRect = desktopElement.getBoundingClientRect();
+      return windowRect.left >= desktopRect.left - 1 &&
+        windowRect.top >= desktopRect.top - 1 &&
+        windowRect.right <= desktopRect.right + 1 &&
+        windowRect.bottom <= desktopRect.bottom + 1;
+    });
     const resizedBounds = await flowWindow.boundingBox();
     const desktopBounds = await page.locator('#desktop-surface').boundingBox();
     assert.ok(resizedBounds && desktopBounds && resizedBounds.x >= desktopBounds.x - 1 &&
       resizedBounds.x + resizedBounds.width <= desktopBounds.x + desktopBounds.width + 1 &&
+      resizedBounds.y >= desktopBounds.y - 1 &&
       resizedBounds.y + resizedBounds.height <= desktopBounds.y + desktopBounds.height + 1,
       'window should remain constrained after viewport resize: ' + JSON.stringify({ resizedBounds, desktopBounds }));
     await page.setViewportSize({ width: 1440, height: 960 });
+
+    // Taskbar clicks should minimize an active app and restore it on the next click.
+    await flowTaskbarButton.click();
+    await page.waitForFunction(() => document.querySelector('.window[data-app-name="flow"]')?.classList.contains('minimized'));
+    await flowTaskbarButton.click();
+    await page.waitForFunction(() => {
+      const element = document.querySelector('.window[data-app-name="flow"]');
+      return element && !element.classList.contains('minimized') && element.classList.contains('active');
+    });
 
     // Minimized windows remain discoverable in the overview and restore when selected.
     await flowWindow.locator('.window-minimize').click();

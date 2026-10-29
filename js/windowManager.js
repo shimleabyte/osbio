@@ -111,7 +111,7 @@ const WindowManager = (() => {
               <input class="files-import-input" type="file" accept=".json,application/json" hidden aria-label="Import OSBio workspace export">
             </div>
             <nav class="files-breadcrumbs" aria-label="Current folder"></nav><div class="files-list-head"><span>TYPE</span><span>NAME</span><span>STATUS</span></div>
-            <div class="files-list" role="list" aria-label="Workspace entries"></div><p class="files-empty" hidden>This folder is empty. Create a file or folder to begin.</p>
+            <div class="files-list" role="group" aria-label="Workspace entries"></div><p class="files-empty" hidden>This folder is empty. Create a file or folder to begin.</p>
             <div class="files-status" role="status" aria-live="polite">Initializing local workspace…</div>
             <div class="files-name-dialog" role="dialog" aria-modal="false" aria-label="Name workspace item" hidden><form class="files-name-form"><label for="files-name-input">Name</label><input id="files-name-input" name="name" type="text" maxlength="120" required autocomplete="off"><p class="files-dialog-error" aria-live="polite"></p><div><button type="button" data-files-action="cancel-name">Cancel</button><button type="submit">Create</button></div></form></div>
           </div>
@@ -260,6 +260,8 @@ const WindowManager = (() => {
 
   // DOM Elements
   let desktopElement;
+  let resizeFrame = null;
+  let desktopResizeObserver = null;
 
   // Initialize the window manager
   function init() {
@@ -298,18 +300,45 @@ const WindowManager = (() => {
       if (windowOverview.contains(event.target) || overviewToggle?.contains(event.target)) return;
       toggleWindowOverview(false, false);
     });
-    window.addEventListener('resize', constrainWindows);
+    window.addEventListener('resize', scheduleConstrainWindows);
+    if (typeof ResizeObserver === 'function') {
+      desktopResizeObserver = new ResizeObserver(scheduleConstrainWindows);
+      desktopResizeObserver.observe(desktopElement);
+    }
   }
 
   // Keep non-maximized windows inside the available shell after a viewport change.
+  // CSS media queries can change the layer after the resize event.
+  // Wait two animation frames so bounds are measured from the settled layout.
+  function scheduleConstrainWindows() {
+    if (resizeFrame !== null) window.cancelAnimationFrame(resizeFrame);
+    resizeFrame = window.requestAnimationFrame(() => {
+      resizeFrame = window.requestAnimationFrame(() => {
+        resizeFrame = null;
+        constrainWindows();
+      });
+    });
+  }
+
   function constrainWindows() {
     if (!desktopElement) return;
+    const layerWidth = desktopElement.clientWidth;
+    const layerHeight = desktopElement.clientHeight;
+
     openWindows.forEach((win) => {
+      const element = win.element;
+      win.maximized = element.classList.contains('maximized');
+      win.snapped = element.classList.contains('snapped-left')
+        ? 'left'
+        : element.classList.contains('snapped-right') ? 'right' : null;
       if (win.maximized) return;
-      const maxLeft = Math.max(0, desktopElement.clientWidth - win.element.offsetWidth);
-      const maxTop = Math.max(0, desktopElement.clientHeight - win.element.offsetHeight);
-      win.element.style.left = `${Math.max(0, Math.min(win.element.offsetLeft, maxLeft))}px`;
-      win.element.style.top = `${Math.max(0, Math.min(win.element.offsetTop, maxTop))}px`;
+
+      const maxLeft = Math.max(0, layerWidth - element.offsetWidth);
+      const maxTop = Math.max(0, layerHeight - element.offsetHeight);
+      const nextLeft = Math.max(0, Math.min(element.offsetLeft, maxLeft));
+      const nextTop = Math.max(0, Math.min(element.offsetTop, maxTop));
+      element.style.left = `${nextLeft}px`;
+      element.style.top = `${nextTop}px`;
     });
   }
 

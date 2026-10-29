@@ -1445,3 +1445,23 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
 
 /* The active shell owns the full-width taskbar; discard the earlier floating-bar offset. */
 #desktop-screen > .taskbar { left: 0; right: 0; transform: none; max-width: none; border-radius: 0; box-shadow: none; }
+
+/* Taskbar app strip: preserve icon hit targets and scroll instead of overflowing the viewport. */
+.taskbar-apps {
+  min-width: 0;
+  max-width: calc(100% - 13rem);
+  flex: 1 1 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.taskbar-apps::-webkit-scrollbar { display: none; }
+.taskbar-btn { flex: 0 0 auto; }
+@media (max-width: 600px) {
+  .taskbar-apps {
+    max-width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

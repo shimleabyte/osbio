@@ -28,7 +28,7 @@
       list.replaceChildren();
       entries.forEach((item) => {
         const row = document.createElement('button'); row.type = 'button'; row.className = 'file-row';
-        row.dataset.id = item.id; row.setAttribute('role', 'listitem'); row.setAttribute('aria-pressed', String(selected === item.id));
+        row.dataset.id = item.id; row.setAttribute('aria-pressed', String(selected === item.id));
         if (selected === item.id) row.classList.add('is-selected');
         const type = document.createElement('span'); type.className = 'file-row-type'; type.textContent = item.type === 'folder' ? 'DIR' : 'TXT';
         const name = document.createElement('span'); name.className = 'file-row-name'; name.textContent = item.name;
@@ -96,7 +96,7 @@
     importInput.addEventListener('change',async()=>{const file=importInput.files&&importInput.files[0];if(!file)return;try{const result=await store.importData(await file.text());parent='root';selected=null;await refresh();status(state,'Imported '+result.imported+' item(s).');}catch(e){status(state,e.message||'Import failed.',true);}finally{importInput.value='';}});
     crumbs.addEventListener('click',(e)=>{const button=e.target.closest('[data-files-parent]');if(!button)return;parent=button.dataset.filesParent;selected=null;refresh();});
     win.addEventListener('keydown',(e)=>{if(e.key==='Escape'&&!dialog.hidden){e.preventDefault();e.stopPropagation();closeName();}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();showName('new-file');}});
-    const onEvent=(e)=>{const type=e.detail&&e.detail.type;if(type&&(/^file\\./.test(type)||/^folder\\./.test(type)||/^storage\\.(imported|user-data-cleared)$/.test(type)))refresh();};
+    const onEvent=(e)=>{const type=e.detail&&e.detail.type;if(type&&(type.startsWith('file.')||type.startsWith('folder.')||type==='storage.imported'||type==='storage.user-data-cleared'))refresh();};
     global.addEventListener('osbio:event',onEvent);
     win.addEventListener('osbio:dispose',()=>global.removeEventListener('osbio:event',onEvent),{once:true});
     refresh();
@@ -169,7 +169,7 @@
     function change(){try{const result=settings.update({wallpaper:wallpaper.value,accent:accent.value,motion:motion.value,desktopIcons:icons.checked});message(result.persistent?'Preferences saved.':'Preferences applied for this session; browser storage is unavailable.',!result.persistent);}catch(e){message(e.message||'Could not update preferences.',true);}}
     [wallpaper,accent,motion].forEach((control)=>control.addEventListener('change',change));
     icons.addEventListener('change',change);
-    win.querySelector('#settings-reset').addEventListener('click',()=>{settings.reset();sync();message('Preferences reset to defaults.');});
+    win.querySelector('#settings-reset').addEventListener('click',()=>{const result=settings.reset();sync();message(result.persistent?'Preferences reset to defaults.':'Defaults applied for this session; browser storage is unavailable.',!result.persistent);});
     win.querySelector('#settings-clear-data').addEventListener('click',async()=>{
       if(!global.confirm('Delete all user-created workspace files and folders? Built-in documents will remain. Export first if you need a backup.'))return;
       try{const result=await global.OSBioStorage.clearUserData();message('User files and folders cleared.');emit('settings.user-data-cleared',result);}
@@ -224,7 +224,7 @@
     function onEvent(event){
       renderEvents();
       const type=event.detail&&event.detail.type||'';
-      if(/^(window\\.|file\\.|folder\\.|storage\\.|settings\\.)/.test(type)){
+      if(['window.','file.','folder.','storage.','settings.'].some((prefix)=>type.startsWith(prefix))){
         lastRender=lastRender.then(()=>refresh()).catch(()=>undefined);
       }
     }

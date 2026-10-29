@@ -127,7 +127,7 @@ Tasks:
 - [x] Ensure z-order and active styling agree after every state transition; browser tests verify the active project window and focus returning to the prior window after close.
 - [x] Verify taskbar launch and window close behavior; minimize/restore is exercised through the window overview. (Inactive-taskbar toggling remains covered by source/state checks rather than this smoke path.)
 - [x] Make maximize/restore preserve valid bounds; reconcile restored size with the current viewport.
-- [x] Clamp windows after viewport changes without leaving title bars or essential controls unreachable (Chromium bounds assertion).
+- [ ] Clamp windows after viewport changes without leaving title bars or essential controls unreachable. The extended Chromium suite exposed a resize timing defect; post-layout constraints and ResizeObserver are being added, pending a green rerun.
 - [ ] Test dragging with pointer capture, pointer cancellation, fast movement, and pointer release outside the header.
 - [ ] Prevent drag initiation from titlebar controls and interactive content.
 - [x] Define edge-snapping behavior with clear target zones and reliable unsnap/restore behavior (Chromium pointer-drag and maximize/restore checks).
@@ -468,3 +468,16 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 ### Browser-driven overview layering fix
 - [x] Move the window overview to the desktop shell top layer so snapped/maximized app windows cannot intercept overview controls.
 - [ ] Re-run the expanded pointer/window lifecycle suite.
+
+### Implementation pass — Stage 1 follow-up (2026-10-29)
+
+Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The repository already contains Phase 2–6 foundations (IndexedDB/local fallback storage, Files, Editor, Settings, System Monitor, Flow Monitor and shared project data) plus a Chromium browser-smoke workflow; those capabilities are being validated rather than duplicated.
+
+- [x] Inspect the latest validation run (`40806503886`); source checks passed 13/13, while Chromium exposed a viewport-resize bounds failure.
+- [x] Add deferred post-layout window clamping and observe desktop-layer size changes.
+- [x] Add taskbar controls for Settings, System Monitor, Flow Monitor, Contact and Resume so every launcher app has explicit taskbar state.
+- [x] Fix incorrectly escaped event-prefix matching in Files and System Monitor.
+- [x] Preserve native button semantics for virtual-file rows.
+- [x] Make Settings reset feedback distinguish durable preferences from session-only fallback.
+- [x] Extend browser smoke coverage for settled resizing and taskbar minimize/restore.
+- [ ] Re-run the browser workflow for this implementation commit. Resize, pointer, overview and persistence gates remain open until CI passes.

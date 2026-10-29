@@ -59,8 +59,13 @@ The actual resume PDF is not published in this repository. When ready, add the r
 ```
 index.html          shell panels, desktop shortcuts, launcher, taskbar
 css/main.css        design tokens, Pixel-Flow shell, and app styles
-js/main.js          boot flow, launcher search, app routing, clock
-js/windowManager.js app templates, window state, focus, drag and resize
+js/osbioCore.js     IndexedDB/local fallback, virtual filesystem and event history
+js/osbioSettings.js browser-local shell preferences
+js/projectData.js  canonical project metadata
+js/windowManager.js app templates, window state, focus, drag, resize and overview
+js/workspaceApps.js Files, Editor, Settings, System Monitor and Flow Monitor behavior
+js/main.js         boot flow, launcher focus/search and system clock
+tests/             source contracts and Playwright Chromium smoke suite
 ```
 
 ## Interaction and accessibility
@@ -68,7 +73,7 @@ js/windowManager.js app templates, window state, focus, drag and resize
 - Keyboard: `Ctrl+K` opens the launcher; `Escape` dismisses transient UI; `Alt+F4` closes the active app window.
 - Window controls have explicit labels and visible focus states.
 - Reduced-motion preference shortens boot and disables non-essential motion.
-- This is a static portfolio, not an OS or an authentication system. It stores no user profile.
+- OSBio is a browser desktop simulation, not a native OS or authentication system. It stores workspace data in the current browser; it does not execute host shell commands or access the host file system.
 
 ## License
 
