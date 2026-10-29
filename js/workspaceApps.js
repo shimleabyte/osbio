@@ -140,13 +140,22 @@
     }
     save.addEventListener('click',()=>saveDocument(false));copy.addEventListener('click',()=>saveDocument(true));
     name.addEventListener('input',update);body.addEventListener('input',update);
-    const onOpen=(e)=>{if(e.detail&&e.detail.id&&win.isConnected)load(e.detail.id);};
+    const onOpen=(e)=>{
+      if(!e.detail||!e.detail.id||!win.isConnected)return;
+      update();
+      if(dirty&&!global.confirm('Discard unsaved changes to "'+name.value+'" before opening another document?')){
+        e.preventDefault();
+        return;
+      }
+      load(e.detail.id);
+    };
     global.addEventListener('osbio:open-file',onOpen);
     win.addEventListener('osbio:dispose',()=>global.removeEventListener('osbio:open-file',onOpen),{once:true});
     win.addEventListener('osbio:before-close',(e)=>{update();if(dirty&&!global.confirm('Discard unsaved changes to "'+name.value+'"?'))e.preventDefault();});
-    const pending=global.OSBioWorkspace&&global.OSBioWorkspace.pendingFileId;
-    if(global.OSBioWorkspace)global.OSBioWorkspace.pendingFileId=null;
-    if(pending)load(pending);else{ name.value=savedName;body.value='';status(statusNode,'New document · not saved');update(); }
+    name.value=savedName;
+    body.value='';
+    status(statusNode,'New document · not saved');
+    update();
   }
 
 

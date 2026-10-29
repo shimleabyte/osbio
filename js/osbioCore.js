@@ -409,16 +409,16 @@
     getLimits: () => ({ maxTextCharacters: MAX_TEXT_LENGTH, maxImportEntries: MAX_IMPORT_ENTRIES })
   };
   global.OSBioWorkspace = {
-    pendingFileId: null,
     openFile(id) {
-      if (!id || !global.WindowManager) return;
-      const existing = document.querySelector('.window[data-app-name="editor"]');
-      this.pendingFileId = id;
+      if (!id || !global.WindowManager) return false;
+      // Window creation and app mounting are synchronous. Dispatch only after the
+      // Editor has mounted so the same contract works for new and existing windows.
       global.WindowManager.openWindow('editor');
-      if (existing) {
-        global.dispatchEvent(new CustomEvent('osbio:open-file', { detail: { id } }));
-        this.pendingFileId = null;
-      }
+      const editorWindow = document.querySelector('.window[data-app-name="editor"]');
+      if (!editorWindow) return false;
+      const request = new CustomEvent('osbio:open-file', { detail: { id }, cancelable: true });
+      global.dispatchEvent(request);
+      return !request.defaultPrevented;
     }
   };
 

@@ -448,3 +448,9 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 - [x] Reset the legacy floating-taskbar horizontal transform, which shifted the full-width system taskbar off-screen after the shell rules took over.
 - [x] Add a strict Chromium viewport-bounds assertion for taskbar controls before activating Files.
 - [ ] Re-run the complete browser suite on the final commit and review the deployment.
+
+
+### Browser-driven file handoff fix
+- [x] Replace the mutable pending-file ID startup race with an explicit cancelable open-file request dispatched after Editor creation/mount.
+- [x] Prevent switching documents from silently overwriting unsaved Editor changes; cancellation preserves the current document.
+- [ ] Re-run Chromium file save/reload/open flow and confirm the document content appears in the reopened Editor.
