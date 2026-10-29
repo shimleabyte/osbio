@@ -235,7 +235,7 @@ test('first-visit field guide has real destinations and a persistent, dismissibl
   assert.match(html, /data-guide-app="about"/);
   assert.match(html, /data-guide-app="editor"/);
   assert.ok(html.includes('js/visitorGuide.js'));
-  assert.match(visitorGuide, /osbio\.wayfinder\.v1/);
+  assert.match(visitorGuide, /osbio\.wayfinder\.v2/);
   assert.match(visitorGuide, /detail\.type === 'window\.opened'/);
   assert.match(visitorGuide, /global\.WindowManager\.openWindow\(app\)/);
   assert.match(visitorGuide, /state\.dismissed/);
@@ -288,4 +288,19 @@ test('custom Pixel-Flow icon sprites cover every app and replace the generic fou
   assert.match(css, /box-shadow:[\s\S]*inset 1px 1px 0/);
   assert.match(windows, /class="window-app-glyph"[\s\S]*href="#pf-icon-\$\{appName\}"/);
   assert.doesNotMatch(html, /class="app-icon app-icon-[a-z-]+" aria-hidden="true"><i><\/i><i><\/i><i><\/i><i><\/i><\/span>/);
+});
+
+
+test('idle shell is icon-only, keeps time, and uses the osbio identity', () => {
+  assert.match(html, /<title>osbio<\/title>/);
+  assert.match(html, /href="assets\/osbio-mark\.svg"/);
+  assert.match(html, /<symbol id="pf-logo-mark" viewBox="0 0 48 48">/);
+  assert.match(html, /class="osbio-logo-frame"[^>]*>[\s\S]*?href="#pf-logo-mark"/);
+  assert.match(html, /class="osbio-logo-mark boot-logo"[^>]*>[\s\S]*?href="#pf-logo-mark"/);
+  assert.match(css, /\.system-panel \.launcher-brand-copy[\s\S]*?display:none!important/);
+  assert.match(css, /\.app-launcher \.launcher-item-copy[\s\S]*?display:none!important/);
+  assert.match(css, /\.desktop-icon > span:last-child \{ display:none!important; \}/);
+  assert.match(css, /#visitor-guide \{ display:none; \}/);
+  assert.match(html, /id="system-clock"/);
+  assert.match(html, /id="system-date"/);
 });

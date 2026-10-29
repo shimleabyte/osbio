@@ -1,7 +1,7 @@
 (function (global) {
   'use strict';
 
-  const STORAGE_KEY = 'osbio.wayfinder.v1';
+  const STORAGE_KEY = 'osbio.wayfinder.v2';
   const ROUTES = Object.freeze([
     Object.freeze({ app: 'projects', key: 'work' }),
     Object.freeze({ app: 'about', key: 'context' }),
@@ -17,7 +17,7 @@
   function readState() {
     try {
       const raw = global.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { dismissed: false, visited: [] };
+      if (!raw) return { dismissed: true, visited: [] };
       const saved = JSON.parse(raw);
       return {
         dismissed: saved.dismissed === true,
@@ -26,7 +26,7 @@
           : []
       };
     } catch (error) {
-      return { dismissed: false, visited: [] };
+      return { dismissed: true, visited: [] };
     }
   }
 

@@ -20,9 +20,27 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.body.classList.contains('desktop-ready'), { timeout: 6000 });
     assert.equal(await page.locator('#desktop-screen').getAttribute('aria-hidden'), 'false');
+    assert.equal(await page.title(), 'osbio', 'the browser tab title should use the product name only');
     const visitorGuide = page.locator('#visitor-guide');
-    assert.equal(await visitorGuide.isVisible(), true, 'first-time visitors should land on a non-modal field guide');
-    assert.equal(await visitorGuide.locator('[data-guide-app]').count(), 3, 'the guide should offer three concrete destinations');
+    assert.equal(await visitorGuide.isVisible(), false, 'the default desktop should open without a copy-heavy guide');
+    const visibleShellText = await page.evaluate(() => {
+      const selectors = [
+        '.launcher-brand-copy', '.panel-nav-copy', '.panel-count', '.panel-context',
+        '.local-status-label', '.desktop-icon > span:last-child', '.taskbar-system',
+        '.launcher-heading', '.app-search-wrap', '.launcher-tier-heading',
+        '.launcher-item-copy', '.launcher-item-index', '.launcher-footer'
+      ];
+      return selectors.flatMap((selector) => Array.from(document.querySelectorAll(selector))
+        .filter((element) => {
+          const style = getComputedStyle(element);
+          return style.display !== 'none' && style.visibility !== 'hidden' && element.getClientRects().length > 0;
+        }).map((element) => selector + ': ' + element.textContent.trim()));
+    });
+    assert.deepEqual(visibleShellText, [], 'idle shell chrome should show icons and the clock, not labels');
+    assert.match(await page.locator('#system-clock').textContent(), /\d{2}:\d{2}/);
+    assert.equal(await visitorGuide.locator('[data-guide-app]').count(), 3, 'the optional guide should retain three concrete destinations');
+    await page.locator('#visitor-guide-toggle').click();
+    assert.equal(await visitorGuide.isVisible(), true, 'the icon should open the optional field guide');
     assert.match(await page.locator('#visitor-guide-progress-label').textContent(), /0 \/ 3 STOPS VISITED/);
     await visitorGuide.locator('[data-guide-app="projects"]').click();
     const guideProjects = page.locator('.window[data-app-name="projects"]');
@@ -106,9 +124,8 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       'a fresh page load must begin with the empty desktop');
     await page.evaluate(() => localStorage.setItem('osbio.window-layout.v1', '{ malformed layout'));
 
-    // Launcher search opens a real app template.
+    // Icon grid launches a real app template.
     await page.locator('#launcher-toggle').click();
-    await page.locator('#app-search').fill('Flow Monitor');
     await page.locator('.launcher-item[data-app="flow"]').click();
     const flowWindow = page.locator('.window[data-app-name="flow"]');
     await flowWindow.waitFor({ state: 'visible' });
@@ -133,7 +150,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // The launcher shortcut returns focus to the prior control when dismissed with Escape.
     await page.keyboard.press('Control+k');
-    await page.locator('#app-search').waitFor({ state: 'visible' });
+    await page.locator('#app-launcher').waitFor({ state: 'visible' });
     await page.keyboard.press('Escape');
     assert.equal(await page.locator('#app-launcher').isVisible(), false);
     assert.equal(await flowWindow.evaluate((element) => document.activeElement === element), true);
@@ -612,7 +629,6 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // Settings persist appearance; preference, layout, and user-data resets stay separate.
     await page.locator('#launcher-toggle').click();
-    await page.locator('#app-search').fill('Settings');
     await page.locator('.launcher-item[data-app="settings"]').click();
     const settings = page.locator('.window[data-app-name="settings"]');
     await settings.waitFor({ state: 'visible' });
@@ -633,7 +649,6 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // Reset preferences must not reset the separately persisted window geometry.
     await page.locator('#launcher-toggle').click();
-    await page.locator('#app-search').fill('Settings');
     await page.locator('.launcher-item[data-app="settings"]').click();
     await settings.waitFor({ state: 'visible' });
     await settings.locator('#settings-reset').click();
@@ -700,7 +715,6 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     // System Monitor reports actual window and storage state rather than invented host metrics.
     await page.evaluate(() => window.WindowManager.closeAllWindows());
     await page.locator('#launcher-toggle').click();
-    await page.locator('#app-search').fill('System Monitor');
     await page.locator('.launcher-item[data-app="system"]').click();
     const systemWindow = page.locator('.window[data-app-name="system"]');
     await systemWindow.waitFor({ state: 'visible' });
@@ -726,7 +740,6 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // Memory Match restart and close cancel pending mismatch timers.
     await page.locator('#launcher-toggle').click();
-    await page.locator('#app-search').fill('Memory Match');
     await page.locator('.launcher-item[data-app="memory"]').click();
     const game = page.locator('.window[data-app-name="memory"]');
     await game.waitFor({ state: 'visible' });
@@ -789,7 +802,6 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.setViewportSize({ width: 390, height: 844 });
     assert.equal(await page.locator('.desktop-icons').evaluate((el) => getComputedStyle(el).display), 'none');
     await page.locator('#launcher-toggle').click();
-    await page.locator('#app-search').fill('Files');
     await page.locator('.launcher-item[data-app="files"]').click();
     const mobileFiles = page.locator('.window[data-app-name="files"]');
     await mobileFiles.waitFor({ state: 'visible' });

@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Shimleabyte's Pixel-Flow workstation: a small interactive desktop built with HTML, CSS and JavaScript.">
   <meta name="theme-color" content="#101512">
-  <meta property="og:title" content="OSBio — Pixel-Flow Workstation">
+  <meta property="og:title" content="osbio">
   <meta property="og:description" content="A personal developer workspace with a custom desktop shell and app windows.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101512'/%3E%3Cpath d='M4 4h8v8H4zM16 4h4v4h-4zM24 12h4v8h-4zM12 20h8v8h-8z' fill='%23e8d64a'/%3E%3C/svg%3E">
-  <title>OSBio — Pixel-Flow Workstation</title>
+  <link rel="icon" type="image/svg+xml" href="assets/osbio-mark.svg">
+  <title>osbio</title>
   <link rel="preload" href="assets/fonts/IBMPlexSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/IBMPlexMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/main.css">
@@ -16,6 +16,31 @@
 <body>
 
   <svg class="icon-library" aria-hidden="true" width="0" height="0" focusable="false">
+    <symbol id="pf-shell-skip" viewBox="0 0 24 24">
+      <path d="M4 5h2v14H4zM8 5l8 7-8 7zM17 5h2v14h-2z" fill="#e8d64a"/>
+      <path d="M9 7l5 5-5 5z" fill="#fff09a"/>
+    </symbol>
+    <symbol id="pf-logo-mark" viewBox="0 0 48 48">
+      <path d="M8 8h25v6H14v8H8z" fill="#050b07" transform="translate(2 2)"/>
+      <path d="M6 5h26v6H12v9H6z" fill="#786820"/>
+      <path d="M5 4h26v6H11v9H5z" fill="#e8d64a"/>
+      <path d="M10 5h21v2H10z" fill="#fff09a"/>
+      <path d="M42 15v27H15v-6h21V15z" fill="#08110b"/>
+      <path d="M40 13v27H13v-6h21V13z" fill="#35674d"/>
+      <path d="M38 11v27H11v-6h21V11z" fill="#76d7b4"/>
+      <path d="M12 12h22v22H12z" fill="#142219" stroke="#94ac7c" stroke-width="1.4" shape-rendering="crispEdges"/>
+      <path d="M16 16h15v5h-8v8h-7z" fill="#9b8a2d"/>
+      <path d="M15 15h15v5h-8v8h-7z" fill="#e8d64a"/>
+      <path d="M18 16h11v2H18z" fill="#fff09a"/>
+      <path d="M22 22h9v9h-9z" fill="#32684f"/>
+      <path d="M22 22h9v7h-9z" fill="#76d7b4"/>
+      <rect x="24" y="24" width="4" height="4" fill="#e8ede4"/>
+      <rect x="34" y="4" width="5" height="5" fill="#76d7b4"/>
+      <rect x="39" y="9" width="4" height="4" fill="#e8d64a"/>
+      <rect x="4" y="27" width="5" height="5" fill="#3b5944"/>
+      <rect x="5" y="28" width="3" height="3" fill="#a6c57d"/>
+      <rect x="33" y="32" width="4" height="4" fill="#e8d64a"/>
+    </symbol>
     <symbol id="pf-icon-projects" viewBox="0 0 40 40">
       <path d="M7 12h10l4 4h14v17H7z" fill="#0c140f"/>
       <path d="M5 9h11l4 4h15v17H5z" fill="#96851f"/>
@@ -164,13 +189,12 @@
 
   <noscript>OSBio needs JavaScript to run this desktop workspace. Source: github.com/shimleabyte/osbio</noscript>
   <div id="boot-screen" class="screen boot-screen" role="status" aria-live="polite">
-    <div class="boot-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <div class="boot-content">
-      <span class="boot-identity">OSBIO / PIXEL-FLOW</span>
-      <span class="boot-status">INITIALIZING WORKSPACE</span>
-      <div class="boot-progress" aria-hidden="true"><span></span></div>
+      <svg class="osbio-logo-mark boot-logo" viewBox="0 0 48 48" focusable="false" aria-hidden="true"><use href="#pf-logo-mark"></use></svg>
     </div>
-    <button id="boot-skip" class="boot-skip" type="button">SKIP BOOT <span>↵</span></button>
+    <button id="boot-skip" class="boot-skip" type="button" aria-label="Skip boot sequence">
+      <svg class="boot-skip-icon" viewBox="0 0 24 24" focusable="false" aria-hidden="true"><use href="#pf-shell-skip"></use></svg>
+    </button>
   </div>
 
   <div id="desktop-screen" class="screen hidden" aria-label="OSBio desktop" aria-hidden="true">
@@ -178,12 +202,11 @@
     <header class="system-panel">
       <div class="panel-left">
         <button id="launcher-toggle" class="launcher-toggle" type="button" aria-expanded="false" aria-controls="app-launcher" aria-label="Toggle application launcher">
-          <span class="pixel-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-          <span class="launcher-brand-copy"><span class="launcher-wordmark">OSBIO</span><span class="launcher-brand-note">PIXEL-FLOW</span></span>
-          <span class="panel-chevron" aria-hidden="true">+</span>
+          <span class="osbio-logo-frame" aria-hidden="true"><svg class="osbio-logo-mark" viewBox="0 0 48 48" focusable="false"><use href="#pf-logo-mark"></use></svg></span>
+          <span class="panel-chevron" aria-hidden="true"></span>
         </button>
         <nav class="panel-navigation" aria-label="System navigation">
-          <button id="window-overview-toggle" class="panel-nav-button" type="button" title="Open windows (Ctrl+Alt+W)" aria-label="Open window overview"><span class="panel-nav-glyph panel-nav-glyph-windows" aria-hidden="true"></span><span class="panel-nav-copy">WINDOWS</span></button>
+          <button id="window-overview-toggle" class="panel-nav-button" type="button"  aria-label="Open window overview"><span class="panel-nav-glyph panel-nav-glyph-windows" aria-hidden="true"></span><span class="panel-nav-copy">WINDOWS</span></button>
           <button id="visitor-guide-toggle" class="panel-nav-button guide-toggle" type="button" aria-controls="visitor-guide" aria-expanded="true" aria-label="Toggle the OSBio field guide"><span class="panel-nav-glyph panel-nav-glyph-guide" aria-hidden="true"></span><span class="panel-nav-copy">GUIDE</span><span id="visitor-guide-toggle-count" class="panel-count">0/3</span></button>
         </nav>
         <div class="panel-context" aria-live="polite">
@@ -201,11 +224,11 @@
 
     <main id="desktop-surface" class="desktop-surface" tabindex="-1">
       <nav class="desktop-icons" aria-label="Desktop shortcuts">
-        <button class="desktop-icon" type="button" data-app="files"><span class="app-icon app-icon-files" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-files"></use></svg></span><span>Files</span></button>
-        <button class="desktop-icon" type="button" data-app="editor"><span class="app-icon app-icon-editor" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-editor"></use></svg></span><span>Editor</span></button>
-        <button class="desktop-icon" type="button" data-app="projects"><span class="app-icon app-icon-projects" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-projects"></use></svg></span><span>Projects</span></button>
-        <button class="desktop-icon" type="button" data-app="about"><span class="app-icon app-icon-about" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-about"></use></svg></span><span>Profile</span></button>
-        <button class="desktop-icon" type="button" data-app="terminal"><span class="app-icon app-icon-terminal" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-terminal"></use></svg></span><span>Terminal</span></button>
+        <button class="desktop-icon" type="button" data-app="files" aria-label="Files"><span class="app-icon app-icon-files" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-files"></use></svg></span></button>
+        <button class="desktop-icon" type="button" data-app="editor" aria-label="Editor"><span class="app-icon app-icon-editor" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-editor"></use></svg></span></button>
+        <button class="desktop-icon" type="button" data-app="projects" aria-label="Projects"><span class="app-icon app-icon-projects" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-projects"></use></svg></span></button>
+        <button class="desktop-icon" type="button" data-app="about" aria-label="Profile"><span class="app-icon app-icon-about" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-about"></use></svg></span></button>
+        <button class="desktop-icon" type="button" data-app="terminal" aria-label="Terminal"><span class="app-icon app-icon-terminal" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-terminal"></use></svg></span></button>
       </nav>
       <aside id="visitor-guide" class="visitor-guide" aria-labelledby="visitor-guide-title" aria-describedby="visitor-guide-copy">
         <header class="visitor-guide-heading">
@@ -252,27 +275,27 @@
         <section class="launcher-tier" data-tier="core" aria-label="core applications">
           <header class="launcher-tier-heading"><span class="launcher-tier-name">CORE</span><span class="launcher-tier-description">01–05 / WORKSPACE</span></header>
           <div class="launcher-tier-items">
-          <button class="launcher-item" data-tier="core" type="button" data-app="projects" data-search="projects repositories github work"><span class="app-icon app-icon-projects" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-projects"></use></svg></span><span class="launcher-item-copy"><strong>Projects</strong><small>REPOSITORIES / WORK</small></span><span class="launcher-item-index">01</span></button>
-          <button class="launcher-item" data-tier="core" type="button" data-app="about" data-search="about profile bio information"><span class="app-icon app-icon-about" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-about"></use></svg></span><span class="launcher-item-copy"><strong>Profile</strong><small>IDENTITY / STACK</small></span><span class="launcher-item-index">02</span></button>
-          <button class="launcher-item" data-tier="core" type="button" data-app="files" data-search="files folder filesystem documents"><span class="app-icon app-icon-files" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-files"></use></svg></span><span class="launcher-item-copy"><strong>Files</strong><small>LOCAL / DOCUMENTS</small></span><span class="launcher-item-index">03</span></button>
-          <button class="launcher-item" data-tier="core" type="button" data-app="editor" data-search="editor text notes markdown"><span class="app-icon app-icon-editor" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-editor"></use></svg></span><span class="launcher-item-copy"><strong>Editor</strong><small>TEXT / NOTES</small></span><span class="launcher-item-index">04</span></button>
-          <button class="launcher-item" data-tier="core" type="button" data-app="contact" data-search="contact email github"><span class="app-icon app-icon-contact" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-contact"></use></svg></span><span class="launcher-item-copy"><strong>Contact</strong><small>EMAIL / GITHUB</small></span><span class="launcher-item-index">05</span></button>
+          <button class="launcher-item" data-tier="core" type="button" data-app="projects" aria-label="Projects" data-search="projects repositories github work"><span class="app-icon app-icon-projects" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-projects"></use></svg></span><span class="launcher-item-copy"><strong>Projects</strong><small>REPOSITORIES / WORK</small></span><span class="launcher-item-index">01</span></button>
+          <button class="launcher-item" data-tier="core" type="button" data-app="about" aria-label="Profile" data-search="about profile bio information"><span class="app-icon app-icon-about" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-about"></use></svg></span><span class="launcher-item-copy"><strong>Profile</strong><small>IDENTITY / STACK</small></span><span class="launcher-item-index">02</span></button>
+          <button class="launcher-item" data-tier="core" type="button" data-app="files" aria-label="Files" data-search="files folder filesystem documents"><span class="app-icon app-icon-files" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-files"></use></svg></span><span class="launcher-item-copy"><strong>Files</strong><small>LOCAL / DOCUMENTS</small></span><span class="launcher-item-index">03</span></button>
+          <button class="launcher-item" data-tier="core" type="button" data-app="editor" aria-label="Editor" data-search="editor text notes markdown"><span class="app-icon app-icon-editor" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-editor"></use></svg></span><span class="launcher-item-copy"><strong>Editor</strong><small>TEXT / NOTES</small></span><span class="launcher-item-index">04</span></button>
+          <button class="launcher-item" data-tier="core" type="button" data-app="contact" aria-label="Contact" data-search="contact email github"><span class="app-icon app-icon-contact" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-contact"></use></svg></span><span class="launcher-item-copy"><strong>Contact</strong><small>EMAIL / GITHUB</small></span><span class="launcher-item-index">05</span></button>
           </div>
         </section>
         <section class="launcher-tier" data-tier="supporting" aria-label="supporting applications">
           <header class="launcher-tier-heading"><span class="launcher-tier-name">SUPPORTING</span><span class="launcher-tier-description">06–08 / WORKFLOW</span></header>
           <div class="launcher-tier-items">
-          <button class="launcher-item" data-tier="supporting" type="button" data-app="terminal" data-search="terminal command line cli"><span class="app-icon app-icon-terminal" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-terminal"></use></svg></span><span class="launcher-item-copy"><strong>Terminal</strong><small>COMMANDS / LINKS</small></span><span class="launcher-item-index">06</span></button>
-          <button class="launcher-item" data-tier="supporting" type="button" data-app="resume" data-search="resume cv curriculum vitae"><span class="app-icon app-icon-resume" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-resume"></use></svg></span><span class="launcher-item-copy"><strong>Resume</strong><small>NOT PUBLISHED</small></span><span class="launcher-item-index">07</span></button>
-          <button class="launcher-item" data-tier="supporting" type="button" data-app="settings" data-search="settings preferences wallpaper appearance motion"><span class="app-icon app-icon-settings" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-settings"></use></svg></span><span class="launcher-item-copy"><strong>Settings</strong><small>APPEARANCE / WORKSPACE</small></span><span class="launcher-item-index">08</span></button>
+          <button class="launcher-item" data-tier="supporting" type="button" data-app="terminal" aria-label="Terminal" data-search="terminal command line cli"><span class="app-icon app-icon-terminal" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-terminal"></use></svg></span><span class="launcher-item-copy"><strong>Terminal</strong><small>COMMANDS / LINKS</small></span><span class="launcher-item-index">06</span></button>
+          <button class="launcher-item" data-tier="supporting" type="button" data-app="resume" aria-label="Resume" data-search="resume cv curriculum vitae"><span class="app-icon app-icon-resume" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-resume"></use></svg></span><span class="launcher-item-copy"><strong>Resume</strong><small>NOT PUBLISHED</small></span><span class="launcher-item-index">07</span></button>
+          <button class="launcher-item" data-tier="supporting" type="button" data-app="settings" aria-label="Settings" data-search="settings preferences wallpaper appearance motion"><span class="app-icon app-icon-settings" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-settings"></use></svg></span><span class="launcher-item-copy"><strong>Settings</strong><small>APPEARANCE / WORKSPACE</small></span><span class="launcher-item-index">08</span></button>
           </div>
         </section>
         <section class="launcher-tier" data-tier="utility" aria-label="utilities applications">
           <header class="launcher-tier-heading"><span class="launcher-tier-name">UTILITIES</span><span class="launcher-tier-description">09–11 / SESSION TOOLS</span></header>
           <div class="launcher-tier-items">
-          <button class="launcher-item" data-tier="utility" type="button" data-app="memory" data-search="memory match game puzzle"><span class="app-icon app-icon-memory" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-memory"></use></svg></span><span class="launcher-item-copy"><strong>Memory Match</strong><small>INTERACTIVE / GAME</small></span><span class="launcher-item-index">09</span></button>
-          <button class="launcher-item" data-tier="utility" type="button" data-app="system" data-search="system monitor diagnostics events storage"><span class="app-icon app-icon-system" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-system"></use></svg></span><span class="launcher-item-copy"><strong>System Monitor</strong><small>SESSION / EVENT LOG</small></span><span class="launcher-item-index">10</span></button>
-          <button class="launcher-item" data-tier="utility" type="button" data-app="flow" data-search="flow monitor event trace state transitions"><span class="app-icon app-icon-flow" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-flow"></use></svg></span><span class="launcher-item-copy"><strong>Flow Monitor</strong><small>STATE / EVENT TRACE</small></span><span class="launcher-item-index">11</span></button>
+          <button class="launcher-item" data-tier="utility" type="button" data-app="memory" aria-label="Memory Match" data-search="memory match game puzzle"><span class="app-icon app-icon-memory" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-memory"></use></svg></span><span class="launcher-item-copy"><strong>Memory Match</strong><small>INTERACTIVE / GAME</small></span><span class="launcher-item-index">09</span></button>
+          <button class="launcher-item" data-tier="utility" type="button" data-app="system" aria-label="System Monitor" data-search="system monitor diagnostics events storage"><span class="app-icon app-icon-system" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-system"></use></svg></span><span class="launcher-item-copy"><strong>System Monitor</strong><small>SESSION / EVENT LOG</small></span><span class="launcher-item-index">10</span></button>
+          <button class="launcher-item" data-tier="utility" type="button" data-app="flow" aria-label="Flow Monitor" data-search="flow monitor event trace state transitions"><span class="app-icon app-icon-flow" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-flow"></use></svg></span><span class="launcher-item-copy"><strong>Flow Monitor</strong><small>STATE / EVENT TRACE</small></span><span class="launcher-item-index">11</span></button>
           </div>
         </section>
       </div>
@@ -282,11 +305,11 @@
 
     <nav class="taskbar" aria-label="Open and pinned applications">
       <div class="taskbar-apps">
-        <button class="taskbar-btn" data-pinned="true" data-tier="core" type="button" data-app="projects" aria-label="Projects" title="Projects"><span class="app-icon app-icon-projects" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-projects"></use></svg></span><span class="taskbar-tooltip">Projects</span></button>
-        <button class="taskbar-btn" data-pinned="true" data-tier="core" type="button" data-app="about" aria-label="Profile" title="Profile"><span class="app-icon app-icon-about" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-about"></use></svg></span><span class="taskbar-tooltip">Profile</span></button>
-        <button class="taskbar-btn" data-pinned="true" data-tier="core" type="button" data-app="files" aria-label="Files" title="Files"><span class="app-icon app-icon-files" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-files"></use></svg></span><span class="taskbar-tooltip">Files</span></button>
-        <button class="taskbar-btn" data-pinned="true" data-tier="core" type="button" data-app="editor" aria-label="Editor" title="Editor"><span class="app-icon app-icon-editor" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-editor"></use></svg></span><span class="taskbar-tooltip">Editor</span></button>
-        <button class="taskbar-btn" data-pinned="true" data-tier="core" type="button" data-app="contact" aria-label="Contact" title="Contact"><span class="app-icon app-icon-contact" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-contact"></use></svg></span><span class="taskbar-tooltip">Contact</span></button>
+        <button class="taskbar-btn" data-pinned="true" data-tier="core" type="button" data-app="projects" aria-label="Projects" ><span class="app-icon app-icon-projects" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-projects"></use></svg></span><span class="taskbar-tooltip">Projects</span></button>
+        <button class="taskbar-btn" data-pinned="true" data-tier="core" type="button" data-app="about" aria-label="Profile" ><span class="app-icon app-icon-about" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-about"></use></svg></span><span class="taskbar-tooltip">Profile</span></button>
+        <button class="taskbar-btn" data-pinned="true" data-tier="core" type="button" data-app="files" aria-label="Files" ><span class="app-icon app-icon-files" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-files"></use></svg></span><span class="taskbar-tooltip">Files</span></button>
+        <button class="taskbar-btn" data-pinned="true" data-tier="core" type="button" data-app="editor" aria-label="Editor" ><span class="app-icon app-icon-editor" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-editor"></use></svg></span><span class="taskbar-tooltip">Editor</span></button>
+        <button class="taskbar-btn" data-pinned="true" data-tier="core" type="button" data-app="contact" aria-label="Contact" ><span class="app-icon app-icon-contact" aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-contact"></use></svg></span><span class="taskbar-tooltip">Contact</span></button>
         <span id="taskbar-recent-divider" class="taskbar-divider taskbar-app-divider" aria-hidden="true" hidden></span>
       </div>
       <div class="taskbar-system"><span class="taskbar-workspace">PF / 01</span><span class="taskbar-divider" aria-hidden="true"></span><span class="taskbar-caption">PIXEL-FLOW WORKSTATION</span></div>
