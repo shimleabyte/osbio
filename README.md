@@ -14,6 +14,7 @@ OSBio is a browser-based desktop environment built with plain HTML, CSS and Java
 - On narrow screens, the shell becomes a single-window workspace with touch-sized controls and a launcher.
 - Files and Editor share a browser-local virtual workspace with IndexedDB-backed persistence and explicit fallback status.
 - Settings changes persist browser-local appearance preferences; System Monitor reports actual OSBio state only (not host CPU/RAM).
+- Flow Monitor records up to 160 events in the current tab, lets users filter/inspect/export them as JSON, and does not upload the trace.
 - Memory Match uses keyboard-operable symbol cards. Restart cancels pending turn timers.
 - Resume shows an explicit unavailable state until the real PDF is published.
 
@@ -31,6 +32,7 @@ The storage layer supports text files and folders, rename/move/delete validation
 | Editor | Open and save virtual text documents, with read-only built-in documents and Save Copy |
 | Settings | Persist local wallpaper, accent, motion and desktop shortcut preferences |
 | System Monitor | Show real in-session windows, virtual workspace counts, storage mode and recent events |
+| Flow Monitor | Inspect, filter and export a bounded trace of real OSBio state transitions |
 | Profile | Background, current focus, and technologies used in the portfolio projects |
 | Projects | Verified repositories: Mutabaah CLI, Simpul, and Optical Anchor Button |
 | Terminal | Simulated prompt for exploring project links and opening apps |

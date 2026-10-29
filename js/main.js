@@ -32,6 +32,7 @@
       desktopScreen.setAttribute('aria-hidden', 'false');
       document.body.classList.add('desktop-ready');
       updateClock();
+      if (window.OSBioEvents) window.OSBioEvents.emit('desktop.ready', { source: 'boot-sequence' });
     }, FADE_DURATION);
   }
 
@@ -52,8 +53,10 @@
         : launcherToggle;
     }
 
+    const wasOpen = !launcher.hidden;
     launcher.hidden = !open;
     launcher.classList.toggle('is-open', open);
+    if (wasOpen !== open && window.OSBioEvents) window.OSBioEvents.emit(open ? 'launcher.opened' : 'launcher.closed');
     launcherToggle.setAttribute('aria-expanded', String(open));
     launcherToggle.classList.toggle('is-active', open);
 
@@ -89,6 +92,7 @@
     if (!button) return;
     const appName = button.dataset.app;
     if (!appName) return;
+    if (window.OSBioEvents) window.OSBioEvents.emit('app.launch-requested', { app: appName, source: button.className });
     WindowManager.openWindow(appName);
     if (!launcher.hidden) setLauncherOpen(false);
   }

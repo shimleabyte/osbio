@@ -192,6 +192,17 @@ const WindowManager = (() => {
           </div>
         `
       },
+      flow: {
+        title: 'Flow Monitor', width: '780px', height: '620px',
+        content: `
+          <div class="flow-monitor-app">
+            <header class="flow-heading"><div><p class="flow-kicker">OSBIO / EVENT TRACE</p><h2>Flow Monitor</h2><p>Recent state changes from this workspace. The trace stays in this browser tab and is not uploaded.</p></div><div class="flow-buffer"><span>BUFFER</span><strong>160 EVENTS</strong></div></header>
+            <div class="flow-toolbar"><label for="flow-filter">Scope <select id="flow-filter"><option value="all">All events</option><option value="window">Windows</option><option value="file">Files and storage</option><option value="settings">Settings</option><option value="game">Games</option><option value="launcher">Launcher and navigation</option></select></label><label for="flow-search">Filter <input id="flow-search" type="search" placeholder="Type, app, or event detail"></label><button id="flow-export" type="button">Export trace</button><button id="flow-clear" type="button">Clear</button></div>
+            <div class="flow-layout"><section class="flow-stream-section" aria-label="Event stream"><div class="flow-stream-count"><strong id="flow-event-count">0</strong><span>events</span></div><ol id="flow-event-list" class="flow-event-list"></ol><p id="flow-empty" class="flow-empty" hidden>No events match this filter.</p></section><aside class="flow-inspector" aria-label="Selected event details"><p class="flow-inspector-label">EVENT INSPECTOR</p><h3 id="flow-selected-type">Select an event</h3><p id="flow-selected-time" class="flow-selected-time">—</p><pre id="flow-event-detail">Choose an item from the stream to inspect its exact recorded fields.</pre></aside></div>
+            <footer id="flow-status" class="flow-status" role="status" aria-live="polite">Waiting for workspace events.</footer>
+          </div>
+        `
+      },
       contact: {
         title: 'Contact',
         width: '400px',
@@ -959,6 +970,7 @@ const WindowManager = (() => {
         if (pairCountElement) pairCountElement.textContent = '0';
         gameMessage.textContent = 'Select two cards to reveal their symbols.';
         gameMessage.classList.remove('is-complete');
+        emitOSBioEvent('game.restarted', { app: 'Memory Match' });
 
         const values = [];
         symbols.forEach((symbol) => values.push(symbol, symbol));
@@ -1004,6 +1016,7 @@ const WindowManager = (() => {
         canFlip = false;
         turns += 1;
         moveCountElement.textContent = String(turns);
+        emitOSBioEvent('game.turn', { app: 'Memory Match', turns, matchedPairs });
         const [firstCard, secondCard] = flippedCards;
 
         if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
@@ -1013,10 +1026,12 @@ const WindowManager = (() => {
           secondCard.setAttribute('aria-label', `Card ${Number(secondCard.dataset.index) + 1}, matched ${secondCard.dataset.symbol}`);
           matchedPairs += 1;
           if (pairCountElement) pairCountElement.textContent = String(matchedPairs);
+          emitOSBioEvent('game.pair-matched', { app: 'Memory Match', matchedPairs, totalPairs: symbols.length });
 
           if (matchedPairs === symbols.length) {
             gameMessage.textContent = `All ${symbols.length} pairs matched in ${turns} turns.`;
             gameMessage.classList.add('is-complete');
+            emitOSBioEvent('game.completed', { app: 'Memory Match', turns, pairs: matchedPairs });
           } else {
             gameMessage.textContent = `Pair found. ${matchedPairs} of ${symbols.length} pairs matched.`;
           }
@@ -1025,6 +1040,7 @@ const WindowManager = (() => {
         }
 
         gameMessage.textContent = 'No match. Cards will turn back shortly.';
+        emitOSBioEvent('game.mismatch', { app: 'Memory Match', turns, matchedPairs });
         const thisRound = roundId;
         mismatchTimer = window.setTimeout(() => {
           mismatchTimer = null;

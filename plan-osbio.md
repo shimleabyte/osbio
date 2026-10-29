@@ -401,3 +401,11 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 - [x] Show real event history without claiming access to host CPU, RAM, battery, network or process information.
 - [x] Add separate preference-reset and user-file-clear actions.
 - [ ] Browser-test preference reload, storage failure, event stream ordering and narrow-screen layout.
+
+
+### Stage 5 — Flow Monitor: inspectable Pixel-Flow trace (first implementation pass)
+- [x] Add bounded, tab-local event capture with a 160-event cap and subscriber API.
+- [x] Emit real events for desktop boot, launcher transitions, app launch requests, window lifecycle, file/storage operations, settings changes and Memory Match transitions.
+- [x] Add Flow Monitor filtering, event detail inspection, trace export and clear-history controls.
+- [x] Keep event details small and avoid recording document bodies or host-machine telemetry.
+- [ ] Browser-test event order, history cap, clear/export behavior, and cleanup while opening/closing Flow Monitor.

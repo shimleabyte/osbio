@@ -225,10 +225,81 @@
     refresh();
   }
 
+
+  function mountFlow(win) {
+    const filter=win.querySelector('#flow-filter'),search=win.querySelector('#flow-search');
+    const list=win.querySelector('#flow-event-list'),empty=win.querySelector('#flow-empty'),count=win.querySelector('#flow-event-count');
+    const selectedType=win.querySelector('#flow-selected-type'),selectedTime=win.querySelector('#flow-selected-time');
+    const detail=win.querySelector('#flow-event-detail'),statusNode=win.querySelector('#flow-status');
+    let filtered=[],selectedKey=null;
+    const key=(event)=>event.timestamp+'|'+event.type+'|'+JSON.stringify(event);
+    function category(event){
+      const type=String(event.type||'');
+      if(type.startsWith('window.')||type.startsWith('overview.'))return 'window';
+      if(type.startsWith('file.')||type.startsWith('folder.')||type.startsWith('storage.'))return 'file';
+      if(type.startsWith('settings.'))return 'settings';
+      if(type.startsWith('game.'))return 'game';
+      if(type.startsWith('launcher.')||type.startsWith('app.')||type.startsWith('desktop.'))return 'launcher';
+      return 'all';
+    }
+    function summary(event){
+      const values=[];
+      ['app','name','side','entryId','parentId','count','turns','matchedPairs'].forEach((field)=>{if(event[field]!=null)values.push(field+': '+String(event[field]));});
+      return values.join(' · ');
+    }
+    function inspect(event){
+      selectedKey=event?key(event):null;
+      if(!event){selectedType.textContent='Select an event';selectedTime.textContent='—';detail.textContent='Choose an item from the stream to inspect its exact recorded fields.';return;}
+      selectedType.textContent=event.type;
+      const date=new Date(event.timestamp);
+      selectedTime.textContent=Number.isNaN(date.getTime())?String(event.timestamp||'Unknown time'):date.toLocaleString();
+      detail.textContent=JSON.stringify(event,null,2);
+    }
+    function render(){
+      const all=global.OSBioEvents.recent(160),needle=search.value.trim().toLowerCase(),scope=filter.value;
+      filtered=all.filter((event)=>(scope==='all'||category(event)===scope)&&(!needle||(event.type+' '+summary(event)+' '+JSON.stringify(event)).toLowerCase().includes(needle)));
+      list.replaceChildren();count.textContent=String(filtered.length);empty.hidden=filtered.length>0;
+      filtered.forEach((event)=>{
+        const button=document.createElement('button');button.type='button';button.className='flow-event-row';
+        if(key(event)===selectedKey)button.classList.add('is-selected');
+        const time=document.createElement('time'),date=new Date(event.timestamp);
+        time.textContent=Number.isNaN(date.getTime())?'--:--:--':date.toLocaleTimeString('en-GB');
+        const marker=document.createElement('span');marker.className='flow-event-marker';marker.setAttribute('aria-hidden','true');
+        const main=document.createElement('span');main.className='flow-event-main';
+        const type=document.createElement('strong');type.textContent=event.type;
+        const sub=document.createElement('small');sub.textContent=summary(event)||'No additional fields';
+        main.append(type,sub);button.append(time,marker,main);button.setAttribute('aria-label',event.type+' '+summary(event));
+        button.addEventListener('click',()=>{inspect(event);list.querySelectorAll('.flow-event-row').forEach((row)=>row.classList.toggle('is-selected',row===button));});
+        list.appendChild(button);
+      });
+      empty.textContent=all.length?'No events match this filter.':'No events have been recorded in this tab yet.';
+      if(selectedKey&&!filtered.some((event)=>key(event)===selectedKey))inspect(null);
+      status(statusNode,filtered.length+' shown · '+all.length+' in the bounded tab-local buffer.');
+    }
+    filter.addEventListener('change',render);search.addEventListener('input',render);
+    win.querySelector('#flow-clear').addEventListener('click',()=>{
+      if(!global.confirm('Clear the event history held in this tab? This does not clear workspace files.'))return;
+      global.OSBioEvents.clearHistory();selectedKey=null;inspect(null);render();status(statusNode,'Event history cleared for this tab.');
+    });
+    win.querySelector('#flow-export').addEventListener('click',()=>{
+      try{
+        const json=JSON.stringify({format:'osbio-event-trace-v1',exportedAt:new Date().toISOString(),events:global.OSBioEvents.recent(160)},null,2);
+        const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const link=document.createElement('a');
+        link.href=url;link.download='osbio-event-trace.json';link.click();URL.revokeObjectURL(url);
+        status(statusNode,'Trace export prepared.');
+      }catch(error){status(statusNode,error.message||'Could not export trace.',true);}
+    });
+    const onEvent=()=>render();
+    global.addEventListener('osbio:event',onEvent);
+    win.addEventListener('osbio:dispose',()=>global.removeEventListener('osbio:event',onEvent),{once:true});
+    render();inspect(null);
+  }
+
   global.OSBioWorkspaceApps={mount(win,name){
     if(name==='files')mountFiles(win);
     if(name==='editor')mountEditor(win);
     if(name==='settings')mountSettings(win);
     if(name==='system')mountSystemMonitor(win);
+    if(name==='flow')mountFlow(win);
   }};
 })(window);

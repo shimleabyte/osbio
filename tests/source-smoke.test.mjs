@@ -105,3 +105,14 @@ test('Settings and System Monitor use real local preference and session APIs', (
   assert.match(workspaceApps, /OSBioEvents\.recent/);
   assert.match(settingsModule, /localStorage/);
 });
+
+
+test('Flow Monitor exposes bounded event filtering and trace export', () => {
+  assert.match(windows, /flow: \{/);
+  assert.match(html, /data-app="flow"/);
+  assert.match(workspaceApps, /function mountFlow/);
+  assert.match(workspaceApps, /OSBioEvents\.recent\(160\)/);
+  assert.match(workspaceApps, /osbio-event-trace-v1/);
+  assert.match(wm, /game\.completed/);
+  assert.match(main, /launcher\.opened/);
+});
