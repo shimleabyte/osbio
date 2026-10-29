@@ -1,0 +1,360 @@
+# OSBio — Improvement Plan
+
+> **Status:** Proposed roadmap  
+> **Target branch:** `main`  
+> **Implementation status:** Planning only. Items in this document are not complete until implemented and verified.  
+> **Product direction:** A browser-based, local-first desktop environment with a distinctive Pixel-Flow identity—not a portfolio landing page decorated with window chrome.
+
+## 1. Product definition
+
+OSBio should feel like a coherent desktop workspace. The portfolio is its content, not its outer layout. The shell should provide predictable desktop conventions; apps should share state and behave like parts of one environment; the Pixel-Flow identity should emerge from the system's interaction language rather than from slogans or decorative effects.
+
+### Product principles
+
+1. **Desktop first, not hero first.** Boot directly into the workspace. No marketing hero, slogan, generic welcome panel, or automatic profile window.
+2. **Behavior before decoration.** Focus, window lifecycle, input handling, persistence, and recovery must be reliable before another layer of visual polish is added.
+3. **Local-first and honest.** Browser-local files and preferences may be provided, but never misrepresented as host operating-system capabilities. Do not invent CPU/RAM metrics, hardware access, authentication, or real shell execution.
+4. **One coherent environment.** Apps use shared shell conventions, state and persistence rather than behaving as isolated portfolio cards.
+5. **Pixel-Flow as a design language.** Pixel geometry, the signal-yellow/muted-green palette, restrained grid motifs, and purposeful state transitions should connect the whole environment.
+6. **Accessible by keyboard and pointer.** Keyboard focus is visible and predictable; reduced-motion preference is respected; controls have semantic labels; touch remains practical on narrow screens.
+7. **Vanilla remains maintainable.** Keep plain HTML, CSS and JavaScript, with no framework or build step unless a later decision explicitly changes that constraint.
+8. **Verification is part of delivery.** A successful deployment alone does not prove interactions work.
+
+## 2. Design constraints and non-goals
+
+### Preserve
+
+- The Pixel-Flow identity and dark charcoal, muted green, signal-yellow palette.
+- The top system panel, desktop shortcuts, searchable launcher, taskbar, and independent app-window metaphor.
+- A clean desktop by default, with no app automatically opened.
+- The adaptive single-window experience on mobile instead of forcing a miniature multi-window desktop.
+- The current plain HTML/CSS/JS architecture.
+- Accurate project descriptions and repository links.
+
+### Avoid
+
+- Reintroducing generic portfolio headings, slogans, marketing sections, or SaaS-style feature cards.
+- Treating a terminal simulation as a real host shell.
+- Showing fictional system metrics or fabricated capabilities.
+- Expanding the application roster while existing window and focus behavior remains unreliable.
+- Visual effects that do not communicate a real interaction or state change.
+- Duplicating other browser OS projects feature-for-feature merely to increase app count.
+
+### Scope limits
+
+OSBio is a browser application. Browser sandboxing, permission boundaries, storage limits, and reload behavior remain real constraints. The plan is to emulate useful desktop conventions within those boundaries, not build or claim to be a native operating system.
+
+## 3. Benchmark references
+
+Use these projects and guidelines as references for patterns, not as designs to copy.
+
+### Desktop OS conventions
+
+- [GNOME Human Interface Guidelines](https://developer.gnome.org/hig/) — discoverability, coherent app patterns, navigation and usable defaults.
+- [GNOME window management](https://help.gnome.org/gnome-help/shell-windows.html) — switching and managing windows.
+- [KDE Plasma](https://kde.org/plasma-desktop/) — launcher/search, configurable workspace and desktop activities.
+- [Microsoft Snap Windows](https://support.microsoft.com/en-us/windows/experience/snap-your-windows) — arranging windows and restoring useful window groups.
+
+### Browser desktop projects
+
+- [daedalOS](https://github.com/DustinBrett/daedalOS) — broad browser desktop; useful reference for a virtual filesystem, IndexedDB persistence, file operations, context menus, drag-and-drop and app breadth.
+- [MiniOS](https://github.com/0xMortuEx/MiniOS) — vanilla web desktop patterns, virtual filesystem, taskbar, window snapping and keyboard shortcuts.
+- [WebOS by Martin R-D](https://github.com/Martin-R-D/WebOS) — apps and file operations that share a persistent environment.
+
+**Benchmark conclusion:** a launcher, taskbar and draggable windows are not enough to make OSBio distinctive. Its opportunity is a small, carefully integrated local workstation whose state transitions can be inspected, with the Pixel-Flow visual language consistently tied to real behavior.
+
+## 4. Current baseline and audit findings
+
+This section records the known baseline when the plan was drafted. Re-check against `main` before each implementation phase; this is not a claim that every pointer and layout scenario has been browser-tested.
+
+### Existing shell
+
+- Skippable boot sequence and initially empty desktop.
+- Top panel with active-app label, local-session label, clock and date.
+- Searchable application launcher, including `Ctrl+K`.
+- Desktop shortcuts and taskbar buttons.
+- Window creation, focus, dragging, resize, maximize/restore, minimize and close.
+- Narrow-screen single-window workspace behavior.
+- Memory Match app with restart timer cleanup and keyboard-operable card buttons.
+- Terminal-like interface with an explicitly simulated command set.
+- Resume app deliberately reports that the PDF is unavailable instead of fabricating a preview.
+
+### Existing apps
+
+- **Profile:** background, focus and technologies.
+- **Projects:** verified repositories and links.
+- **Terminal:** simulated navigation commands and project links.
+- **Resume:** unavailable-state explanation until a real document is published.
+- **Contact:** email and GitHub.
+- **Memory Match:** symbol-pair game.
+
+### Known gaps to investigate or address
+
+- The launcher close routine currently restores focus to the launcher toggle in every close case. Outside-click dismissal and app selection should not unexpectedly steal focus from the user's intended destination.
+- Window lifecycle behavior needs a full test pass across focus order, rapid open/close actions, minimize/restore, maximize/restore, dragging, resize, viewport changes and mobile mode.
+- The environment has no virtual file system, file manager, editor, settings app, workspace persistence or genuine event history.
+- Project information currently lives directly in app templates; evaluate whether shared project metadata should become one source of truth.
+- Legacy CSS and old components may remain from earlier screens; inventory and remove obsolete code only when safe and covered by checks.
+- Deployment success and JavaScript syntax checks do not establish correctness of all visual, focus, pointer and responsive interactions.
+
+## 5. Phased roadmap
+
+Phases should be implemented in order. Each phase has an explicit release gate. Do not skip the gate because the UI appears finished.
+
+### Phase 0 — Baseline, inventory and reproducible QA
+
+**Goal:** understand what is actually running before changing architecture.
+
+Tasks:
+- [ ] Reconfirm the current `main` SHA and deployment workflow.
+- [ ] Inventory all HTML regions, CSS sections, app templates, event listeners, timers and global state.
+- [ ] Map window states and transitions: open, active, inactive, minimized, maximized, restored and closed.
+- [ ] Map keyboard shortcuts and event propagation, including Escape, Ctrl/Cmd+K and Alt+F4.
+- [ ] Identify legacy styles, unreachable components, duplicate project metadata and unused template controls.
+- [ ] Establish repeatable desktop and mobile browser checks.
+- [ ] Capture baseline screenshots at representative desktop and narrow mobile viewport sizes.
+- [ ] Record existing defects separately from proposed features.
+
+**Gate:** baseline inventory exists, critical paths can be reproduced, and the team can distinguish a verified result from static inspection.
+
+### Phase 1 — Window manager and input reliability
+
+**Priority:** highest. No new app features should delay this phase.
+
+Tasks:
+- [ ] Fix launcher focus restoration: return focus only when appropriate; preserve or move focus to the intended control after outside-click dismissal or application launch.
+- [ ] Define the active-window invariant: at most one non-minimized window is active; if no visible window exists, the desktop is active.
+- [ ] Ensure z-order and active styling agree after every state transition.
+- [ ] Verify taskbar behavior: launch closed app, activate an inactive app, minimize active app, restore minimized app, and close app.
+- [ ] Make maximize/restore preserve valid bounds; reconcile restored size with the current viewport.
+- [ ] Clamp windows after viewport changes without leaving title bars or essential controls unreachable.
+- [ ] Test dragging with pointer capture, pointer cancellation, fast movement, and pointer release outside the header.
+- [ ] Prevent drag initiation from titlebar controls and interactive content.
+- [ ] Define edge-snapping behavior with clear target zones and reliable unsnap/restore behavior.
+- [ ] Add a keyboard-friendly window switcher or overview for open windows.
+- [ ] Validate single-window mobile mode, including app switching and close/back behavior.
+- [ ] Audit dialog semantics, title labels, focus visibility, and keyboard access to each window control.
+- [ ] Confirm app disposal clears timers, listeners and app-specific transient state where needed.
+
+**Acceptance criteria:**
+- Repeated open/focus/minimize/restore/close sequences do not desynchronize taskbar state, active label, visibility or z-order.
+- No window can become permanently inaccessible off-screen.
+- Closing a window leaves focus and active-window state in a defined, usable place.
+- Dragging never accidentally activates titlebar controls.
+- Resizing the viewport does not corrupt restore bounds or mobile layout.
+- Keyboard users can open, switch, minimize/maximize and close windows without relying solely on a pointer.
+
+### Phase 2 — Shared state and local persistence foundation
+
+**Goal:** give OSBio state that survives window closure and page reload.
+
+Tasks:
+- [ ] Define a small storage layer with versioned records and migration strategy.
+- [ ] Use IndexedDB for a virtual filesystem; use localStorage only for small preferences where it fits.
+- [ ] Persist user-created files, settings and workspace layout without storing transient DOM references.
+- [ ] Define safe failure paths for unavailable storage, quota errors, invalid data and schema upgrades.
+- [ ] Add a clear-local-data action with an explicit confirmation and a clear explanation of what will be removed.
+- [ ] Add export/import for user-created content, using a documented format and validation on import.
+- [ ] Keep project metadata separate from user-created files so the system can distinguish built-in read-only content from user content.
+- [ ] Make reload recovery deterministic, including stale or invalid saved window positions.
+- [ ] Document that data is browser-local and is not automatically synced across browsers or devices.
+
+**Acceptance criteria:**
+- A note or file survives closing its app and reloading the page.
+- Invalid or old stored data does not prevent the desktop from starting.
+- Clearing user data does not silently delete application code or built-in project metadata.
+- Import validation rejects malformed data with a useful message rather than a broken UI.
+- Storage failures are visible and recoverable; the application does not claim a save succeeded before it does.
+
+### Phase 3 — Files and Editor applications
+
+**Goal:** make the virtual environment useful beyond portfolio navigation.
+
+#### Files app
+- [ ] Folder and file listing.
+- [ ] Breadcrumb navigation and a defined root.
+- [ ] Create, rename, move and delete operations.
+- [ ] Open supported text files in the Editor.
+- [ ] Context menu for common operations, with keyboard equivalents.
+- [ ] Empty, loading, error and permission/read-only states.
+- [ ] Clear distinction between built-in files and user-created files.
+- [ ] Mobile-friendly list layout and touch-sized targets.
+
+#### Editor app
+- [ ] Open and edit text documents.
+- [ ] Save and reopen documents through the shared storage layer.
+- [ ] Unsaved-change indicator.
+- [ ] Explicit behavior for closing a dirty document: save, discard or cancel.
+- [ ] Basic plain-text editing and file metadata; avoid feature creep into a full IDE.
+- [ ] Useful empty, saved, failed-save and conflict states where applicable.
+
+#### Seeded content
+- [ ] Provide a small set of real OSBio/project documents: workspace notes, verified project descriptions and system documentation.
+- [ ] Keep seeded content accurate and link back to the real repositories.
+- [ ] Avoid fake personal documents or invented artifacts merely to make the filesystem look populated.
+
+**Acceptance criteria:** create a file, edit it, save it, close the app, reopen it and reload the page; the file and contents remain intact. Destructive actions are recoverable or explicitly confirmed.
+
+### Phase 4 — Settings and honest system information
+
+**Goal:** allow the user to configure the environment and understand its actual state.
+
+#### Settings
+- [ ] Wallpaper selection using a curated set of Pixel-Flow surfaces.
+- [ ] Accent or theme settings using the established palette; no unrelated gradient theme.
+- [ ] Motion preference that respects OS/browser reduced-motion settings.
+- [ ] Desktop icon visibility and basic workspace preferences where practical.
+- [ ] Reset layout and clear user data as separate, clearly explained actions.
+- [ ] Persist settings and apply them across all apps consistently.
+
+#### System Monitor
+- [ ] Display the number of open and active windows.
+- [ ] Show the current active app and workspace state.
+- [ ] Show actual virtual storage usage or file counts only when measurable.
+- [ ] Display recent real system events from the event model.
+- [ ] Clearly label browser-environment limitations.
+
+**Acceptance criteria:** changes persist through reload; system facts come from the app's real state. No fabricated CPU, RAM, battery, network or process metrics.
+
+### Phase 5 — Flow Monitor: the signature Pixel-Flow feature
+
+**Goal:** create a reason to explore OSBio beyond its project list.
+
+Proposed feature: an **inspectable desktop**. A built-in Flow Monitor displays real environment events and state transitions so users can understand how the shell responds to actions.
+
+Tasks:
+- [ ] Define a small event schema: event ID, timestamp, event type, source app/window and minimal relevant details.
+- [ ] Emit events from real transitions: app launched, window focused, minimized, restored, maximized, resized, closed, file saved and game completed.
+- [ ] Do not log sensitive text content, contact details, or full document bodies by default.
+- [ ] Display an ordered event stream with readable labels and event detail.
+- [ ] Add filters by event category and source.
+- [ ] Show empty, paused, cleared and capped-history states.
+- [ ] Use a bounded in-memory history initially; decide separately whether user-visible history should persist.
+- [ ] Avoid recursive logging where opening Flow Monitor causes event floods.
+- [ ] Use Pixel-Flow visual grammar to show state changes, not decorative particle effects or a meaningless animated graph.
+- [ ] Document which events are collected and where they live.
+
+**Acceptance criteria:** every displayed event corresponds to an action that really occurred; filters work; event history is bounded; no claim is made that browser-local events are system-wide telemetry.
+
+### Phase 6 — Projects and personal content integration
+
+**Goal:** keep the real portfolio content valuable without making the shell feel like a website.
+
+Tasks:
+- [ ] Establish one verified source of truth for project names, descriptions, technologies and repository URLs.
+- [ ] Use accurate project states: distinguish shipped functionality from prototypes, concepts and planned work.
+- [ ] Connect Files and Editor to useful project documentation.
+- [ ] Use source links that open safely in a separate tab when appropriate.
+- [ ] Keep Profile concise and factual, with no forced marketing prose.
+- [ ] Keep Contact direct and functional.
+- [ ] Add Resume to the normal app set only when the real PDF or an accurate document is available; otherwise keep its unavailable state honest or remove the shortcut.
+- [ ] Ensure all launcher, desktop and taskbar entries refer to valid apps.
+- [ ] Keep the simulated terminal's available commands in sync with actual functionality.
+- [ ] State clearly that terminal commands run only within the simulated OSBio environment.
+
+**Acceptance criteria:** repository links and claims are correct; there are no broken app routes or fake download controls; duplicate project metadata cannot silently drift.
+
+### Phase 7 — Pixel-Flow visual system
+
+**Dependency:** phases 1–3 must be stable first.
+
+Tasks:
+- [ ] Audit and remove obsolete CSS and unused legacy screens after confirming they are not active dependencies.
+- [ ] Define consistent tokens for spacing, borders, typography, shadows, focus, selection, disabled, error and success states.
+- [ ] Standardize title bars, controls, tooltips, menus, dialog surfaces, scrollbars and app padding.
+- [ ] Align desktop shortcuts, launcher entries and taskbar icons to one coherent pixel construction grammar.
+- [ ] Keep colors purposeful: yellow for primary/selected signals, muted green for system flow and status, charcoal for shell surfaces.
+- [ ] Make the active/inactive/minimized/maximized states distinguishable without relying solely on color.
+- [ ] Use animation only when it clarifies a real state change; keep it short and respect reduced motion.
+- [ ] Remove any remaining portfolio-style slogans and generic landing-page remnants.
+- [ ] Review visual density and legibility at realistic window sizes.
+- [ ] Ensure the mobile workspace is designed as a first-class mode.
+
+**Acceptance criteria:** the shell looks like one designed environment across all apps; states remain understandable with keyboard focus and reduced motion; no visual-only changes break existing interaction tests.
+
+### Phase 8 — Regression testing and release gate
+
+Tasks:
+- [ ] Add automated browser tests where practical, using the lightest maintainable setup compatible with the static repo.
+- [ ] Keep a manual smoke-test checklist for behavior that automation does not cover.
+- [ ] Test at desktop, tablet-ish and narrow mobile viewport sizes.
+- [ ] Test keyboard-only navigation and visible focus.
+- [ ] Test reduced-motion mode.
+- [ ] Test reload and storage recovery.
+- [ ] Test window lifecycle and app disposal.
+- [ ] Test Memory Match: repeated turns, mismatches, rapid restart, matched-card re-selection, full completion and close during pending timer.
+- [ ] Test opening and closing launcher through button, keyboard, outside click and app selection.
+- [ ] Test browser console for uncaught errors and failed asset requests.
+- [ ] Capture screenshots for visual regression at fixed viewports where feasible.
+- [ ] Confirm deploy run corresponds to the exact tested commit.
+- [ ] Update README and this plan when behavior changes materially.
+
+**Release gate:**
+- JavaScript syntax checks pass.
+- Automated and manual critical-path checks pass.
+- No uncaught errors during the smoke-test scenarios.
+- Desktop and mobile layouts have been checked in a real browser.
+- Deployment succeeded for the tested commit.
+- Any known limitation is documented honestly.
+
+## 6. Cross-cutting acceptance checklist
+
+Before marking an app or phase finished, check the applicable items:
+
+- [ ] **Behavior:** actions perform the advertised operation.
+- [ ] **State:** current UI, taskbar, active label and internal state agree.
+- [ ] **Lifecycle:** timers and app-specific resources are cleaned up.
+- [ ] **Persistence:** save feedback is accurate; reload recovery is defined.
+- [ ] **Failure:** empty, unavailable, invalid and error states are deliberately designed.
+- [ ] **Accessibility:** semantic controls, labels, keyboard operation and visible focus.
+- [ ] **Motion:** reduced-motion preference is respected.
+- [ ] **Responsive:** narrow-screen behavior is deliberately designed, not merely shrunk.
+- [ ] **Content:** project claims and repository links are verified.
+- [ ] **Testing:** there is evidence of behavior, not only a successful build.
+- [ ] **Documentation:** README and app descriptions match the shipped behavior.
+
+## 7. Proposed keyboard conventions
+
+Keep the bindings small and documented. Avoid handling keys when an input, textarea or editable element should receive them.
+
+- `Ctrl/Cmd + K`: open the application launcher.
+- `Escape`: dismiss a transient surface (launcher/menu/dialog) in the correct focus order; do not globally close app windows.
+- `Alt + F4`: close the active app window where the browser/platform permits the event.
+- Window switcher shortcut: decide and document during Phase 1; avoid conflicting with common browser shortcuts.
+- Window snapping shortcuts: decide only after pointer snapping works and conflicts have been reviewed.
+- Every shortcut should have an equivalent discoverable pointer action where practical.
+
+## 8. Explicitly deferred ideas
+
+Do not schedule these until the core desktop is reliable and the roadmap's acceptance gates are met:
+
+- Full Linux/Windows application emulation.
+- Real host-shell commands, privileged access or process control.
+- Fake CPU, memory, battery, network or hardware readings.
+- Cloud sync or multi-device accounts.
+- A full programming IDE or broad application marketplace.
+- Large numbers of novelty apps that do not share useful state.
+- A new framework/build pipeline without a demonstrated maintainability need.
+- Decorative animation, particle effects or visual rebrands that don't improve system behavior.
+
+## 9. Execution order and definition of done
+
+| Order | Deliverable | Required gate |
+|---|---|---|
+| 0 | Baseline inventory and reproducible checks | Current state is understood and testable |
+| 1 | Window/focus/lifecycle reliability | Window and launcher interaction suite passes |
+| 2 | Storage abstraction and persistence | Save/reopen/reload and failure paths pass |
+| 3 | Files and Editor | Shared documents survive closure and reload |
+| 4 | Settings and System Monitor | Preferences persist; displayed facts are real |
+| 5 | Flow Monitor | Events are sourced from actual state changes |
+| 6 | Project/content integration | Accurate metadata, functioning app routes and links |
+| 7 | Pixel-Flow visual refinement | Visual changes preserve behavior and accessibility |
+| 8 | Release verification | Browser, responsive, accessibility and deployment checks pass |
+
+**Overall definition of done:** OSBio feels like one browser-based workstation rather than a portfolio in window-shaped containers. Core window behavior is predictable; apps share a persistent local environment; its signature Flow Monitor exposes real state changes; the Pixel-Flow identity is consistent; and every shipped capability is verified and described honestly.
+
+---
+
+## Change log
+
+- **Initial plan:** consolidated the OS-behavior benchmarks, comparable browser desktop projects, current known gaps, phased feature roadmap, differentiation concept, quality gates and release checklist.
