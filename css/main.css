@@ -2903,8 +2903,8 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
 }
 .desktop-wallpaper[data-wallpaper="flow"] .wallpaper-grid,
 .desktop-wallpaper[data-wallpaper="flow"] .wallpaper-block { display:none; }
-.desktop-wallpaper[data-wallpaper="grid"] .wallpaper-art,
-.desktop-wallpaper[data-wallpaper="plain"] .wallpaper-art { display:none; }
+#desktop-screen .desktop-wallpaper[data-wallpaper="grid"] .wallpaper-art,
+#desktop-screen .desktop-wallpaper[data-wallpaper="plain"] .wallpaper-art { display:none; }
 .desktop-wallpaper[data-wallpaper="plain"] .wallpaper-grid { display:none; }
 
 .settings-wallpaper-preview {
