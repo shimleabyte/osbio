@@ -16,6 +16,9 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.body.classList.contains('desktop-ready'), { timeout: 6000 });
     assert.equal(await page.locator('#desktop-screen').getAttribute('aria-hidden'), 'false');
+    assert.equal(await page.evaluate(() => window.WindowManager.getSnapshot().windows.length), 0,
+      'a fresh page load must begin with the empty desktop');
+    await page.evaluate(() => localStorage.setItem('osbio.window-layout.v1', '{ malformed layout'));
 
     // Launcher search opens a real app template.
     await page.locator('#launcher-toggle').click();
@@ -158,6 +161,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     assert.equal(await page.locator('.window.active').count(), 1, 'overview dismissal must preserve the active-window invariant');
 
     // Project cards render from the shared catalogue, and closing the foreground window restores focus.
+    let savedProjectBounds = null;
     await page.locator('.desktop-icon[data-app="projects"]').click();
     const projectWindow = page.locator('.window[data-app-name="projects"]');
     await projectWindow.waitFor({ state: 'visible' });
@@ -165,6 +169,32 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     assert.ok(await projectWindow.locator('.project-status').count() >= 3);
     assert.equal(await projectWindow.evaluate((element) => element.classList.contains('active')), true);
     assert.equal(await page.locator('.window.active').count(), 1, 'opening another app must not leave two active windows');
+
+    const initialProjectBounds = await projectWindow.boundingBox();
+    const projectTitleGroup = projectWindow.locator('.window-title-group');
+    const projectTitleBounds = await projectTitleGroup.boundingBox();
+    assert.ok(initialProjectBounds && projectTitleBounds, 'project window should have measurable bounds');
+    await page.mouse.move(projectTitleBounds.x + 42, projectTitleBounds.y + projectTitleBounds.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(projectTitleBounds.x + 182, projectTitleBounds.y + projectTitleBounds.height / 2 + 46, { steps: 8 });
+    await page.mouse.up();
+    await page.waitForFunction(({ beforeX, beforeY }) => {
+      const element = document.querySelector('.window[data-app-name="projects"]');
+      return element && parseFloat(element.style.left) > beforeX + 60 &&
+        parseFloat(element.style.top) > beforeY + 20;
+    }, { beforeX: initialProjectBounds.x, beforeY: initialProjectBounds.y });
+    savedProjectBounds = await projectWindow.boundingBox();
+
+    await projectWindow.locator('.window-close').click();
+    await projectWindow.waitFor({ state: 'detached' });
+    await page.locator('.taskbar-btn[data-app="projects"]').click();
+    await projectWindow.waitFor({ state: 'visible' });
+    const reopenedProjectBounds = await projectWindow.boundingBox();
+    assert.ok(savedProjectBounds && reopenedProjectBounds &&
+      Math.abs(reopenedProjectBounds.x - savedProjectBounds.x) <= 1 &&
+      Math.abs(reopenedProjectBounds.y - savedProjectBounds.y) <= 1,
+      'closing and reopening Projects should restore its saved position: ' +
+        JSON.stringify({ savedProjectBounds, reopenedProjectBounds }));
     await projectWindow.locator('.window-close').click();
     await projectWindow.waitFor({ state: 'detached' });
     assert.equal(await flowWindow.evaluate((element) => element.classList.contains('active')), true);
@@ -192,6 +222,18 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     }, expectedText);
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.body.classList.contains('desktop-ready'), { timeout: 6000 });
+    assert.equal(await page.evaluate(() => window.WindowManager.getSnapshot().windows.length), 0,
+      'saved geometry must not auto-open windows after reload');
+    await page.locator('.taskbar-btn[data-app="projects"]').click();
+    const persistedProjectWindow = page.locator('.window[data-app-name="projects"]');
+    await persistedProjectWindow.waitFor({ state: 'visible' });
+    const persistedProjectBounds = await persistedProjectWindow.boundingBox();
+    assert.ok(savedProjectBounds && persistedProjectBounds &&
+      Math.abs(persistedProjectBounds.x - savedProjectBounds.x) <= 1 &&
+      Math.abs(persistedProjectBounds.y - savedProjectBounds.y) <= 1,
+      'saved position should survive page reload: ' + JSON.stringify({ savedProjectBounds, persistedProjectBounds }));
+    await persistedProjectWindow.locator('.window-close').click();
+    await persistedProjectWindow.waitFor({ state: 'detached' });
     await page.locator('.taskbar-btn[data-app="files"]').click();
     await page.locator('.window[data-app-name="files"]').waitFor({ state: 'visible' });
     await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke.md' }).waitFor({ state: 'visible' });
@@ -205,6 +247,70 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       return editor && editor.value === text && status && status.textContent.includes('Saved locally');
     }, expectedText);
     assert.equal(await reopenedEditorBody.inputValue(), expectedText);
+
+
+    // Import validation rejects malformed structures before mutating browser storage.
+    const importValidation = await page.evaluate(async () => {
+      const store = window.OSBioStorage;
+      await store.ready();
+      const baseline = await store.listAll();
+      const invalidPayloads = [
+        [
+          { id: 'duplicate', type: 'folder', name: 'Duplicate A', parentId: 'root' },
+          { id: 'duplicate', type: 'file', name: 'Duplicate B.md', parentId: 'root', content: '' }
+        ],
+        [
+          { id: 'cycle-a', type: 'folder', name: 'Cycle A', parentId: 'cycle-b' },
+          { id: 'cycle-b', type: 'folder', name: 'Cycle B', parentId: 'cycle-a' }
+        ],
+        [{ id: 'missing-child', type: 'file', name: 'Missing.md', parentId: 'not-in-export', content: '' }],
+        [
+          { id: 'file-parent', type: 'file', name: 'Parent.md', parentId: 'root', content: '' },
+          { id: 'bad-child', type: 'file', name: 'Child.md', parentId: 'file-parent', content: '' }
+        ],
+        [{ id: 'bad-content', type: 'file', name: 'Object.md', parentId: 'root', content: { not: 'text' } }]
+      ];
+      const rejected = [];
+      for (const entries of invalidPayloads) {
+        try {
+          await store.importData(JSON.stringify({ format: 'osbio-workspace-export-v1', entries }));
+          rejected.push(false);
+        } catch {
+          rejected.push(true);
+        }
+      }
+      const afterInvalid = await store.listAll();
+      const validResult = await store.importData(JSON.stringify({
+        format: 'osbio-workspace-export-v1',
+        entries: [
+          { id: 'bundle', type: 'folder', name: 'Imported Bundle', parentId: 'root' },
+          { id: 'nested', type: 'folder', name: 'Nested', parentId: 'bundle' },
+          { id: 'note', type: 'file', name: 'Imported Note.md', parentId: 'nested', content: 'import-ok' }
+        ]
+      }));
+      const imported = await store.listAll();
+      const root = imported.find((entry) => entry.name === 'Imported Bundle');
+      const nested = imported.find((entry) => entry.name === 'Nested');
+      const note = imported.find((entry) => entry.name === 'Imported Note.md');
+      const hierarchyValid = Boolean(root && nested && note &&
+        nested.parentId === root.id && note.parentId === nested.id && note.content === 'import-ok');
+      if (note) await store.remove(note.id);
+      if (nested) await store.remove(nested.id);
+      if (root) await store.remove(root.id);
+      return {
+        rejected,
+        baselineCount: baseline.length,
+        afterInvalidCount: afterInvalid.length,
+        validImportCount: validResult.imported,
+        hierarchyValid
+      };
+    });
+    assert.deepEqual(importValidation.rejected, [true, true, true, true, true],
+      'malformed imports should reject duplicates, cycles, missing/non-folder parents and non-text contents');
+    assert.equal(importValidation.afterInvalidCount, importValidation.baselineCount,
+      'invalid imports must not partially mutate storage');
+    assert.equal(importValidation.validImportCount, 3);
+    assert.equal(importValidation.hierarchyValid, true, 'valid nested folder relationships should survive ID remapping');
 
     // Settings apply immediately and survive a reload.
     await page.locator('#launcher-toggle').click();

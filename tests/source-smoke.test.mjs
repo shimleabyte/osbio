@@ -50,6 +50,9 @@ test('window lifecycle safeguards remain present', () => {
   assert.match(windows, /setAttribute\('aria-modal', 'false'\)/);
   assert.match(windows, /ResizeObserver/);
   assert.match(windows, /function scheduleConstrainWindows\(/);
+  assert.match(windows, /WINDOW_LAYOUT_KEY = 'osbio\.window-layout\.v1'/);
+  assert.match(windows, /function persistWindowLayout\(/);
+  assert.match(windows, /getStoredWindowBounds\(appName\)/);
   assert.match(windows, /function snapWindow\(windowId, side, restoreBounds = null\)/);
   assert.match(windows, /function maximizeWindow\(windowId, restoreBounds = null\)/);
   assert.match(windows, /dragStartBounds = getWindowBounds\(target\)/);
@@ -88,6 +91,9 @@ test('local workspace storage exposes safe file operations and bounded event his
   assert.match(core, /storage\.degraded/);
   assert.match(core, /EVENT_LIMIT/);
   assert.match(core, /osbio-workspace-export-v1/);
+  assert.match(core, /duplicate item IDs/);
+  assert.match(core, /cyclic folder structure/);
+  assert.match(core, /missing parent folder/);
 });
 
 

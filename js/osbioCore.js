@@ -347,19 +347,62 @@
     }
     if (parsed.entries.length > MAX_IMPORT_ENTRIES) throw new Error('Import is limited to 500 items per file.');
     const entries = parsed.entries;
-    const mapping = new Map(entries.map((entry) => [entry.id, randomId(entry.type === 'folder' ? 'folder' : 'file')]));
-    const prepared = [];
+    const sourceById = new Map();
     for (const raw of entries) {
-      if (!raw || !['file', 'folder'].includes(raw.type)) throw new Error('Import contains an unsupported item type.');
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw) ||
+          typeof raw.id !== 'string' || !raw.id.trim() || raw.id.length > 180) {
+        throw new Error('Import contains an invalid item ID.');
+      }
+      if (sourceById.has(raw.id)) throw new Error('Import contains duplicate item IDs.');
+      if (!['file', 'folder'].includes(raw.type)) throw new Error('Import contains an unsupported item type.');
       const name = validateName(raw.name);
-      const content = raw.type === 'file' ? String(raw.content || '') : '';
-      if (content.length > MAX_TEXT_LENGTH) throw new Error('An imported text file exceeds the 2 MB character limit.');
+      if (raw.type === 'file') {
+        if (raw.content !== undefined && typeof raw.content !== 'string') {
+          throw new Error('Imported file contents must be text.');
+        }
+        if ((raw.content || '').length > MAX_TEXT_LENGTH) throw new Error('An imported text file exceeds the 2 MB character limit.');
+      }
+      sourceById.set(raw.id, { raw, name });
+    }
+
+    // Validate parent references before assigning imported IDs.
+    for (const [id, item] of sourceById) {
+      const parentId = item.raw.parentId;
+      if (parentId === 'root') continue;
+      if (typeof parentId !== 'string' || !sourceById.has(parentId)) {
+        throw new Error('Import contains a missing parent folder.');
+      }
+      if (sourceById.get(parentId).raw.type !== 'folder') {
+        throw new Error('Imported items must belong to a folder or the workspace root.');
+      }
+      if (parentId === id) throw new Error('An item cannot be its own parent.');
+    }
+
+    // Reject cycles before any write enters the storage queue.
+    for (const id of sourceById.keys()) {
+      const visited = new Set();
+      let cursor = id;
+      while (cursor !== 'root') {
+        if (visited.has(cursor)) throw new Error('Import contains a cyclic folder structure.');
+        visited.add(cursor);
+        const item = sourceById.get(cursor);
+        if (!item) throw new Error('Import contains a missing parent folder.');
+        cursor = item.raw.parentId;
+      }
+    }
+
+    const mapping = new Map([...sourceById].map(([id, item]) => [
+      id, randomId(item.raw.type === 'folder' ? 'folder' : 'file')
+    ]));
+    const prepared = [];
+    for (const [id, item] of sourceById) {
+      const raw = item.raw;
       prepared.push({
-        id: mapping.get(raw.id),
-        name,
+        id: mapping.get(id),
+        name: item.name,
         type: raw.type,
-        parentId: mapping.get(raw.parentId) || 'root',
-        content,
+        parentId: raw.parentId === 'root' ? 'root' : mapping.get(raw.parentId),
+        content: raw.type === 'file' ? (raw.content || '') : '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         readOnly: false,
@@ -369,7 +412,9 @@
     return commit((current) => {
       prepared.forEach((entry) => {
         const parent = entry.parentId === 'root' ? null : [...current, ...prepared].find((item) => item.id === entry.parentId);
-        if (entry.parentId !== 'root' && (!parent || parent.type !== 'folder')) entry.parentId = 'root';
+        if (entry.parentId !== 'root' && (!parent || parent.type !== 'folder')) {
+          throw new Error('Import parent structure changed during validation.');
+        }
         let name = entry.name;
         let suffix = 2;
         while (current.some((item) => item.parentId === entry.parentId && item.name.toLowerCase() === name.toLowerCase()) ||

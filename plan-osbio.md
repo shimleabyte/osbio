@@ -128,7 +128,7 @@ Tasks:
 - [x] Verify taskbar launch, focus, minimize/restore and close behavior, including mobile taskbar app switching.
 - [x] Make maximize/restore preserve valid bounds, including snap → maximize → restore.
 - [x] Clamp windows after viewport changes and check bounds after shrinking and restoring the viewport.
-- [ ] Test pointer capture, pointer cancellation, fast movement and pointer release outside the header. Normal edge drag works; the newly added synthetic cancellation regression is awaiting a clean CI run.
+- [x] Test pointer capture, pointer cancellation, fast movement and pointer release outside the header. Synthetic pointer cancellation confirms the drag listeners are removed.
 - [x] Prevent drag initiation from titlebar controls and interactive content; browser test attempts a drag from the maximize control.
 - [x] Define edge snapping and restore behavior, with a regression assertion that normal restored bounds don't cover desktop shortcuts.
 - [x] Add a keyboard-friendly window overview and verify its shortcut and Escape focus restoration.
@@ -144,22 +144,22 @@ Tasks:
 - Resize and restore do not corrupt window geometry.
 - Keyboard and mobile users can switch, minimize/maximize and close apps.
 
-**Verification:** Chromium smoke run [40809400439](https://github.com/shimleabyte/osbio/actions/runs/40809400439) passed for commit `027672e879c0e08a72db112fc7e2d520d67e70fa`. The synthetic pointer-cancellation case added afterward still requires a fresh run.
+**Verification:** Chromium smoke run [40809520276](https://github.com/shimleabyte/osbio/actions/runs/40809520276) and deployment [40809520384](https://github.com/shimleabyte/osbio/actions/runs/40809520384) passed for commit `be7e77995580e5d1d7d22d9f804e8e20fbf261e1`.
 
 ### Phase 2 — Shared state and local persistence foundation
 
 **Goal:** give OSBio state that survives window closure and page reload.
 
 Tasks:
-- [ ] Define a small storage layer with versioned records and migration strategy.
-- [ ] Use IndexedDB for a virtual filesystem; use localStorage only for small preferences where it fits.
-- [ ] Persist user-created files, settings and workspace layout without storing transient DOM references.
+- [x] Define a small storage layer with versioned records and migration strategy (`osbio-workspace` IndexedDB v1, with localStorage/memory fallbacks).
+- [x] Use IndexedDB for the virtual filesystem and localStorage for small preferences and window geometry.
+- [x] Persist user-created files, settings and per-app normal window geometry without storing transient DOM references. Open windows are never restored on reload.
 - [ ] Define safe failure paths for unavailable storage, quota errors, invalid data and schema upgrades.
 - [ ] Add a clear-local-data action with an explicit confirmation and a clear explanation of what will be removed.
-- [ ] Add export/import for user-created content, using a documented format and validation on import.
-- [ ] Keep project metadata separate from user-created files so the system can distinguish built-in read-only content from user content.
+- [x] Add export/import for user-created content, rejecting duplicate IDs, invalid parents, non-folder parents and cycles before writing.
+- [x] Keep project metadata separate from built-in read-only file entries and user-created entries.
 - [ ] Make reload recovery deterministic, including stale or invalid saved window positions.
-- [ ] Document that data is browser-local and is not automatically synced across browsers or devices.
+- [x] Document that data is browser-local and is not automatically synced across browsers or devices.
 
 **Acceptance criteria:**
 - A note or file survives closing its app and reloading the page.
@@ -510,3 +510,13 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 
 - [x] Add a synthetic pointercancel regression to confirm the drag handler detaches pointermove/up/cancel listeners and does not continue moving the window.
 - [ ] Execute the expanded Chromium suite before marking all Phase 1 gates complete.
+
+### Stage 2 — persistent window geometry and import structure (2026-10-29)
+
+- [x] Store normal per-app geometry in versioned `localStorage` key `osbio.window-layout.v1`.
+- [x] Restore saved width, height, left and top on desktop while clamping them to the current workspace bounds.
+- [x] Persist normal geometry after drag, CSS resize, close, snap and maximize; snap/maximize preserve the pre-state restore rectangle.
+- [x] Never persist mobile fullscreen geometry and never restore an open-app list; every reload still starts at the empty desktop.
+- [x] Validate import IDs, names, text payload sizes, parent existence, parent type, self-parenting and cycles before any write.
+- [x] Add browser checks for close/reopen/reload geometry, empty-desktop reload, malformed layout recovery, malformed import rejection, and a valid nested import.
+- [ ] Run the complete CI suite for this commit. Stage 2 release gate remains open until it passes.

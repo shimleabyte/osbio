@@ -262,6 +262,8 @@ const WindowManager = (() => {
   let desktopElement;
   let resizeFrame = null;
   let desktopResizeObserver = null;
+  const WINDOW_LAYOUT_KEY = 'osbio.window-layout.v1';
+  const WINDOW_LAYOUT_VERSION = 1;
 
   // Initialize the window manager
   function init() {
@@ -340,6 +342,72 @@ const WindowManager = (() => {
       element.style.left = `${nextLeft}px`;
       element.style.top = `${nextTop}px`;
     });
+  }
+
+  function readWindowLayouts() {
+    try {
+      const raw = window.localStorage.getItem(WINDOW_LAYOUT_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      if (!parsed || parsed.version !== WINDOW_LAYOUT_VERSION ||
+          !parsed.windows || typeof parsed.windows !== 'object' || Array.isArray(parsed.windows)) {
+        emitOSBioEvent('layout.recovered', { reason: 'Stored window layout format was invalid.' });
+        return {};
+      }
+      return parsed.windows;
+    } catch (error) {
+      emitOSBioEvent('layout.persistence-degraded', { reason: 'Stored window layout could not be read.' });
+      return {};
+    }
+  }
+
+  function writeWindowLayouts(layouts) {
+    try {
+      window.localStorage.setItem(WINDOW_LAYOUT_KEY, JSON.stringify({
+        version: WINDOW_LAYOUT_VERSION,
+        windows: layouts
+      }));
+      return true;
+    } catch (error) {
+      emitOSBioEvent('layout.persistence-degraded', { reason: 'Browser storage could not save window geometry.' });
+      return false;
+    }
+  }
+
+  function getStoredWindowBounds(appName) {
+    const layouts = readWindowLayouts();
+    const saved = layouts[appName];
+    if (!saved || typeof saved !== 'object') return null;
+    const keys = ['left', 'top', 'width', 'height'];
+    if (keys.some((key) => typeof saved[key] !== 'number' || !Number.isFinite(saved[key])) ||
+        saved.left < 0 || saved.top < 0 || saved.width < 240 || saved.height < 160) {
+      emitOSBioEvent('layout.recovered', { app: appName, reason: 'Invalid saved window geometry was ignored.' });
+      delete layouts[appName];
+      writeWindowLayouts(layouts);
+      return null;
+    }
+    return { left: saved.left, top: saved.top, width: saved.width, height: saved.height };
+  }
+
+  function persistWindowLayout(appName, bounds) {
+    // The mobile layout is deliberately single-window/fullscreen. Never overwrite
+    // desktop geometry with those temporary CSS bounds.
+    if (!desktopElement || desktopElement.clientWidth < 701 || !bounds) return false;
+    const values = {
+      left: Number.parseFloat(bounds.left),
+      top: Number.parseFloat(bounds.top),
+      width: Number.parseFloat(bounds.width),
+      height: Number.parseFloat(bounds.height)
+    };
+    if (Object.values(values).some((value) => !Number.isFinite(value)) ||
+        values.left < 0 || values.top < 0 || values.width < 240 || values.height < 160) return false;
+
+    Object.keys(values).forEach((key) => { values[key] = Math.round(values[key]); });
+    const layouts = readWindowLayouts();
+    layouts[appName] = values;
+    const saved = writeWindowLayouts(layouts);
+    if (saved) emitOSBioEvent('layout.saved', { app: appName });
+    return saved;
   }
 
   // Initialize taskbar button event listeners
@@ -479,11 +547,27 @@ const WindowManager = (() => {
     const availableWidth = desktopSized
       ? Math.max(320, desktopElement.clientWidth - shortcutLane - 12)
       : desktopElement.clientWidth;
-    const windowWidth = desktopSized ? Math.min(preferredWidth, availableWidth) : preferredWidth;
+    const defaultWidth = desktopSized ? Math.min(preferredWidth, availableWidth) : preferredWidth;
+    const savedBounds = desktopSized ? getStoredWindowBounds(appName) : null;
+    const templateHeight = String(template.height || '');
+    const parsedHeight = Number.parseFloat(templateHeight);
+    const defaultHeight = templateHeight.endsWith('vh')
+      ? desktopElement.clientHeight * Math.min(100, Math.max(1, parsedHeight)) / 100
+      : parsedHeight || Math.min(480, desktopElement.clientHeight);
+    const windowWidth = savedBounds
+      ? Math.max(Math.min(320, availableWidth), Math.min(savedBounds.width, availableWidth))
+      : defaultWidth;
+    const restoredHeight = savedBounds
+      ? Math.max(Math.min(220, desktopElement.clientHeight), Math.min(savedBounds.height, desktopElement.clientHeight))
+      : defaultHeight;
     const maxLeft = Math.max(0, desktopElement.clientWidth - Math.min(windowWidth, desktopElement.clientWidth));
-    const maxTop = Math.max(0, desktopElement.clientHeight - 96);
-    const top = Math.min(24 + offset, maxTop);
-    const left = Math.min((desktopSized ? shortcutLane : 12) + offset, maxLeft);
+    const maxTop = Math.max(0, desktopElement.clientHeight - Math.min(restoredHeight, desktopElement.clientHeight));
+    const top = savedBounds
+      ? Math.max(0, Math.min(savedBounds.top, maxTop))
+      : Math.min(24 + offset, maxTop);
+    const left = savedBounds
+      ? Math.max(0, Math.min(savedBounds.left, maxLeft))
+      : Math.min((desktopSized ? shortcutLane : 12) + offset, maxLeft);
 
     // Create window element
     const windowElement = document.createElement('div');
@@ -496,7 +580,7 @@ const WindowManager = (() => {
     windowElement.tabIndex = -1;
     windowElement.style.zIndex = zIndex;
     windowElement.style.width = desktopSized ? windowWidth + 'px' : template.width;
-    windowElement.style.height = template.height;
+    windowElement.style.height = desktopSized && savedBounds ? restoredHeight + 'px' : template.height;
     windowElement.style.top = `${top}px`;
     windowElement.style.left = `${left}px`;
     windowElement.style.maxWidth = '100%';
@@ -560,14 +644,32 @@ const WindowManager = (() => {
     let isDragging = false;
     let didMove = false;
     let dragStartBounds = null;
+    let resizeStartBounds = null;
     let offsetX, offsetY;
 
     // Focus window when clicked
     windowElement.addEventListener('pointerdown', (e) => {
-      if (!isDragging) {
-        focusWindow(windowId);
-      }
+      if (!isDragging) focusWindow(windowId);
+      const current = openWindows.find((item) => item.id === windowId);
+      const rect = windowElement.getBoundingClientRect();
+      const atResizeGrip = e.button === 0 && e.clientX >= rect.right - 20 && e.clientY >= rect.bottom - 20;
+      resizeStartBounds = current && atResizeGrip && !current.maximized && !current.snapped &&
+        desktopElement.clientWidth >= 701 ? getWindowBounds(current) : null;
     });
+    windowElement.addEventListener('pointerup', () => {
+      if (!resizeStartBounds) return;
+      const startingBounds = resizeStartBounds;
+      resizeStartBounds = null;
+      window.requestAnimationFrame(() => {
+        const current = openWindows.find((item) => item.id === windowId);
+        if (!current || current.maximized || current.snapped || desktopElement.clientWidth < 701) return;
+        const nextBounds = getWindowBounds(current);
+        if (nextBounds.width !== startingBounds.width || nextBounds.height !== startingBounds.height) {
+          persistWindowLayout(appName, nextBounds);
+        }
+      });
+    });
+    windowElement.addEventListener('pointercancel', () => { resizeStartBounds = null; });
 
     // Close button
     closeBtn.addEventListener('click', (e) => {
@@ -650,12 +752,16 @@ const WindowManager = (() => {
       const restoreBounds = dragStartBounds;
       dragStartBounds = null;
       if (!didMove || event?.type !== 'pointerup' || desktopElement.clientWidth < 701) return;
+      const current = openWindows.find((item) => item.id === windowId);
+      if (!current) return;
       if (event.clientY <= 8) {
         maximizeWindow(windowId, restoreBounds);
       } else if (event.clientX <= 8) {
         snapWindow(windowId, 'left', restoreBounds);
       } else if (desktopElement.clientWidth - event.clientX <= 8) {
         snapWindow(windowId, 'right', restoreBounds);
+      } else if (!current.maximized && !current.snapped) {
+        persistWindowLayout(appName, getWindowBounds(current));
       }
     }
 
@@ -1071,7 +1177,9 @@ const WindowManager = (() => {
   function snapWindow(windowId, side, restoreBounds = null) {
     const target = openWindows.find((item) => item.id === windowId);
     if (!target || (side !== 'left' && side !== 'right') || desktopElement.clientWidth < 701) return;
-    if (!target.maximized && !target.snapped) target.restoreBounds = restoreBounds || getWindowBounds(target);
+    if (restoreBounds) target.restoreBounds = restoreBounds;
+    else if (!target.maximized && !target.snapped) target.restoreBounds = getWindowBounds(target);
+    if (target.restoreBounds) persistWindowLayout(target.appName, target.restoreBounds);
     target.maximized = false;
     target.snapped = side;
     target.element.classList.remove('maximized', 'snapped-left', 'snapped-right');
@@ -1134,7 +1242,9 @@ const WindowManager = (() => {
     if (!target) return;
     focusWindow(windowId);
     if (!target.maximized) {
-      if (!target.snapped) target.restoreBounds = restoreBounds || getWindowBounds(target);
+      if (restoreBounds) target.restoreBounds = restoreBounds;
+      else if (!target.snapped) target.restoreBounds = getWindowBounds(target);
+      if (target.restoreBounds) persistWindowLayout(target.appName, target.restoreBounds);
       target.maximized = true;
       target.snapped = null;
       target.element.classList.remove('snapped-left', 'snapped-right');
@@ -1150,6 +1260,7 @@ const WindowManager = (() => {
         target.element.style.height = target.restoreBounds.height;
       }
       target.restoreBounds = null;
+      persistWindowLayout(target.appName, getWindowBounds(target));
       emitOSBioEvent('window.restored', { app: target.appName, windowId });
       constrainWindows();
     }
@@ -1162,6 +1273,11 @@ const WindowManager = (() => {
     if (windowIndex === -1) return;
 
     const closingWindow = openWindows[windowIndex];
+    if (closingWindow.maximized || closingWindow.snapped) {
+      if (closingWindow.restoreBounds) persistWindowLayout(closingWindow.appName, closingWindow.restoreBounds);
+    } else {
+      persistWindowLayout(closingWindow.appName, getWindowBounds(closingWindow));
+    }
     const closeRequest = new CustomEvent('osbio:before-close', { cancelable: true, detail: { app: closingWindow.appName, windowId } });
     closingWindow.element.dispatchEvent(closeRequest);
     if (closeRequest.defaultPrevented) return false;
