@@ -84,58 +84,62 @@ const WindowManager = (() => {
         content: `
           <div class="projects-app">
             <div class="projects-grid">
-              <!-- Project 1 -->
-              <div class="project-card" data-project="project1">
+              <!-- Verified project: Mutabaah CLI -->
+              <div class="project-card" data-project="mutabaah-cli">
                 <div class="project-header">
-                  <h3 class="project-title">Portfolio OS</h3>
-                  <div class="project-stack">HTML, CSS, JavaScript</div>
+                  <h3 class="project-title">Mutabaah CLI</h3>
+                  <div class="project-stack">Go, JSON</div>
                 </div>
-                <p class="project-desc">An OS-style interactive portfolio website with a focus on clean design and smooth interactions.</p>
-                <div class="project-details" id="project1">
+                <p class="project-desc">A local-first command-line app for tracking activities and keeping short notes, with data stored in local JSON files.</p>
+                <div class="project-details" id="project-mutabaah-cli">
                   <div class="project-learned">
-                    <strong>What I learned:</strong> Building a window management system from scratch with vanilla JavaScript.
+                    <strong>Project focus:</strong> Go fundamentals, CLI command design, and local data persistence.
                   </div>
                   <div class="project-links">
-                    <a href="https://shimleabyte.github.io/osbio/" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
-                      <span class="icon">${ICON.external}</span> Live Demo
-                    </a>
-                    <a href="https://github.com/shimleabyte/osbio" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
+                    <a href="https://github.com/shimleabyte/mutabaah-cli" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">
                       <span class="icon">${ICON.github}</span> Source Code
                     </a>
                   </div>
                 </div>
               </div>
 
-              <!-- Project 2 -->
-              <div class="project-card" data-project="project2">
+              <!-- Verified project: Simpul -->
+              <div class="project-card" data-project="simpul">
                 <div class="project-header">
-                  <h3 class="project-title">TaskFlow</h3>
-                  <div class="project-stack">React, TypeScript, Tailwind</div>
+                  <h3 class="project-title">Simpul</h3>
+                  <div class="project-stack">Go</div>
                 </div>
-                <p class="project-desc">A minimal task management application with drag-and-drop functionality.</p>
-                <div class="project-details" id="project2">
+                <p class="project-desc">A reliability-first order and payment workflow backend concept for Indonesian small-batch and pre-order sellers.</p>
+                <div class="project-details" id="project-simpul">
                   <div class="project-learned">
-                    <strong>What I learned:</strong> Implementing drag-and-drop interfaces with React DnD and TypeScript type safety.
+                    <strong>Project focus:</strong> Explicit order transitions, idempotent payment events, stock reservation invariants, and testable domain rules. Database integration remains a planned milestone.
+                  </div>
+                  <div class="project-links">
+                    <a href="https://github.com/shimleabyte/simpul" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">
+                      <span class="icon">${ICON.github}</span> Source Code
+                    </a>
                   </div>
                 </div>
               </div>
 
-              <!-- Project 3 -->
-              <div class="project-card" data-project="project3">
+              <!-- Verified project: Optical Anchor Button -->
+              <div class="project-card" data-project="optical-anchor-button">
                 <div class="project-header">
-                  <h3 class="project-title">WeatherViz</h3>
-                  <div class="project-stack">Vue.js, D3.js, OpenWeather API</div>
+                  <h3 class="project-title">Optical Anchor Button</h3>
+                  <div class="project-stack">React, HTML, CSS</div>
                 </div>
-                <p class="project-desc">Weather visualization dashboard showing forecast data with interactive charts.</p>
-                <div class="project-details" id="project3">
+                <p class="project-desc">A focused button component experiment with a custom eye, pointer tracking, and an awake-to-sleep interaction lifecycle.</p>
+                <div class="project-details" id="project-optical-anchor-button">
                   <div class="project-learned">
-                    <strong>What I learned:</strong> Data visualization with D3.js and working with external weather APIs.
+                    <strong>Project focus:</strong> Component states, pointer-driven motion, accessible interaction states, and reduced-motion support.
+                  </div>
+                  <div class="project-links">
+                    <a href="https://github.com/shimleabyte/optical-anchor-button" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">
+                      <span class="icon">${ICON.github}</span> Source Code
+                    </a>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        `
+              </div>        `
       },
       contact: {
         title: 'Contact',
@@ -162,18 +166,15 @@ const WindowManager = (() => {
         height: '90vh',
         content: `
           <div class="resume-app">
-            <div class="resume-actions">
-              <a href="resume.pdf" class="btn btn-primary" download>
-                <span class="icon">${ICON.download}</span> Download PDF
-              </a>
-              <button class="btn btn-outline view-toggle">
-                <span class="icon">${ICON.eye}</span> Fit height
-              </button>
-            </div>
-            <div class="resume-preview">
-              <iframe src="resume.pdf#view=FitH" class="resume-iframe"></iframe>
-            </div>
-            <p class="resume-note">Preview not loading? <a href="resume.pdf" download>Download the PDF</a>.</p>
+            <section class="resume-unavailable" aria-labelledby="resume-status-title">
+              <p class="resume-status-code">DOCUMENT / NOT PUBLISHED</p>
+              <h2 id="resume-status-title">Resume PDF unavailable</h2>
+              <p>The resume document has not been published in this repository yet. No download or preview is offered until the file is available.</p>
+              <div class="project-links">
+                <a href="mailto:presentshimley@gmail.com" class="btn btn-primary">Request a copy</a>
+                <a href="https://github.com/shimleabyte" class="btn btn-outline" target="_blank" rel="noopener noreferrer">View GitHub</a>
+              </div>
+            </section>
           </div>
         `
       },
@@ -507,9 +508,9 @@ const WindowManager = (() => {
           execute: () => {
             return `
   <div class="command-output">
-    <p>Hello! I'm a passionate developer with expertise in building web applications.</p>
-    <p>I love creating clean, efficient, and user-friendly experiences.</p>
-    <p>Type <span class="terminal-command">projects</span> to see some of my work or <span class="terminal-command">contact</span> to get in touch!</p>
+    <p>I build software by working through concrete problems in interface behavior, data handling, and system reliability.</p>
+    <p>Current work includes Go command-line tools, an order-workflow backend concept, and a pointer-driven UI component.</p>
+    <p>Type <span class="terminal-command">projects</span> to inspect verified repositories or <span class="terminal-command">contact</span> to get in touch.</p>
   </div>
             `;
           }
@@ -519,21 +520,21 @@ const WindowManager = (() => {
           execute: () => {
             return `
   <div class="command-output">
-    <p>Here are some of my recent projects:</p>
-    <ul>
-      <li class="project-item">
-        <span class="project-name">Portfolio OS</span>
-        <span class="project-desc">- An interactive OS-style portfolio website</span>
-      </li>
-      <li class="project-item">
-        <span class="project-name">TaskFlow</span>
-        <span class="project-desc">- A task management application</span>
-      </li>
-      <li class="project-item">
-        <span class="project-name">WeatherViz</span>
-        <span class="project-desc">- Weather visualization dashboard</span>
-      </li>
-    </ul>
+    <p>Verified repositories:</p>
+            <ul>
+              <li class="project-item">
+                <a class="project-name" href="https://github.com/shimleabyte/mutabaah-cli" target="_blank" rel="noopener noreferrer">Mutabaah CLI</a>
+                <span class="project-desc">- Go CLI for activity tracking and short notes</span>
+              </li>
+              <li class="project-item">
+                <a class="project-name" href="https://github.com/shimleabyte/simpul" target="_blank" rel="noopener noreferrer">Simpul</a>
+                <span class="project-desc">- Go order and payment workflow backend starter</span>
+              </li>
+              <li class="project-item">
+                <a class="project-name" href="https://github.com/shimleabyte/optical-anchor-button" target="_blank" rel="noopener noreferrer">Optical Anchor Button</a>
+                <span class="project-desc">- Pointer-driven interactive button component experiment</span>
+              </li>
+            </ul>
   </div>
             `;
           }
