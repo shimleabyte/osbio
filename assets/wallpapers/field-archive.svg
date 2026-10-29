@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">OSBio Field Archive wallpaper</title>
+  <desc id="desc">An archival field register laid out like an obsolete cartography instrument: warm paper, olive ink, oxidation-red stamps, registration lines, and index marks.</desc>
+  <defs>
+    <pattern id="paper-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="#7b795f" stroke-width=".7" opacity=".3"/>
+    </pattern>
+    <pattern id="background-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#656449" stroke-width="1" opacity=".25"/>
+    </pattern>
+    <pattern id="paper-fiber" width="9" height="9" patternUnits="userSpaceOnUse">
+      <path d="M0 2H3M5 7H9M7 0V2" fill="none" stroke="#81785e" stroke-width=".45" opacity=".3"/>
+    </pattern>
+    <clipPath id="folio-clip"><path d="M98 170H944V746H98Z"/></clipPath>
+  </defs>
+
+  <rect width="1600" height="900" fill="#24251d"/>
+  <rect width="1600" height="900" fill="url(#background-grid)"/>
+  <path d="M62 90H1538M62 816H1538" fill="none" stroke="#7a775b" stroke-width="1"/>
+  <path d="M62 90H282" fill="none" stroke="#ba4e34" stroke-width="3"/>
+  <text x="62" y="66" fill="#d8cba8" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="13" letter-spacing="3">OSBIO / FIELD ARCHIVE</text>
+  <text x="1538" y="66" text-anchor="end" fill="#969477" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="12" letter-spacing="2">REGISTER 07 — LOCAL WORKSPACE</text>
+
+  <g>
+    <path d="M112 184H958V760H112Z" fill="#10120d" opacity=".5"/>
+    <path d="M98 170H944V746H98Z" fill="#e5dcc1" stroke="#8f8666" stroke-width="2"/>
+    <path d="M98 170H944V746H98Z" fill="url(#paper-grid)"/>
+    <path d="M98 170H944V746H98Z" fill="url(#paper-fiber)" opacity=".55"/>
+    <path d="M128 212H914" stroke="#7f795e" stroke-width="1"/>
+    <path d="M128 232H914" stroke="#b6a988" stroke-width="1"/>
+    <text x="128" y="202" fill="#5a5b43" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="11" letter-spacing="2">OBSERVATION SHEET / SERIES 0042</text>
+    <text x="914" y="202" text-anchor="end" fill="#9b432f" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="11" letter-spacing="2">FILED · 21:44 WIB</text>
+
+    <g clip-path="url(#folio-clip)" fill="none" stroke="#6e775a" stroke-width="2" opacity=".9">
+      <path d="M74 348C204 262 246 398 355 335S501 262 590 339 738 423 812 315 915 306 978 358"/>
+      <path d="M67 368C197 282 253 418 364 355S505 282 594 359 739 443 827 335 915 326 980 378"/>
+      <path d="M64 388C190 305 259 438 369 375S509 303 598 379 747 460 837 355 920 346 984 397"/>
+      <path d="M65 408C185 326 266 459 378 395S514 323 601 399 753 480 847 376 923 366 986 417"/>
+      <path d="M66 428C185 346 266 479 387 415S520 343 612 420 761 499 854 397 931 386 989 438"/>
+      <path d="M81 621C190 574 254 631 336 594S473 550 548 609 704 673 789 602 884 573 971 630" stroke="#ba4e34" opacity=".7"/>
+      <path d="M83 638C194 590 257 650 342 612S480 570 555 626 711 690 798 620 887 592 973 648" stroke="#ba4e34" opacity=".7"/>
+    </g>
+
+    <path d="M128 261H536V318H128Z" fill="#29291f"/>
+    <text x="151" y="300" fill="#e5dcc1" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="18" letter-spacing="4">FIELD NOTES</text>
+    <text x="126" y="480" fill="#25261d" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="128" font-weight="600" letter-spacing="-7">ARCHIVE</text>
+    <text x="132" y="529" fill="#69674d" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="18" letter-spacing="4">AN INDEX OF THINGS THAT REMAIN</text>
+    <path d="M132 552H612" stroke="#9b432f" stroke-width="5"/>
+    <text x="132" y="588" fill="#4d503b" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="12" letter-spacing="2">LAT 07° / LONG 107° / BAND C</text>
+    <text x="132" y="610" fill="#4d503b" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="12" letter-spacing="2">FIELD COPY — NOT FOR CIRCULATION</text>
+
+    <g transform="translate(694 474) rotate(-7)">
+      <path d="M0 0H180V142H0Z" fill="none" stroke="#ba4e34" stroke-width="4"/>
+      <path d="M9 9H171V133H9Z" fill="none" stroke="#ba4e34" stroke-width="1.5"/>
+      <text x="90" y="42" text-anchor="middle" fill="#ba4e34" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="13" font-weight="600" letter-spacing="2">CATALOGUED</text>
+      <path d="M23 57H157" stroke="#ba4e34" stroke-width="2"/>
+      <text x="90" y="91" text-anchor="middle" fill="#ba4e34" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="600">NO. 07</text>
+      <text x="90" y="116" text-anchor="middle" fill="#ba4e34" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="10" letter-spacing="2">FIELD ARCHIVE</text>
+    </g>
+
+    <path d="M128 675H914" stroke="#8b8264" stroke-width="1"/>
+    <text x="128" y="704" fill="#5d6046" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="10" letter-spacing="1.8">DRAWN BY HAND / REBUILT IN PIXELS / KEPT LOCALLY</text>
+    <text x="914" y="704" text-anchor="end" fill="#9b432f" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="11" letter-spacing="2">PLATE 0042-A</text>
+    <path d="M904 179V737" stroke="#b5a987" stroke-width="1" stroke-dasharray="3 6"/>
+    <path d="M918 179V737" stroke="#b5a987" stroke-width="1" stroke-dasharray="3 6"/>
+  </g>
+
+  <g transform="translate(1038 176)">
+    <text x="0" y="0" fill="#a6a082" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="11" letter-spacing="2">INDEX / 04—07</text>
+    <path d="M0 28H474" stroke="#56563e" stroke-width="1"/>
+    <rect x="0" y="52" width="9" height="9" fill="#ba4e34"/>
+    <text x="28" y="62" fill="#d9cba7" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="18" letter-spacing="1">01 — OBSERVE</text>
+    <text x="28" y="84" fill="#9e9b7b" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="11" letter-spacing="1">Collect before interpreting.</text>
+    <path d="M0 110H474" stroke="#56563e" stroke-width="1"/>
+    <rect x="0" y="134" width="9" height="9" fill="#c9bd96"/>
+    <text x="28" y="144" fill="#d9cba7" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="18" letter-spacing="1">02 — CATALOGUE</text>
+    <text x="28" y="166" fill="#9e9b7b" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="11" letter-spacing="1">Give every fragment a place.</text>
+    <path d="M0 192H474" stroke="#56563e" stroke-width="1"/>
+    <rect x="0" y="216" width="9" height="9" fill="#8a8b66"/>
+    <text x="28" y="226" fill="#d9cba7" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="18" letter-spacing="1">03 — PRESERVE</text>
+    <text x="28" y="248" fill="#9e9b7b" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="11" letter-spacing="1">Keep the record close to its source.</text>
+    <path d="M0 274H474" stroke="#56563e" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(1040 522)">
+    <path d="M0 0H466V230H0Z" fill="#1b1d16" stroke="#55553e" stroke-width="1"/>
+    <path d="M0 0H466V5H0Z" fill="#ba4e34"/>
+    <text x="22" y="36" fill="#9d9a78" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="10" letter-spacing="2">SPECIMEN ID / OSB—07</text>
+    <text x="22" y="96" fill="#e5dcc1" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="56" font-weight="600" letter-spacing="-2">NOT A TEMPLATE.</text>
+    <text x="22" y="128" fill="#b8b091" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="12" letter-spacing="1.5">A WORKING DESK FOR UNFINISHED IDEAS.</text>
+    <path d="M22 151H444" stroke="#4e503b" stroke-width="1"/>
+    <text x="22" y="182" fill="#ba4e34" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="11" letter-spacing="2">OXIDE / PAPER / OLIVE INK</text>
+    <text x="444" y="210" text-anchor="end" fill="#858368" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="10" letter-spacing="2">END OF INDEX</text>
+  </g>
+
+  <g fill="none" stroke="#837f5d" stroke-width="1">
+    <path d="M62 126V138H74M1526 126V138H1538M62 788V800H74M1526 788V800H1538"/>
+    <path d="M1000 170V746M988 170H1012M988 746H1012"/>
+  </g>
+  <g fill="#ba4e34">
+    <rect x="63" y="835" width="8" height="8"/>
+    <rect x="78" y="835" width="4" height="4"/>
+    <rect x="88" y="835" width="3" height="3"/>
+  </g>
+  <text x="104" y="845" fill="#8b896d" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="12" letter-spacing="2">THE PIXEL-FLOW WORKSTATION / AN ALTERNATE REGISTER</text>
+  <text x="1538" y="845" text-anchor="end" fill="#8b896d" font-family="'IBM Plex Mono','DejaVu Sans Mono',monospace" font-size="12" letter-spacing="2">FIELD NOTE 001 / 2026</text>
+</svg>
