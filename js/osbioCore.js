@@ -408,6 +408,19 @@
     getMode: () => mode,
     getLimits: () => ({ maxTextCharacters: MAX_TEXT_LENGTH, maxImportEntries: MAX_IMPORT_ENTRIES })
   };
+  global.OSBioWorkspace = {
+    pendingFileId: null,
+    openFile(id) {
+      if (!id || !global.WindowManager) return;
+      const existing = document.querySelector('.window[data-app-name="editor"]');
+      this.pendingFileId = id;
+      global.WindowManager.openWindow('editor');
+      if (existing) {
+        global.dispatchEvent(new CustomEvent('osbio:open-file', { detail: { id } }));
+        this.pendingFileId = null;
+      }
+    }
+  };
 
   ready();
 })(window);

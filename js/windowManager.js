@@ -148,6 +148,27 @@ const WindowManager = (() => {
           </div>
         `
       },
+      files: {
+        title: 'Files', width: '760px', height: '560px',
+        content: `
+          <div class="files-app">
+            <div class="files-toolbar" role="toolbar" aria-label="File actions">
+              <button type="button" data-files-action="up">Up</button><button type="button" data-files-action="new-file">New file</button><button type="button" data-files-action="new-folder">New folder</button><button type="button" data-files-action="open" disabled>Open</button><button type="button" data-files-action="rename" disabled>Rename</button><button type="button" data-files-action="move-root" disabled>Move to root</button><button type="button" data-files-action="delete" disabled>Delete</button><span class="files-toolbar-spacer"></span><button type="button" data-files-action="import">Import</button><button type="button" data-files-action="export">Export</button>
+              <input class="files-import-input" type="file" accept=".json,application/json" hidden aria-label="Import OSBio workspace export">
+            </div>
+            <nav class="files-breadcrumbs" aria-label="Current folder"></nav><div class="files-list-head"><span>TYPE</span><span>NAME</span><span>STATUS</span></div>
+            <div class="files-list" role="list" aria-label="Workspace entries"></div><p class="files-empty" hidden>This folder is empty. Create a file or folder to begin.</p>
+            <div class="files-status" role="status" aria-live="polite">Initializing local workspace…</div>
+            <div class="files-name-dialog" role="dialog" aria-modal="false" aria-label="Name workspace item" hidden><form class="files-name-form"><label for="files-name-input">Name</label><input id="files-name-input" name="name" type="text" maxlength="120" required autocomplete="off"><p class="files-dialog-error" aria-live="polite"></p><div><button type="button" data-files-action="cancel-name">Cancel</button><button type="submit">Create</button></div></form></div>
+          </div>
+        `
+      },
+      editor: {
+        title: 'Editor', width: '760px', height: '560px',
+        content: `
+          <div class="editor-app"><div class="editor-toolbar"><label for="editor-name">Document</label><input id="editor-name" type="text" maxlength="120" value="untitled.md" autocomplete="off"><span id="editor-dirty-state" class="editor-dirty-state">NEW DOCUMENT</span><button id="editor-save" type="button">Save</button><button id="editor-save-copy" type="button">Save copy</button></div><textarea id="editor-content" spellcheck="false" aria-label="Document contents" placeholder="Start writing…"></textarea><footer class="editor-status"><span id="editor-status-text" role="status" aria-live="polite">New document · not saved</span><span id="editor-character-count">0 chars</span></footer></div>
+        `
+      },
       contact: {
         title: 'Contact',
         width: '400px',
@@ -441,6 +462,7 @@ const WindowManager = (() => {
     const windowElement = document.createElement('div');
     windowElement.className = 'window';
     windowElement.id = windowId;
+    windowElement.dataset.appName = appName;
     windowElement.setAttribute('role', 'dialog');
     windowElement.setAttribute('aria-labelledby', `${windowId}-title`);
     windowElement.setAttribute('aria-modal', 'false');
@@ -604,6 +626,8 @@ const WindowManager = (() => {
         snapWindow(windowId, 'right');
       }
     }
+
+    if (window.OSBioWorkspaceApps) window.OSBioWorkspaceApps.mount(windowElement, appName);
 
     // Projects app specific functionality
     if (appName === 'projects') {
@@ -1112,6 +1136,11 @@ const WindowManager = (() => {
   function closeWindow(windowId) {
     const windowIndex = openWindows.findIndex(w => w.id === windowId);
     if (windowIndex === -1) return;
+
+    const closingWindow = openWindows[windowIndex];
+    const closeRequest = new CustomEvent('osbio:before-close', { cancelable: true, detail: { app: closingWindow.appName, windowId } });
+    closingWindow.element.dispatchEvent(closeRequest);
+    if (closeRequest.defaultPrevented) return false;
 
     // Remove from DOM
     const [closedWindow] = openWindows.splice(windowIndex, 1);

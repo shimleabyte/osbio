@@ -382,3 +382,13 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 - [x] Implement folder/file creation, safe save/rename/move/delete validation, export/import, storage statistics, and a bounded event history.
 - [x] Report degraded storage modes as explicit events rather than silently pretending persistence is durable.
 - [ ] Browser-test reload recovery, quota/permission failures, import collisions, concurrent tabs and schema upgrade behavior.
+
+
+### Stage 3 — Files and Editor applications (first implementation pass)
+- [x] Add the Files app with folder navigation, breadcrumbs, create/open/rename/delete controls, and empty/error states.
+- [x] Add JSON export/import for user-created workspace content.
+- [x] Add a Move to root operation for user-created items.
+- [x] Add the Editor app with save, save-copy, dirty-state feedback, character count and document reload.
+- [x] Add a cancellable before-close lifecycle event so dirty Editor documents can prevent accidental closure.
+- [x] Connect Files to Editor through a shared file-opening event and dispose of app event listeners on close.
+- [ ] Verify interactions, real IndexedDB persistence, import edge cases and unsaved-close confirmation in a real browser.

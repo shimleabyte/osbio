@@ -11,11 +11,13 @@ const main = read('js/main.js');
 const windows = read('js/windowManager.js');
 const css = read('css/main.css');
 const core = read('js/osbioCore.js');
+const workspaceApps = read('js/workspaceApps.js');
 
 test('shell JavaScript parses without syntax errors', () => {
   assert.doesNotThrow(() => new Function(main));
   assert.doesNotThrow(() => new Function(windows));
   assert.doesNotThrow(() => new Function(core));
+  assert.doesNotThrow(() => new Function(workspaceApps));
 });
 
 test('desktop landmarks and launcher controls exist exactly once', () => {
@@ -76,4 +78,17 @@ test('local workspace storage exposes safe file operations and bounded event his
   assert.match(core, /storage\.degraded/);
   assert.match(core, /EVENT_LIMIT/);
   assert.match(core, /osbio-workspace-export-v1/);
+});
+
+
+test('Files and Editor have real templates and shared storage integration', () => {
+  assert.match(windows, /files: \{/);
+  assert.match(windows, /editor: \{/);
+  assert.match(windows, /OSBioWorkspaceApps\.mount/);
+  assert.match(workspaceApps, /OSBioStorage\.createFolder/);
+  assert.match(workspaceApps, /OSBioStorage\.saveFile/);
+  assert.match(workspaceApps, /osbio:open-file/);
+  assert.match(workspaceApps, /osbio:before-close/);
+  assert.match(html, /data-app="files"/);
+  assert.match(html, /data-app="editor"/);
 });
