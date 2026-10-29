@@ -22,6 +22,21 @@ const WindowManager = (() => {
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+  function buildProjectsMarkup() {
+    const projects = Array.isArray(window.OSBioProjects) ? window.OSBioProjects : [];
+    const cards = projects.map((project) => {
+      const technologies = project.technologies.map(esc).join(', ');
+      return '<article class="project-card" data-project="' + esc(project.id) + '">' +
+        '<div class="project-header"><h3 class="project-title">' + esc(project.name) + '</h3><div class="project-stack">' + technologies + '</div></div>' +
+        '<p class="project-desc">' + esc(project.summary) + '</p>' +
+        '<div class="project-details"><div class="project-status">' + esc(project.statusLabel) + '</div>' +
+        '<div class="project-learned"><strong>Focus:</strong> ' + esc(project.focus) + '</div>' +
+        '<div class="project-links"><a href="' + esc(project.url) + '" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer"><span class="icon">' + ICON.github + '</span> Source Code</a></div>' +
+        '</div></article>';
+    }).join('');
+    return '<div class="projects-app"><div class="projects-grid">' + cards + '</div></div>';
+  }
+
   const emitOSBioEvent = (type, detail = {}) => {
     window.dispatchEvent(new CustomEvent('osbio:event', {
       detail: { type, timestamp: new Date().toISOString(), ...detail }
@@ -85,68 +100,7 @@ const WindowManager = (() => {
         title: 'Projects',
         width: '750px',
         height: '600px',
-        content: `
-          <div class="projects-app">
-            <div class="projects-grid">
-              <!-- Verified project: Mutabaah CLI -->
-              <div class="project-card" data-project="mutabaah-cli">
-                <div class="project-header">
-                  <h3 class="project-title">Mutabaah CLI</h3>
-                  <div class="project-stack">Go, JSON</div>
-                </div>
-                <p class="project-desc">A local-first command-line app for tracking activities and keeping short notes, with data stored in local JSON files.</p>
-                <div class="project-details" id="project-mutabaah-cli">
-                  <div class="project-learned">
-                    <strong>Project focus:</strong> Go fundamentals, CLI command design, and local data persistence.
-                  </div>
-                  <div class="project-links">
-                    <a href="https://github.com/shimleabyte/mutabaah-cli" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">
-                      <span class="icon">${ICON.github}</span> Source Code
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Verified project: Simpul -->
-              <div class="project-card" data-project="simpul">
-                <div class="project-header">
-                  <h3 class="project-title">Simpul</h3>
-                  <div class="project-stack">Go</div>
-                </div>
-                <p class="project-desc">A reliability-first order and payment workflow backend concept for Indonesian small-batch and pre-order sellers.</p>
-                <div class="project-details" id="project-simpul">
-                  <div class="project-learned">
-                    <strong>Project focus:</strong> Explicit order transitions, idempotent payment events, stock reservation invariants, and testable domain rules. Database integration remains a planned milestone.
-                  </div>
-                  <div class="project-links">
-                    <a href="https://github.com/shimleabyte/simpul" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">
-                      <span class="icon">${ICON.github}</span> Source Code
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Verified project: Optical Anchor Button -->
-              <div class="project-card" data-project="optical-anchor-button">
-                <div class="project-header">
-                  <h3 class="project-title">Optical Anchor Button</h3>
-                  <div class="project-stack">React, HTML, CSS</div>
-                </div>
-                <p class="project-desc">A focused button component experiment with a custom eye, pointer tracking, and an awake-to-sleep interaction lifecycle.</p>
-                <div class="project-details" id="project-optical-anchor-button">
-                  <div class="project-learned">
-                    <strong>Project focus:</strong> Component states, pointer-driven motion, accessible interaction states, and reduced-motion support.
-                  </div>
-                  <div class="project-links">
-                    <a href="https://github.com/shimleabyte/optical-anchor-button" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">
-                      <span class="icon">${ICON.github}</span> Source Code
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `
+        content: buildProjectsMarkup()
       },
       files: {
         title: 'Files', width: '760px', height: '560px',
@@ -770,27 +724,14 @@ const WindowManager = (() => {
           }
         },
         projects: {
-          description: 'List my projects',
+          description: 'List project repositories',
           execute: () => {
-            return `
-  <div class="command-output">
-    <p>Verified repositories:</p>
-            <ul>
-              <li class="project-item">
-                <a class="project-name" href="https://github.com/shimleabyte/mutabaah-cli" target="_blank" rel="noopener noreferrer">Mutabaah CLI</a>
-                <span class="project-desc">- Go CLI for activity tracking and short notes</span>
-              </li>
-              <li class="project-item">
-                <a class="project-name" href="https://github.com/shimleabyte/simpul" target="_blank" rel="noopener noreferrer">Simpul</a>
-                <span class="project-desc">- Go order and payment workflow backend starter</span>
-              </li>
-              <li class="project-item">
-                <a class="project-name" href="https://github.com/shimleabyte/optical-anchor-button" target="_blank" rel="noopener noreferrer">Optical Anchor Button</a>
-                <span class="project-desc">- Pointer-driven interactive button component experiment</span>
-              </li>
-            </ul>
-  </div>
-            `;
+            const projects = Array.isArray(window.OSBioProjects) ? window.OSBioProjects : [];
+            const rows = projects.map((project) => '<li class="project-item"><a class="project-name" href="' +
+              esc(project.url) + '" target="_blank" rel="noopener noreferrer">' + esc(project.name) +
+              '</a><span class="project-desc"> — ' + esc(project.summary) + '</span><small class="project-status">' +
+              esc(project.statusLabel) + '</small></li>').join('');
+            return '<div class="command-output"><p>Project repositories:</p><ul>' + rows + '</ul></div>';
           }
         },
         contact: {
