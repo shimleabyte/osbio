@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   source-smoke:
@@ -37,11 +37,24 @@ jobs:
             sleep 1
           done
           node tests/browser-smoke.cjs
-      - name: Upload real desktop screenshots
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: osbio-readme-screenshots
-          path: artifacts/*.png
-          if-no-files-found: error
-          retention-days: 1
+      - name: Publish README screenshots
+        if: success() && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p docs/screenshots
+          refresh_requested=false
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then refresh_requested=true; fi
+          if [ ! -f docs/screenshots/osbio-desktop.png ] || [ "$refresh_requested" = "true" ]; then
+            cp artifacts/osbio-desktop.png docs/screenshots/osbio-desktop.png
+            cp artifacts/osbio-launcher.png docs/screenshots/osbio-launcher.png
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add docs/screenshots/osbio-desktop.png docs/screenshots/osbio-launcher.png
+            if git diff --cached --quiet; then
+              echo "README screenshots are unchanged."
+            else
+              git commit -m "docs: capture current OSBio screenshots"
+              git push origin HEAD:main
+            fi
+          else
+            echo "README screenshots already exist; use workflow_dispatch to refresh them."
+          fi
