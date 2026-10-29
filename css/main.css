@@ -2888,3 +2888,64 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
   .system-panel .osbio-logo-frame,
   .system-panel .panel-chevron { transition: none; }
 }
+
+
+/* Signature wallpaper: the curated artwork is local, crisp, and independent of the UI chrome. */
+#desktop-screen .desktop-wallpaper .wallpaper-art {
+  position:absolute;
+  z-index:0;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+.desktop-wallpaper[data-wallpaper="flow"] .wallpaper-grid,
+.desktop-wallpaper[data-wallpaper="flow"] .wallpaper-block { display:none; }
+.desktop-wallpaper[data-wallpaper="grid"] .wallpaper-art,
+.desktop-wallpaper[data-wallpaper="plain"] .wallpaper-art { display:none; }
+.desktop-wallpaper[data-wallpaper="plain"] .wallpaper-grid { display:none; }
+
+.settings-wallpaper-preview {
+  position:relative;
+  width:100%;
+  height:7rem;
+  overflow:hidden;
+  border:1px solid #647461;
+  background:#101711;
+}
+.settings-wallpaper-preview img {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:61% center;
+}
+.settings-wallpaper-preview[data-wallpaper="grid"] img,
+.settings-wallpaper-preview[data-wallpaper="plain"] img { display:none; }
+.settings-wallpaper-preview[data-wallpaper="grid"] {
+  background-color:#101711;
+  background-image:linear-gradient(#405346 1px,transparent 1px),linear-gradient(90deg,#405346 1px,transparent 1px);
+  background-size:16px 16px;
+}
+.settings-wallpaper-preview[data-wallpaper="plain"] { background:#101711; }
+.settings-wallpaper-preview span {
+  position:absolute;
+  left:.55rem;
+  bottom:.5rem;
+  max-width:calc(100% - 1rem);
+  padding:.25rem .35rem;
+  overflow:hidden;
+  border-left:2px solid #e8d64a;
+  background:rgba(16,23,17,.9);
+  color:#e8ede4;
+  font:500 .57rem/1.35 var(--font-mono);
+  letter-spacing:.08em;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+@media(max-width:700px) {
+  #desktop-screen .desktop-wallpaper .wallpaper-art { object-position:60% center; }
+  .settings-wallpaper-preview { height:5.5rem; }
+}
