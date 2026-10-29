@@ -430,4 +430,5 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 - [x] Add a GitHub Actions workflow for the dependency-free source smoke tests on `main`, pull requests and manual dispatch.
 - [x] Correct test assertions so the suite checks the intended identifiers and source contracts.
 - [ ] Wait for and inspect the Actions run for the exact implementation commit.
-- [ ] Run real-browser interaction checks at desktop and mobile widths; this remains an explicit release gate.
+- [x] Add Chromium browser smoke tests for launcher/overview navigation, project rendering, file save and reload persistence, settings persistence, Memory Match and mobile layout.
+- [ ] Review the Chromium Actions result for the exact release commit and fix any regression it exposes.

@@ -82,4 +82,4 @@ Run the dependency-free source and shell-contract tests with Node.js 18 or newer
 node --test tests/source-smoke.test.mjs
 ```
 
-GitHub Actions runs the same command on pushes to `main` and pull requests. These checks cover syntax and important source-level contracts; they do not replace browser testing for pointer, focus, layout, persistence, or responsive behavior.
+GitHub Actions runs source-contract tests and a Chromium smoke suite on pushes to `main` and pull requests. The browser suite checks launcher/window navigation, shared project rendering, file persistence across reload, settings persistence, Memory Match, mobile layout, and uncaught JavaScript errors.
