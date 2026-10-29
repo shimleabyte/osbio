@@ -68,8 +68,15 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.locator('.window[data-app-name="files"]').waitFor({ state: 'visible' });
     await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke.md' }).waitFor({ state: 'visible' });
     await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke.md' }).dblclick();
-    await page.locator('.window[data-app-name="editor"] #editor-content').waitFor({ state: 'visible' });
-    assert.equal(await page.locator('.window[data-app-name="editor"] #editor-content').inputValue(), expectedText);
+    const reopenedEditorBody = page.locator('.window[data-app-name="editor"] #editor-content');
+    await reopenedEditorBody.waitFor({ state: 'visible' });
+    // IndexedDB reads are asynchronous; wait for the document load, not just the new window.
+    await page.waitForFunction((text) => {
+      const editor = document.querySelector('.window[data-app-name="editor"] #editor-content');
+      const status = document.querySelector('.window[data-app-name="editor"] #editor-status-text');
+      return editor && editor.value === text && status && status.textContent.includes('Saved locally');
+    }, expectedText);
+    assert.equal(await reopenedEditorBody.inputValue(), expectedText);
 
     // Settings apply immediately and survive a reload.
     await page.locator('#launcher-toggle').click();
