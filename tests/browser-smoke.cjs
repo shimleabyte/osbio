@@ -193,9 +193,13 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await game.waitFor({ state: 'visible' });
     assert.equal(await game.locator('.card').count(), 16);
     const findMismatchIndices = () => game.locator('.card').evaluateAll((cards) => {
-      for (let i = 0; i < cards.length; i += 1) {
-        for (let j = i + 1; j < cards.length; j += 1) {
-          if (cards[i].dataset.symbol !== cards[j].dataset.symbol) return [i, j];
+      const available = cards.map((card, index) => ({ card, index }))
+        .filter(({ card }) => !card.classList.contains('matched'));
+      for (let i = 0; i < available.length; i += 1) {
+        for (let j = i + 1; j < available.length; j += 1) {
+          if (available[i].card.dataset.symbol !== available[j].card.dataset.symbol) {
+            return [available[i].index, available[j].index];
+          }
         }
       }
       return [];
