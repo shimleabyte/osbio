@@ -199,26 +199,26 @@ Tasks:
 
 **Acceptance criteria:** create a file, edit it, save it, close the app, reopen it and reload the page; the file and contents remain intact. Destructive actions are explicitly confirmed.
 
-**Verification:** Chromium [40815679109](https://github.com/shimleabyte/osbio/actions/runs/40815679109) and deployment [40815678169](https://github.com/shimleabyte/osbio/actions/runs/40815678169) passed for commit `2aaf2264cb5aaa19550e5c2dbb9e3b2eea0366c8`. The seed-migration check added in the current commit awaits a fresh run.
+**Verification:** Chromium [40816267388](https://github.com/shimleabyte/osbio/actions/runs/40816267388) and deployment [40816267147](https://github.com/shimleabyte/osbio/actions/runs/40816267147) passed for commit `535564c70a298a3db564b6327558937e1985cf6c`, including System Notes migration into an existing workspace without data loss.
 
 ### Phase 4 — Settings and honest system information
 
 **Goal:** allow the user to configure the environment and understand its actual state.
 
 #### Settings
-- [ ] Wallpaper selection using a curated set of Pixel-Flow surfaces.
-- [ ] Accent or theme settings using the established palette; no unrelated gradient theme.
-- [ ] Motion preference that respects OS/browser reduced-motion settings.
-- [ ] Desktop icon visibility and basic workspace preferences where practical.
-- [ ] Reset layout and clear user data as separate, clearly explained actions.
-- [ ] Persist settings and apply them across all apps consistently.
+- [x] Wallpaper selection using a curated set of Pixel-Flow surfaces.
+- [x] Accent or theme settings using the established palette; no unrelated gradient theme.
+- [x] Motion preference that respects OS/browser reduced-motion settings.
+- [x] Desktop icon visibility and basic workspace preferences where practical.
+- [x] Reset layout and clear user data as separate, clearly explained actions.
+- [x] Persist settings and apply them across the shell consistently.
 
 #### System Monitor
-- [ ] Display the number of open and active windows.
-- [ ] Show the current active app and workspace state.
-- [ ] Show actual virtual storage usage or file counts only when measurable.
-- [ ] Display recent real system events from the event model.
-- [ ] Clearly label browser-environment limitations.
+- [x] Display the number of open and active windows.
+- [x] Show the current active app and workspace state.
+- [x] Show actual virtual storage character counts and file/folder counts from the storage API.
+- [x] Display recent real system events from the event model.
+- [x] Clearly label browser-environment limitations; the monitor does not fabricate host CPU/RAM/network metrics.
 
 **Acceptance criteria:** changes persist through reload; system facts come from the app's real state. No fabricated CPU, RAM, battery, network or process metrics.
 
@@ -574,3 +574,13 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Migrate newly introduced built-in documents into existing workspaces without replacing user-created records.
 - [x] Add a browser regression that removes the new built-in record from an otherwise populated workspace, reloads, and verifies System Notes is restored while user content remains.
 - [ ] Run Chromium and deployment for this migration change.
+
+### Stage 4 — reset layout and honest Settings/System Monitor behavior (2026-10-29)
+
+- [x] Add a dedicated Reset window layout action that clears persisted geometry and returns open windows to the default cascade.
+- [x] Keep Reset preferences, Reset window layout and Clear user files separate; layout reset leaves preferences and files unchanged.
+- [x] Extend browser checks for wallpaper, accent, reduced motion and desktop-icon preferences across reload and reset.
+- [x] Verify saved geometry survives preference reset and is cleared only by layout reset.
+- [x] Verify clear-user-data confirmation removes user-created content but preserves built-in read-only documents.
+- [x] Verify System Monitor values match the live WindowManager snapshot and OSBioStorage stats/event history.
+- [ ] Run Chromium and deployment for this Stage 4 commit before closing its gate.

@@ -92,3 +92,5 @@ GitHub Actions runs source-contract tests and a Chromium smoke suite on pushes t
 Built-in read-only documents include `Welcome.md`, `System Notes.md` and `Project Index.md`. The storage layer seeds new built-in notes into older workspaces without replacing user-created files.
 
 Settings separates three actions: **Reset preferences** changes appearance options, **Reset window layout** returns open app windows to their default positions and clears saved geometry, and **Clear user files** removes only user-created workspace entries after confirmation.
+
+Settings separates three actions: **Reset preferences** changes appearance options, **Reset window layout** returns open app windows to their default positions and clears saved geometry, and **Clear user files** removes only user-created workspace entries after confirmation.

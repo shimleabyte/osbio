@@ -503,7 +503,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     assert.equal(importValidation.exportParentNormalized, true, 'export should rebase children of excluded built-in folders to its root');
     assert.equal(importValidation.portableHierarchyValid, true, 'export/import should preserve the user-created folder hierarchy');
 
-    // Settings apply immediately and survive a reload.
+    // Settings persist appearance; preference, layout, and user-data resets stay separate.
     await page.locator('#launcher-toggle').click();
     await page.locator('#app-search').fill('Settings');
     await page.locator('.launcher-item[data-app="settings"]').click();
@@ -511,12 +511,111 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await settings.waitFor({ state: 'visible' });
     await settings.locator('#setting-wallpaper').selectOption('grid');
     await settings.locator('#setting-accent').selectOption('green');
+    await settings.locator('#setting-motion').selectOption('reduced');
+    await settings.locator('#setting-desktop-icons').uncheck();
     await page.waitForFunction(() => document.documentElement.dataset.accent === 'green' &&
-      document.querySelector('.desktop-wallpaper')?.dataset.wallpaper === 'grid');
+      document.querySelector('.desktop-wallpaper')?.dataset.wallpaper === 'grid' &&
+      document.documentElement.dataset.motion === 'reduced' &&
+      document.querySelector('.desktop-icons')?.hidden === true);
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.body.classList.contains('desktop-ready'), { timeout: 6000 });
     assert.equal(await page.locator('html').getAttribute('data-accent'), 'green');
     assert.equal(await page.locator('.desktop-wallpaper').getAttribute('data-wallpaper'), 'grid');
+    assert.equal(await page.locator('html').getAttribute('data-motion'), 'reduced');
+    assert.equal(await page.locator('.desktop-icons').evaluate((element) => element.hidden), true);
+
+    // Reset preferences must not reset the separately persisted window geometry.
+    await page.locator('#launcher-toggle').click();
+    await page.locator('#app-search').fill('Settings');
+    await page.locator('.launcher-item[data-app="settings"]').click();
+    await settings.waitFor({ state: 'visible' });
+    await settings.locator('#settings-reset').click();
+    await page.waitForFunction(() => {
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      return document.documentElement.dataset.accent === 'yellow' &&
+        document.querySelector('.desktop-wallpaper')?.dataset.wallpaper === 'flow' &&
+        window.OSBioSettings.get().motion === 'system' &&
+        document.documentElement.dataset.motion === (reduced ? 'reduced' : 'normal') &&
+        document.querySelector('.desktop-icons')?.hidden === false;
+    });
+    assert.equal(await page.evaluate(() => window.OSBioSettings.get().desktopIcons), true);
+
+    const layoutProjectWindow = page.locator('.window[data-app-name="projects"]');
+    await page.locator('.taskbar-btn[data-app="projects"]').click();
+    await layoutProjectWindow.waitFor({ state: 'visible' });
+    const projectBeforeReset = await layoutProjectWindow.evaluate((element) => ({
+      left: element.offsetLeft, top: element.offsetTop
+    }));
+    assert.ok(projectBeforeReset.left > 180 && projectBeforeReset.top > 80,
+      'saved project geometry should survive resetting preferences: ' + JSON.stringify(projectBeforeReset));
+    assert.ok(await page.evaluate(() => localStorage.getItem('osbio.window-layout.v1')) !== null,
+      'reset preferences must not clear saved window geometry');
+
+    await page.locator('.taskbar-btn[data-app="settings"]').click();
+    await settings.locator('#settings-reset-layout').click();
+    await page.waitForFunction((beforeLeft) => {
+      const element = document.querySelector('.window[data-app-name="projects"]');
+      return element && element.offsetLeft < beforeLeft - 50;
+    }, projectBeforeReset.left);
+    const projectAfterReset = await layoutProjectWindow.evaluate((element) => ({
+      left: element.offsetLeft, top: element.offsetTop
+    }));
+    assert.ok(projectAfterReset.left < projectBeforeReset.left - 50 &&
+      projectAfterReset.top < projectBeforeReset.top - 20,
+      'reset layout should return open windows to the default cascade: ' +
+        JSON.stringify({ projectBeforeReset, projectAfterReset }));
+    assert.equal(await page.evaluate(() => localStorage.getItem('osbio.window-layout.v1')), null,
+      'reset layout should clear saved geometry');
+
+    const afterLayoutReset = await page.evaluate(async () => ({
+      userFile: (await window.OSBioStorage.listAll()).some((entry) => entry.name === 'browser-smoke-renamed.md'),
+      preferences: window.OSBioSettings.get(),
+      savedLayout: localStorage.getItem('osbio.window-layout.v1')
+    }));
+    assert.equal(afterLayoutReset.userFile, true, 'reset layout must not remove user files');
+    assert.deepEqual(afterLayoutReset.preferences, {
+      wallpaper: 'flow', accent: 'yellow', motion: 'system', desktopIcons: true
+    }, 'reset layout must not change preferences');
+    assert.equal(afterLayoutReset.savedLayout, null);
+
+    // Clearing user files is a separate confirmed action and keeps built-in documents.
+    let clearDataMessage = '';
+    page.once('dialog', (dialog) => { clearDataMessage = dialog.message(); void dialog.accept(); });
+    await settings.locator('#settings-clear-data').click();
+    assert.match(clearDataMessage, /Delete all user-created workspace files and folders/);
+    await page.waitForFunction(async () =>
+      !(await window.OSBioStorage.listAll()).some((entry) => !entry.system));
+    assert.equal(await page.evaluate(async () => {
+      const all = await window.OSBioStorage.listAll();
+      return all.some((entry) => entry.id === 'file-system-notes' && entry.readOnly);
+    }), true, 'clear user files must preserve built-in read-only documents');
+
+    // System Monitor reports actual window and storage state rather than invented host metrics.
+    await page.evaluate(() => window.WindowManager.closeAllWindows());
+    await page.locator('#launcher-toggle').click();
+    await page.locator('#app-search').fill('System Monitor');
+    await page.locator('.launcher-item[data-app="system"]').click();
+    const systemWindow = page.locator('.window[data-app-name="system"]');
+    await systemWindow.waitFor({ state: 'visible' });
+    await page.waitForFunction(() => document.querySelector('#monitor-window-count')?.textContent === '1 / 1' &&
+      document.querySelector('#monitor-active-app')?.textContent === 'System Monitor');
+    const systemFacts = await page.evaluate(async () => {
+      const stats = await window.OSBioStorage.stats();
+      return {
+        files: document.querySelector('#monitor-file-count')?.textContent,
+        folders: document.querySelector('#monitor-folder-count')?.textContent,
+        chars: document.querySelector('#monitor-character-count')?.textContent,
+        expectedFiles: String(stats.files),
+        expectedFolders: String(stats.folders),
+        expectedChars: Number(stats.contentCharacters).toLocaleString('en-US'),
+        eventCount: document.querySelectorAll('#monitor-events li strong').length
+      };
+    });
+    assert.equal(systemFacts.files, systemFacts.expectedFiles);
+    assert.equal(systemFacts.folders, systemFacts.expectedFolders);
+    assert.equal(systemFacts.chars, systemFacts.expectedChars);
+    assert.ok(systemFacts.eventCount > 0, 'System Monitor must show actual in-tab events');
+    await systemWindow.locator('.window-close').click();
 
     // Memory Match restart and close cancel pending mismatch timers.
     await page.locator('#launcher-toggle').click();
