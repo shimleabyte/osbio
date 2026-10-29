@@ -1,4 +1,4 @@
-# osbio / Pixel-Flow Workstation
+# osbio 
 
 A browser portfolio that behaves like a small desktop environment. The shell is icon-first, with a custom Pixel-Flow emblem and segmented outlines, draggable app windows, a dock, and local-first workspace tools. Built with vanilla HTML, CSS, and JavaScript; no framework or build step.
 
