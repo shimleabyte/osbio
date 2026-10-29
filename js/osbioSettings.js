@@ -1,7 +1,7 @@
 (function (global) {
   'use strict';
   const KEY = 'osbio.settings.v1';
-  const defaults = Object.freeze({ wallpaper: 'flow', accent: 'yellow', motion: 'system', desktopIcons: true });
+  const defaults = Object.freeze({ theme: 'pixel-flow', wallpaper: 'flow', accent: 'yellow', motion: 'system', desktopIcons: true });
   let current = { ...defaults };
 
   function emit(type, detail = {}) {
@@ -9,7 +9,8 @@
   }
   function normalize(input) {
     return {
-      wallpaper: ['flow','grid','plain'].includes(input.wallpaper) ? input.wallpaper : defaults.wallpaper,
+      theme: ['pixel-flow','field-archive'].includes(input.theme) ? input.theme : defaults.theme,
+      wallpaper: ['flow','archive','grid','plain'].includes(input.wallpaper) ? input.wallpaper : defaults.wallpaper,
       accent: ['yellow','green'].includes(input.accent) ? input.accent : defaults.accent,
       motion: ['system','reduced'].includes(input.motion) ? input.motion : defaults.motion,
       desktopIcons: input.desktopIcons !== false
@@ -17,12 +18,20 @@
   }
   function apply() {
     const root = document.documentElement;
+    root.dataset.theme = current.theme;
     root.dataset.accent = current.accent;
     const reduce = current.motion === 'reduced' ||
       (current.motion === 'system' && global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
     root.dataset.motion = reduce ? 'reduced' : 'normal';
     const wallpaper = document.querySelector('.desktop-wallpaper');
-    if (wallpaper) wallpaper.dataset.wallpaper = current.wallpaper;
+    if (wallpaper) {
+      wallpaper.dataset.wallpaper = current.wallpaper;
+      const image = wallpaper.querySelector('.wallpaper-art');
+      const source = current.wallpaper === 'archive'
+        ? 'assets/wallpapers/field-archive.svg'
+        : 'assets/wallpapers/pixel-flow.svg';
+      if (image && image.getAttribute('src') !== source) image.setAttribute('src', source);
+    }
     const shortcuts = document.querySelector('.desktop-icons');
     if (shortcuts) shortcuts.hidden = !current.desktopIcons;
   }
