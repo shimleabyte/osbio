@@ -193,7 +193,7 @@ test('taskbar pins only core apps and adds other apps as session recents', () =>
   const taskbarStart = html.indexOf('<nav class="taskbar"');
   const taskbarEnd = html.indexOf('</nav>', taskbarStart);
   const taskbarMarkup = taskbarStart >= 0 && taskbarEnd > taskbarStart ? html.slice(taskbarStart, taskbarEnd) : '';
-  const pinnedApps = [...taskbarMarkup.matchAll(/class="taskbar-btn" data-pinned="true" data-tier="core" data-app="([a-z][a-z0-9-]*)"/g)].map((match) => match[1]);
+  const pinnedApps = [...taskbarMarkup.matchAll(/<button class="taskbar-btn"[^>]*data-pinned="true"[^>]*data-tier="core"[^>]*data-app="([a-z][a-z0-9-]*)"/g)].map((match) => match[1]);
   assert.deepEqual(pinnedApps, ['projects', 'about', 'files', 'editor', 'contact']);
   assert.match(taskbarMarkup, /id="taskbar-recent-divider"/);
   assert.match(windows, /function ensureTaskbarButton\(appName\)/);
