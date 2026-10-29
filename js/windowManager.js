@@ -33,12 +33,12 @@ const WindowManager = (() => {
           <div class="about-app">
             <header class="about-header">
               <h1 class="about-name">Shimleabyte</h1>
-              <p class="about-role">Frontend Developer & UI/UX Enthusiast</p>
+              <p class="about-role">Frontend Developer / UI Systems</p>
             </header>
             
             <section class="about-section">
               <h2 class="section-title">Bio</h2>
-              <p>I build intuitive, accessible web experiences that balance form and function. With a focus on clean code and thoughtful design, I create digital products that solve real problems.</p>
+              <p>I work on small, inspectable software systems: interface states, local data persistence, and the behavior between a user's action and a system's response.</p>
             </section>
             
             <section class="about-section">
@@ -48,18 +48,16 @@ const WindowManager = (() => {
                   <h3>Frontend</h3>
                   <ul>
                     <li>JavaScript (ES6+)</li>
-                    <li>TypeScript</li>
-                    <li>React.js/ts</li>
-                    <li>Vue.js</li>
-                    <li>CSS3 / SASS / Tailwind</li>
+                    <li>React components</li>
+                    <li>CSS and layout systems</li>
                   </ul>
                 </div>
                 <div class="tech-category">
                   <h3>Tools</h3>
                   <ul>
                     <li>Git & GitHub</li>
-                    <li>VS Code / Windsurf / Notepad++</li>
-                    <li>Figma</li>
+                    <li>Command-line workflows</li>
+                    <li>JSON persistence</li>
                   </ul>
                 </div>
               </div>
@@ -68,10 +66,10 @@ const WindowManager = (() => {
             <section class="about-section">
               <h2 class="section-title">Focus & Interests</h2>
               <ul class="interests-list">
-                <li>Design systems and component libraries</li>
-                <li>Performance optimization</li>
-                <li>Accessible web experiences</li>
-                <li>Developer experience</li>
+                <li>Window and interaction states</li>
+                <li>Local-first data handling</li>
+                <li>Component behavior and feedback</li>
+                <li>Small tools with clear constraints</li>
               </ul>
             </section>
           </div>
@@ -246,7 +244,7 @@ const WindowManager = (() => {
 
   // Initialize the window manager
   function init() {
-    desktopElement = document.getElementById('desktop-screen');
+    desktopElement = document.getElementById('window-layer');
     if (!desktopElement) {
       console.error('Desktop element not found');
       return;
@@ -256,7 +254,10 @@ const WindowManager = (() => {
     initTaskbarButtons();
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && activeWindowId) closeWindow(activeWindowId);
+      if (e.key !== 'Escape') return;
+      const launcher = document.getElementById('app-launcher');
+      if (launcher && !launcher.hidden) return;
+      if (activeWindowId) closeWindow(activeWindowId);
     });
   }
 
@@ -303,13 +304,12 @@ const WindowManager = (() => {
     windowCounter++;
     const windowId = `${appName}-${windowCounter}`;
     const zIndex = Math.max(CONFIG.zIndex, ...openWindows.map((w) => w.zIndex)) + 1;
-
-    // Cascade new windows while keeping their headers reachable.
     const offset = (openWindows.length % 6) * CONFIG.windowOffset;
-    const maxLeft = Math.max(0, window.innerWidth - 160);
-    const maxTop = Math.max(0, window.innerHeight - 100);
-    const top = Math.min(50 + offset, maxTop);
-    const left = Math.min(50 + offset, maxLeft);
+    const preferredWidth = Number.parseFloat(template.width) || 480;
+    const maxLeft = Math.max(0, desktopElement.clientWidth - Math.min(preferredWidth, desktopElement.clientWidth));
+    const maxTop = Math.max(0, desktopElement.clientHeight - 96);
+    const top = Math.min(24 + offset, maxTop);
+    const left = Math.min(32 + offset, maxLeft);
 
     // Create window element
     const windowElement = document.createElement('div');
@@ -322,13 +322,22 @@ const WindowManager = (() => {
     windowElement.style.height = template.height;
     windowElement.style.top = `${top}px`;
     windowElement.style.left = `${left}px`;
+    windowElement.style.maxWidth = '100%';
+    windowElement.style.maxHeight = '100%';
 
     // Window header
     const header = document.createElement('div');
     header.className = 'window-header';
     header.innerHTML = `
-      <span class="window-title" id="${windowId}-title">${template.title}</span>
-      <button class="window-close" aria-label="Close">×</button>
+      <div class="window-title-group">
+        <span class="window-app-marker" aria-hidden="true"></span>
+        <span class="window-title" id="${windowId}-title">${template.title}</span>
+      </div>
+      <div class="window-controls" role="group" aria-label="${esc(template.title)} window controls">
+        <button class="window-control window-minimize" data-window-action="minimize" aria-label="Minimize ${esc(template.title)}" title="Minimize" type="button">_</button>
+        <button class="window-control window-maximize" data-window-action="maximize" aria-label="Maximize ${esc(template.title)}" title="Maximize / restore" type="button">□</button>
+        <button class="window-control window-close" data-window-action="close" aria-label="Close ${esc(template.title)}" title="Close" type="button">×</button>
+      </div>
     `;
 
     // Window content
@@ -352,7 +361,9 @@ const WindowManager = (() => {
       appName,
       element: windowElement,
       zIndex,
-      minimized: false
+      minimized: false,
+      maximized: false,
+      restoreBounds: null
     };
 
     openWindows.push(windowData);
@@ -365,6 +376,8 @@ const WindowManager = (() => {
   function setupWindowEvents(windowElement, windowId, appName) {
     const header = windowElement.querySelector('.window-header');
     const closeBtn = windowElement.querySelector('.window-close');
+    const minimizeBtn = windowElement.querySelector('.window-minimize');
+    const maximizeBtn = windowElement.querySelector('.window-maximize');
     let isDragging = false;
     let offsetX, offsetY;
 
@@ -379,6 +392,18 @@ const WindowManager = (() => {
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       closeWindow(windowId);
+    });
+    minimizeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      minimizeWindow(windowId);
+    });
+    maximizeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      maximizeWindow(windowId);
+    });
+    header.addEventListener('dblclick', (e) => {
+      if (e.target.closest('.window-controls')) return;
+      maximizeWindow(windowId);
     });
 
     // Dragging functionality
@@ -401,8 +426,8 @@ const WindowManager = (() => {
         const y = e.clientY - offsetY;
         
         // Keep window within viewport
-        const maxX = Math.max(0, window.innerWidth - windowElement.offsetWidth);
-        const maxY = Math.max(0, window.innerHeight - windowElement.offsetHeight);
+        const maxX = Math.max(0, desktopElement.clientWidth - windowElement.offsetWidth);
+        const maxY = Math.max(0, desktopElement.clientHeight - windowElement.offsetHeight);
 
         windowElement.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
         windowElement.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
@@ -734,7 +759,7 @@ const WindowManager = (() => {
       let canFlip = true;
       
       // Emoji pairs for the game (8 pairs = 16 cards)
-      const emojis = ['🌟', '🎨', '🛠️', '🚀', '📱', '💡', '🎯', '✨'];
+      const symbols = ['//', '##', '[]', '<>', '::', '++', '..', '=='];
       
       // Initialize the game
       function initGame() {
@@ -751,8 +776,8 @@ const WindowManager = (() => {
         
         // Create card pairs
         const gameCards = [];
-        emojis.forEach(emoji => {
-          gameCards.push(emoji, emoji);
+        symbols.forEach((symbol) => {
+          gameCards.push(symbol, symbol);
         });
         
         // Shuffle cards
@@ -766,8 +791,8 @@ const WindowManager = (() => {
           const card = document.createElement('div');
           card.className = 'card';
           card.dataset.index = index;
-          card.dataset.emoji = emoji;
-          card.textContent = emoji;
+          card.dataset.symbol = symbol;
+          card.textContent = symbol;
           card.addEventListener('click', handleCardClick);
           gameBoard.appendChild(card);
           cards.push(card);
@@ -808,16 +833,16 @@ const WindowManager = (() => {
         
         const [firstCard, secondCard] = flippedCards;
         
-        if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+        if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
           // Match found
           firstCard.classList.add('matched');
           secondCard.classList.add('matched');
           matchedPairs++;
           
           // Check for win
-          if (matchedPairs === emojis.length) {
+          if (matchedPairs === symbols.length) {
             setTimeout(() => {
-              gameMessage.innerHTML = `<p class="completion-message">You won in ${moves} moves! 🎉</p>`;
+              gameMessage.innerHTML = `<p class="completion-message">Workspace cleared in ${moves} moves.</p>`;
             }, 500);
           } else {
             gameMessage.innerHTML = '<p>Match found! Keep going!</p>';
@@ -864,7 +889,6 @@ const WindowManager = (() => {
   function focusWindow(windowId) {
     const target = openWindows.find((w) => w.id === windowId);
     if (!target) return;
-
     target.minimized = false;
     target.element.classList.remove('minimized');
     const top = Math.max(CONFIG.zIndex, ...openWindows.map((w) => w.zIndex)) + 1;
@@ -875,21 +899,38 @@ const WindowManager = (() => {
     updateTaskbarState();
   }
 
-  // Minimize without destroying the window's app state.
   function minimizeWindow(windowId) {
     const target = openWindows.find((w) => w.id === windowId);
     if (!target) return;
-
     target.minimized = true;
     target.element.classList.remove('active');
     target.element.classList.add('minimized');
-
     const nextWindow = [...openWindows]
       .filter((w) => w.id !== windowId && !w.minimized)
       .sort((a, b) => b.zIndex - a.zIndex)[0];
-
     activeWindowId = nextWindow ? nextWindow.id : null;
-    if (nextWindow) nextWindow.element.classList.add('active');
+    openWindows.forEach((w) => w.element.classList.toggle('active', w.id === activeWindowId));
+    updateTaskbarState();
+  }
+
+  function maximizeWindow(windowId) {
+    const target = openWindows.find((w) => w.id === windowId);
+    if (!target) return;
+    focusWindow(windowId);
+    if (!target.maximized) {
+      target.restoreBounds = { left: target.element.style.left, top: target.element.style.top, width: target.element.style.width, height: target.element.style.height };
+      target.maximized = true;
+      target.element.classList.add('maximized');
+    } else {
+      target.maximized = false;
+      target.element.classList.remove('maximized');
+      if (target.restoreBounds) {
+        target.element.style.left = target.restoreBounds.left;
+        target.element.style.top = target.restoreBounds.top;
+        target.element.style.width = target.restoreBounds.width;
+        target.element.style.height = target.restoreBounds.height;
+      }
+    }
     updateTaskbarState();
   }
 
@@ -920,15 +961,19 @@ const WindowManager = (() => {
   // Update taskbar button states
   function updateTaskbarState() {
     const taskbarButtons = document.querySelectorAll('.taskbar-btn');
-    
-    taskbarButtons.forEach(button => {
+    taskbarButtons.forEach((button) => {
       const appName = button.dataset.app;
-      const isWindowOpen = openWindows.some(w => w.appName === appName);
-      const isActive = openWindows.some(w => w.id === activeWindowId && w.appName === appName);
-      
+      const isWindowOpen = openWindows.some((w) => w.appName === appName);
+      const isActive = openWindows.some((w) => w.id === activeWindowId && w.appName === appName);
       button.classList.toggle('active', isActive);
       button.classList.toggle('open', isWindowOpen);
+      button.setAttribute('aria-pressed', String(isActive));
     });
+    const activeLabel = document.getElementById('active-app-label');
+    const activeWindow = openWindows.find((w) => w.id === activeWindowId);
+    if (activeLabel) {
+      activeLabel.textContent = activeWindow ? 'RUNNING / ' + CONFIG.windowTemplates[activeWindow.appName].title.toUpperCase() : 'WORKSPACE / DESKTOP';
+    }
   }
 
   // Public API

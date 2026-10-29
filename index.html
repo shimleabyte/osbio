@@ -1,126 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Portfolio of shimleabyte, built as a small desktop OS in plain HTML, CSS and JavaScript.">
-  <meta name="theme-color" content="#0d1117">
-  <meta property="og:title" content="shimleabyte | Portfolio">
-  <meta property="og:description" content="A portfolio that works like a small desktop OS.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1117'/%3E%3Cpath d='M9 11l5 5-5 5M17 21h6' fill='none' stroke='%2358a6ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-  <title>shimleabyte | Portfolio</title>
+  <meta name="description" content="Shimleabyte's Pixel-Flow workstation: a small interactive desktop built with HTML, CSS and JavaScript.">
+  <meta name="theme-color" content="#101512">
+  <meta property="og:title" content="OSBio — Pixel-Flow Workstation">
+  <meta property="og:description" content="A personal developer workspace with a custom desktop shell and app windows.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101512'/%3E%3Cpath d='M4 4h8v8H4zM16 4h4v4h-4zM24 12h4v8h-4zM12 20h8v8h-8z' fill='%23e8d64a'/%3E%3C/svg%3E">
+  <title>OSBio — Pixel-Flow Workstation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/main.css">
 </head>
-
 <body>
-  <noscript>This portfolio needs JavaScript to run. Source and contact: github.com/shimleabyte</noscript>
-  <!-- Boot Screen Layer -->
-  <div id="boot-screen" class="screen">
+  <noscript>This interactive portfolio needs JavaScript. Source: github.com/shimleabyte/osbio</noscript>
+  <div id="boot-screen" class="screen boot-screen" role="status" aria-live="polite">
+    <div class="boot-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <div class="boot-content">
-      <span class="boot-identity">shimleabyte.prtfl</span>
-      <span class="boot-status">booting<span class="cursor">_</span></span>
+      <span class="boot-identity">OSBIO / PIXEL-FLOW</span>
+      <span class="boot-status">INITIALIZING WORKSPACE</span>
+      <div class="boot-progress" aria-hidden="true"><span></span></div>
     </div>
-    <span class="boot-hint">press any key to skip</span>
+    <button id="boot-skip" class="boot-skip" type="button">SKIP BOOT <span>↵</span></button>
   </div>
 
-  <!-- Sign-in Demo Layer -->
-  <div id="signin-screen" class="screen hidden">
-    <div class="signin-panel">
-      <div class="signin-header">
-        <span class="signin-title">Welcome</span>
-        <span class="signin-subtitle">to my portfolio</span>
-      </div>
-
-      <div class="signin-form">
-        <div class="signin-input-group">
-          <label for="username" class="signin-label">Username</label>
-          <input type="text" id="username" class="signin-input" value="guest" autocomplete="off" spellcheck="false">
-        </div>
-
-        <button id="enter-desktop-btn" class="signin-button">
-          Enter Desktop
+  <div id="desktop-screen" class="screen hidden" aria-label="OSBio desktop" aria-hidden="true">
+    <div class="desktop-wallpaper" aria-hidden="true"><div class="wallpaper-grid"></div><div class="wallpaper-block wallpaper-block-a"></div><div class="wallpaper-block wallpaper-block-b"></div></div>
+    <header class="system-panel">
+      <div class="panel-left">
+        <button id="launcher-toggle" class="launcher-toggle" type="button" aria-expanded="false" aria-controls="app-launcher">
+          <span class="pixel-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-wordmark">OSBIO</span><span class="panel-chevron" aria-hidden="true">+</span>
         </button>
+        <span class="panel-divider" aria-hidden="true"></span><span id="active-app-label" class="active-app-label">WORKSPACE / DESKTOP</span>
       </div>
+      <div class="panel-right"><span class="local-status"><span class="status-square" aria-hidden="true"></span> LOCAL SESSION</span><span class="panel-divider" aria-hidden="true"></span><div class="panel-clock"><span id="system-clock">00:00</span><span id="system-date">01 JAN 2000</span></div></div>
+    </header>
 
-      <p class="signin-disclaimer">
-        Demo only: no real authentication or profile storage. A session flag remembers this intro in the current tab.
-      </p>
-    </div>
-  </div>
+    <main id="desktop-surface" class="desktop-surface">
+      <nav class="desktop-icons" aria-label="Desktop shortcuts">
+        <button class="desktop-icon" type="button" data-app="projects"><span class="app-icon app-icon-projects" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Projects</span></button>
+        <button class="desktop-icon" type="button" data-app="about"><span class="app-icon app-icon-about" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Profile</span></button>
+        <button class="desktop-icon" type="button" data-app="terminal"><span class="app-icon app-icon-terminal" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Terminal</span></button>
+        <button class="desktop-icon" type="button" data-app="resume"><span class="app-icon app-icon-resume" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Resume</span></button>
+      </nav>
+      <section class="desktop-note" aria-label="Workspace introduction">
+        <div class="note-kicker"><span>PF / 01</span><span>PERSONAL WORKSPACE</span></div>
+        <h1>Interfaces should<br><span>earn their place.</span></h1>
+        <p>A small desktop for work on interaction, local data, and the details between a user's action and a system's response.</p>
+        <div class="note-footer"><span>SESSION / LOCAL</span><span>HTML · CSS · JS</span></div>
+      </section>
+      <div id="window-layer" class="window-layer" aria-live="polite"></div>
+    </main>
 
-  <!-- Desktop Layer -->
-  <div id="desktop-screen" class="screen hidden">
-    <div class="desktop-welcome">
-      <span class="desktop-name">shimleabyte</span>
-      <span class="desktop-tagline">frontend developer</span>
-    </div>
-    
-    <!-- Windows will be dynamically inserted here -->
-    
-    <!-- Floating Taskbar -->
-    <nav class="taskbar" role="navigation" aria-label="Desktop applications">
-      <button class="taskbar-btn" data-app="about" aria-label="About">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-        </svg>
-        <span class="taskbar-tooltip">About</span>
-      </button>
+    <aside id="app-launcher" class="app-launcher" aria-label="Application launcher" hidden>
+      <div class="launcher-heading"><div><span class="launcher-overline">OSBIO / SHELL</span><h2>Applications</h2></div><span class="launcher-count">06 UNITS</span></div>
+      <label class="app-search-wrap" for="app-search"><span class="search-mark" aria-hidden="true">/</span><input id="app-search" type="search" placeholder="Find an application..." autocomplete="off" spellcheck="false"><kbd>CTRL K</kbd></label>
+      <div id="launcher-grid" class="launcher-grid">
+        <button class="launcher-item" type="button" data-app="about" data-search="about profile bio information"><span class="app-icon app-icon-about" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Profile</strong><small>IDENTITY / STACK</small></span><span class="launcher-item-index">01</span></button>
+        <button class="launcher-item" type="button" data-app="projects" data-search="projects repositories github work"><span class="app-icon app-icon-projects" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Projects</strong><small>REPOSITORIES / WORK</small></span><span class="launcher-item-index">02</span></button>
+        <button class="launcher-item" type="button" data-app="terminal" data-search="terminal command line cli"><span class="app-icon app-icon-terminal" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Terminal</strong><small>COMMANDS / LINKS</small></span><span class="launcher-item-index">03</span></button>
+        <button class="launcher-item" type="button" data-app="resume" data-search="resume cv curriculum vitae"><span class="app-icon app-icon-resume" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Resume</strong><small>DOCUMENT / CV</small></span><span class="launcher-item-index">04</span></button>
+        <button class="launcher-item" type="button" data-app="contact" data-search="contact email github"><span class="app-icon app-icon-contact" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Contact</strong><small>EMAIL / GITHUB</small></span><span class="launcher-item-index">05</span></button>
+        <button class="launcher-item" type="button" data-app="memory" data-search="memory match game puzzle"><span class="app-icon app-icon-memory" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Memory Match</strong><small>INTERACTIVE / GAME</small></span><span class="launcher-item-index">06</span></button>
+      </div>
+      <footer class="launcher-footer"><span>LOCAL / NO ACCOUNT</span><span>ESC TO CLOSE</span></footer>
+    </aside>
 
-      <button class="taskbar-btn" data-app="projects" aria-label="Projects">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <path d="M3 10h18" />
-          <path d="M9 4v6" />
-        </svg>
-        <span class="taskbar-tooltip">Projects</span>
-      </button>
-
-      <button class="taskbar-btn" data-app="contact" aria-label="Contact">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="2" y="4" width="20" height="16" rx="2" />
-          <path d="M22 6l-10 7L2 6" />
-        </svg>
-        <span class="taskbar-tooltip">Contact</span>
-      </button>
-
-      <button class="taskbar-btn" data-app="resume" aria-label="Resume">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-          <path d="M14 2v6h6" />
-          <path d="M8 13h8" />
-          <path d="M8 17h8" />
-        </svg>
-        <span class="taskbar-tooltip">Resume</span>
-      </button>
-
-      <button class="taskbar-btn" data-app="terminal" aria-label="Terminal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <path d="M7 9l3 3-3 3" />
-          <path d="M13 15h4" />
-        </svg>
-        <span class="taskbar-tooltip">Terminal</span>
-      </button>
-
-      <button class="taskbar-btn" data-app="memory" aria-label="Memory Match">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="2" y="6" width="20" height="12" rx="3" />
-          <circle cx="9" cy="12" r="2" />
-          <circle cx="17" cy="10" r="1" />
-          <circle cx="17" cy="14" r="1" />
-        </svg>
-        <span class="taskbar-tooltip">Memory Match</span>
-      </button>
+    <nav class="taskbar" aria-label="Open and pinned applications">
+      <div class="taskbar-apps">
+        <button class="taskbar-btn" type="button" data-app="about" aria-label="Profile" title="Profile"><span class="app-icon app-icon-about" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="taskbar-tooltip">Profile</span></button>
+        <button class="taskbar-btn" type="button" data-app="projects" aria-label="Projects" title="Projects"><span class="app-icon app-icon-projects" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="taskbar-tooltip">Projects</span></button>
+        <button class="taskbar-btn" type="button" data-app="terminal" aria-label="Terminal" title="Terminal"><span class="app-icon app-icon-terminal" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="taskbar-tooltip">Terminal</span></button>
+        <button class="taskbar-btn" type="button" data-app="resume" aria-label="Resume" title="Resume"><span class="app-icon app-icon-resume" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="taskbar-tooltip">Resume</span></button>
+        <button class="taskbar-btn" type="button" data-app="contact" aria-label="Contact" title="Contact"><span class="app-icon app-icon-contact" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="taskbar-tooltip">Contact</span></button>
+        <button class="taskbar-btn" type="button" data-app="memory" aria-label="Memory Match" title="Memory Match"><span class="app-icon app-icon-memory" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="taskbar-tooltip">Memory Match</span></button>
+      </div>
+      <div class="taskbar-system"><span class="taskbar-workspace">PF / 01</span><span class="taskbar-divider" aria-hidden="true"></span><span class="taskbar-caption">PIXEL-FLOW WORKSTATION</span></div>
     </nav>
   </div>
-
   <script src="js/windowManager.js"></script>
   <script src="js/main.js"></script>
 </body>
-
 </html>

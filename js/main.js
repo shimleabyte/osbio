@@ -1,103 +1,113 @@
 /**
- * Screen flow: BOOT -> SIGN-IN -> DESKTOP
- * Boot is skippable (click/key). Sign-in is a visual step only, no auth.
- * After the first pass in a tab the intro is skipped (sessionStorage, session only).
+ * OSBio shell lifecycle and desktop-level interactions.
+ * Static client-side demo: no authentication or server session.
  */
 (function () {
   'use strict';
-
-  const BOOT_DURATION = 2000;
-  const FADE_DURATION = 400;
-  const SEEN_KEY = 'osbio:entered';
-
-  let hasExitedBoot = false;
-  let hasExitedSignin = false;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const BOOT_DURATION = reducedMotion ? 120 : 920;
+  const FADE_DURATION = reducedMotion ? 0 : 180;
+  const bootScreen = document.getElementById('boot-screen');
+  const bootSkip = document.getElementById('boot-skip');
+  const desktopScreen = document.getElementById('desktop-screen');
+  const launcherToggle = document.getElementById('launcher-toggle');
+  const launcher = document.getElementById('app-launcher');
+  const appSearch = document.getElementById('app-search');
+  const clock = document.getElementById('system-clock');
+  const date = document.getElementById('system-date');
+  let bootComplete = false;
   let bootTimer = null;
 
-  const bootScreen = document.getElementById('boot-screen');
-  const signinScreen = document.getElementById('signin-screen');
-  const desktopScreen = document.getElementById('desktop-screen');
-  const enterDesktopBtn = document.getElementById('enter-desktop-btn');
-  const usernameInput = document.getElementById('username');
-
-  function hasEntered() {
-    try { return sessionStorage.getItem(SEEN_KEY) === '1'; } catch (e) { return false; }
-  }
-
-  function markEntered() {
-    try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) { /* storage unavailable */ }
-  }
-
   function showDesktop() {
-    desktopScreen.classList.remove('hidden');
-    WindowManager.openWindow('about');
-  }
-
-  function exitBoot() {
-    if (hasExitedBoot) return;
-    hasExitedBoot = true;
-
+    if (bootComplete) return;
+    bootComplete = true;
     clearTimeout(bootTimer);
-    document.removeEventListener('click', handleBootSkip);
-    document.removeEventListener('keydown', handleBootSkip);
-
+    document.removeEventListener('keydown', skipBootOnKey);
+    bootSkip.removeEventListener('click', showDesktop);
     bootScreen.classList.add('fade-out');
-    setTimeout(() => {
+    window.setTimeout(function () {
       bootScreen.classList.add('hidden');
-      signinScreen.classList.remove('hidden');
-      if (usernameInput) {
-        usernameInput.focus();
-        usernameInput.select();
-      }
+      desktopScreen.classList.remove('hidden');
+      desktopScreen.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('desktop-ready');
+      WindowManager.openWindow('about');
+      updateClock();
     }, FADE_DURATION);
   }
 
-  function handleBootSkip(event) {
-    if (event.type === 'keydown' && ['Shift', 'Control', 'Alt', 'Meta', 'CapsLock'].includes(event.key)) return;
-    exitBoot();
+  function skipBootOnKey(event) {
+    if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(event.key)) return;
+    showDesktop();
   }
 
-  function exitSignin() {
-    if (hasExitedSignin) return;
-    hasExitedSignin = true;
-    markEntered();
-
-    enterDesktopBtn.removeEventListener('click', exitSignin);
-    document.removeEventListener('keydown', handleSigninKeydown);
-
-    signinScreen.classList.add('fade-out');
-    setTimeout(() => {
-      signinScreen.classList.add('hidden');
-      showDesktop();
-    }, FADE_DURATION);
-  }
-
-  function handleSigninKeydown(event) {
-    if (event.key === 'Enter' && hasExitedBoot && !hasExitedSignin) {
-      event.preventDefault();
-      exitSignin();
+  function setLauncherOpen(open) {
+    launcher.hidden = !open;
+    launcher.classList.toggle('is-open', open);
+    launcherToggle.setAttribute('aria-expanded', String(open));
+    launcherToggle.classList.toggle('is-active', open);
+    if (open) {
+      appSearch.value = '';
+      filterApplications('');
+      appSearch.focus();
+    } else {
+      launcherToggle.focus({ preventScroll: true });
     }
+  }
+
+  function filterApplications(query) {
+    const needle = query.trim().toLowerCase();
+    launcher.querySelectorAll('.launcher-item').forEach(function (button) {
+      const searchable = (button.textContent + ' ' + (button.dataset.search || '')).toLowerCase();
+      button.hidden = needle.length > 0 && !searchable.includes(needle);
+    });
+  }
+
+  function launchFromButton(event) {
+    const button = event.target.closest('[data-app]');
+    if (!button) return;
+    const appName = button.dataset.app;
+    if (!appName) return;
+    WindowManager.openWindow(appName);
+    if (!launcher.hidden) setLauncherOpen(false);
+  }
+
+  function updateClock() {
+    const now = new Date();
+    clock.textContent = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }).format(now);
+    date.textContent = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(now).toUpperCase();
+  }
+
+  function initShell() {
+    launcherToggle.addEventListener('click', function () { setLauncherOpen(launcher.hidden); });
+    launcher.addEventListener('click', launchFromButton);
+    appSearch.addEventListener('input', function () { filterApplications(appSearch.value); });
+    document.querySelectorAll('.desktop-icon[data-app]').forEach(function (button) {
+      button.addEventListener('click', launchFromButton);
+    });
+    document.addEventListener('click', function (event) {
+      if (launcher.hidden || launcher.contains(event.target) || launcherToggle.contains(event.target)) return;
+      setLauncherOpen(false);
+    });
+    document.addEventListener('keydown', function (event) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setLauncherOpen(launcher.hidden);
+      } else if (event.key === 'Escape' && !launcher.hidden) {
+        event.preventDefault();
+        event.stopPropagation();
+        setLauncherOpen(false);
+      }
+    });
+    updateClock();
+    window.setInterval(updateClock, 15000);
   }
 
   function init() {
-    if (hasEntered()) {
-      hasExitedBoot = hasExitedSignin = true;
-      bootScreen.classList.add('hidden');
-      signinScreen.classList.add('hidden');
-      showDesktop();
-      return;
-    }
-
-    bootTimer = setTimeout(exitBoot, BOOT_DURATION);
-    document.addEventListener('click', handleBootSkip);
-    document.addEventListener('keydown', handleBootSkip);
-    enterDesktopBtn.addEventListener('click', exitSignin);
-    document.addEventListener('keydown', handleSigninKeydown);
+    initShell();
+    bootSkip.addEventListener('click', showDesktop);
+    document.addEventListener('keydown', skipBootOnKey);
+    bootTimer = window.setTimeout(showDesktop, BOOT_DURATION);
   }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();

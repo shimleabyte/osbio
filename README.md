@@ -1,54 +1,60 @@
-# osbio
+# OSBio — Pixel-Flow Workstation
 
-My portfolio, built as a small desktop OS: a boot screen, a dock, draggable windows and a terminal. Plain HTML, CSS and JavaScript, no build step.
+A personal portfolio built as a small interactive desktop environment. It uses plain HTML, CSS and JavaScript, without a framework or build step.
 
 **Live:** https://shimleabyte.github.io/osbio/
 
+## Shell behavior
+
+- A short, skippable boot sequence opens the desktop directly. There is no fake sign-in or profile capture.
+- The top panel identifies the active app and shows local-session status, clock and date.
+- The application launcher supports search. Open it from the OSBio panel button or press `Ctrl+K`.
+- Desktop shortcuts and the bottom taskbar open apps. Selecting the active taskbar item minimizes it; selecting it again restores it.
+- App windows can be focused, dragged, resized on desktop, maximized/restored, minimized, and closed. Double-click a title bar to toggle maximize.
+- On narrow screens, the shell becomes a single-window workspace with touch-sized controls and a launcher.
+- Memory Match uses pixel-like text symbols rather than emoji artwork.
+- Resume shows an explicit unavailable state until the real PDF is published.
+
 ## Apps
 
-| App | What it does |
+| App | Purpose |
 |---|---|
-| About | Bio, stack, interests |
-| Projects | Expandable project cards |
+| Profile | Background, current focus, and technologies used in the portfolio projects |
+| Projects | Verified repositories: Mutabaah CLI, Simpul, and Optical Anchor Button |
+| Terminal | Simulated prompt for exploring project links and opening apps |
+| Resume | Explicit unavailable state; no fabricated preview or download |
 | Contact | Email and GitHub |
-| Resume | Honest unavailable state until a PDF is published |
-| Terminal | `help`, `about`, `projects`, `contact`, `open <app>`, `clear` |
-| Memory Match | Card-matching game |
+| Memory Match | Small symbol-matching game |
 
-Esc closes the focused window. Below 700px wide, windows open full screen above the dock.
+The terminal is a client-side simulation. It does not execute operating-system commands.
 
 ## Run locally
 
-```bash
+```sh
 git clone https://github.com/shimleabyte/osbio.git
 cd osbio
 python3 -m http.server 8000
 ```
 
-Open http://localhost:8000. Any static server works.
+Open http://localhost:8000. Any static file server works.
 
-The Resume app currently shows an explicit unavailable state because `resume.pdf` is not published in the repository. When the actual resume is ready, add it at the repo root as `resume.pdf` and restore the preview/download controls.
+The actual resume PDF is not published in this repository. When ready, add the real document as `resume.pdf` and wire its preview/download controls deliberately.
 
 ## Structure
 
 ```
-index.html          boot, sign-in and desktop layers, dock
-css/main.css        design tokens at the top (:root), then per-app styles
-js/main.js          boot -> sign-in -> desktop flow
-js/windowManager.js window templates, open/close/focus/drag, per-app logic
+index.html          shell panels, desktop shortcuts, launcher, taskbar
+css/main.css        design tokens, Pixel-Flow shell, and app styles
+js/main.js          boot flow, launcher search, app routing, clock
+js/windowManager.js app templates, window state, focus, drag and resize
 ```
 
-### Adding an app
+## Interaction and accessibility
 
-1. Add a template to `CONFIG.windowTemplates` in `windowManager.js`.
-2. Add a dock button in `index.html` with a matching `data-app`.
-3. If it needs behaviour, hook it up in `setupWindowEvents`.
-
-## Notes
-
-- There is no backend. The sign-in screen is a visual step with no authentication.
-- The only thing stored is a `sessionStorage` flag so the intro is skipped after the first pass in a tab. It clears when the tab closes.
-- Windows are positioned with plain DOM and CSS, with no framework or library.
+- Keyboard: `Ctrl+K` opens the launcher; `Escape` dismisses the launcher or closes the active window.
+- Window controls have explicit labels and visible focus states.
+- Reduced-motion preference shortens boot and disables non-essential motion.
+- This is a static portfolio, not an OS or an authentication system. It stores no user profile.
 
 ## License
 
