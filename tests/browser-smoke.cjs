@@ -49,7 +49,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const shellOutlineAudit = await page.evaluate(() => ({
       launcher: getComputedStyle(document.querySelector('#app-launcher')).backgroundImage,
       dock: getComputedStyle(document.querySelector('.taskbar-apps')).backgroundImage,
-      nav: getComputedStyle(document.querySelector('.panel-navigation')).backgroundImage
+      nav: getComputedStyle(document.querySelector('#visitor-guide-toggle')).backgroundImage
     }));
     assert.ok(shellOutlineAudit.launcher.includes('linear-gradient'), 'launcher should use segmented edges');
     assert.ok(shellOutlineAudit.dock.includes('linear-gradient'), 'dock should use segmented edges');
