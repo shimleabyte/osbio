@@ -219,6 +219,74 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await filesWindow.locator('.files-name-form button[type="submit"]').click();
     const editorWindow = page.locator('.window[data-app-name="editor"]');
     await editorWindow.waitFor({ state: 'visible' });
+
+    // Context menu is keyboard-reachable; selecting a file should keep focus on its row.
+    await editorWindow.locator('.window-close').click();
+    await editorWindow.waitFor({ state: 'detached' });
+    const originalFileRow = filesWindow.locator('.file-row').filter({ hasText: 'browser-smoke.md' });
+    await originalFileRow.click();
+    assert.equal(await originalFileRow.evaluate((row) => document.activeElement === row), true,
+      'single-click selection should keep focus on the selected row');
+    await originalFileRow.press('Shift+F10');
+    const filesContextMenu = filesWindow.locator('#files-context-menu');
+    await filesContextMenu.waitFor({ state: 'visible' });
+    assert.ok(await filesContextMenu.evaluate((menu) => menu.contains(document.activeElement)),
+      'Shift+F10 should open the Files context menu and move focus into it');
+    assert.equal(await filesContextMenu.locator('[data-context-action="rename"]').isDisabled(), false);
+    await filesContextMenu.locator('[data-context-action="rename"]').click();
+    await filesWindow.locator('#files-name-input').fill('browser-smoke-renamed.md');
+    await filesWindow.locator('.files-name-form button[type="submit"]').click();
+    const renamedFileRow = filesWindow.locator('.file-row').filter({ hasText: 'browser-smoke-renamed.md' });
+    await renamedFileRow.waitFor({ state: 'visible' });
+
+    // Move between root and Documents through the destination picker.
+    await renamedFileRow.click();
+    await renamedFileRow.press('Control+Shift+M');
+    const moveDialog = filesWindow.locator('.files-move-dialog');
+    await moveDialog.waitFor({ state: 'visible' });
+    await moveDialog.locator('#files-move-destination').selectOption('folder-documents');
+    await moveDialog.locator('.files-move-form button[type="submit"]').click();
+    await page.waitForFunction(async () => {
+      const all = await window.OSBioStorage.listAll();
+      const item = all.find((entry) => entry.name === 'browser-smoke-renamed.md');
+      return item && item.parentId === 'folder-documents';
+    });
+    await filesWindow.locator('[data-files-parent="folder-documents"]').click();
+    const movedFileRow = filesWindow.locator('.file-row').filter({ hasText: 'browser-smoke-renamed.md' });
+    await movedFileRow.waitFor({ state: 'visible' });
+    await movedFileRow.click();
+    await movedFileRow.press('Control+Shift+M');
+    await moveDialog.locator('#files-move-destination').selectOption('root');
+    await moveDialog.locator('.files-move-form button[type="submit"]').click();
+    await filesWindow.locator('[data-files-parent="root"]').click();
+    const rootFileRow = filesWindow.locator('.file-row').filter({ hasText: 'browser-smoke-renamed.md' });
+    await rootFileRow.waitFor({ state: 'visible' });
+    await rootFileRow.press('Enter');
+    await editorWindow.waitFor({ state: 'visible' });
+    await page.waitForFunction(() =>
+      document.querySelector('.window[data-app-name="editor"] #editor-name')?.value === 'browser-smoke-renamed.md');
+
+    // A folder cannot be moved into itself or one of its descendants.
+    const moveGuardFixture = await page.evaluate(async () => {
+      const parent = await window.OSBioStorage.createFolder('move-guard-parent');
+      const child = await window.OSBioStorage.createFolder('move-guard-child', parent.id);
+      return { parentId: parent.id, childId: child.id };
+    });
+    const guardParentRow = filesWindow.locator('.file-row').filter({ hasText: 'move-guard-parent' });
+    await guardParentRow.waitFor({ state: 'visible' });
+    await guardParentRow.click();
+    await guardParentRow.press('Control+Shift+M');
+    await moveDialog.waitFor({ state: 'visible' });
+    assert.equal(await moveDialog.locator('option[value="' + moveGuardFixture.parentId + '"]').count(), 0,
+      'a folder cannot be moved into itself');
+    assert.equal(await moveDialog.locator('option[value="' + moveGuardFixture.childId + '"]').count(), 0,
+      'a folder cannot be moved into its descendant');
+    await moveDialog.locator('[data-files-action="cancel-move"]').click();
+    await page.evaluate(async ({ parentId, childId }) => {
+      await window.OSBioStorage.remove(childId);
+      await window.OSBioStorage.remove(parentId);
+    }, moveGuardFixture);
+
     const expectedText = 'OSBio browser persistence ' + Date.now();
     await editorWindow.locator('#editor-content').fill(expectedText);
     await editorWindow.locator('#editor-save').click();
@@ -246,8 +314,8 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await persistedProjectWindow.waitFor({ state: 'detached' });
     await page.locator('.taskbar-btn[data-app="files"]').click();
     await page.locator('.window[data-app-name="files"]').waitFor({ state: 'visible' });
-    await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke.md' }).waitFor({ state: 'visible' });
-    await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke.md' }).dblclick();
+    await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke-renamed.md' }).waitFor({ state: 'visible' });
+    await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke-renamed.md' }).dblclick();
     const reopenedEditorBody = page.locator('.window[data-app-name="editor"] #editor-content');
     await reopenedEditorBody.waitFor({ state: 'visible' });
     // IndexedDB reads are asynchronous; wait for the document load, not just the new window.
@@ -257,6 +325,39 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       return editor && editor.value === text && status && status.textContent.includes('Saved locally');
     }, expectedText);
     assert.equal(await reopenedEditorBody.inputValue(), expectedText);
+
+    // A dirty close can be cancelled or explicitly discarded.
+    await reopenedEditorBody.fill(expectedText + ' unsaved draft');
+    const cancelClosePromise = page.waitForEvent('dialog');
+    await page.locator('.window[data-app-name="editor"] .window-close').click();
+    const cancelCloseDialog = await cancelClosePromise;
+    assert.match(cancelCloseDialog.message(), /Discard unsaved changes/);
+    await cancelCloseDialog.dismiss();
+    assert.equal(await reopenedEditorBody.isVisible(), true, 'cancel must keep the dirty editor open');
+    assert.equal(await reopenedEditorBody.inputValue(), expectedText + ' unsaved draft');
+
+    const discardClosePromise = page.waitForEvent('dialog');
+    await page.locator('.window[data-app-name="editor"] .window-close').click();
+    const discardCloseDialog = await discardClosePromise;
+    await discardCloseDialog.accept();
+    await page.locator('.window[data-app-name="editor"]').waitFor({ state: 'detached' });
+
+    await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke-renamed.md' }).dblclick();
+    await page.waitForFunction((text) =>
+      document.querySelector('.window[data-app-name="editor"] #editor-content')?.value === text, expectedText);
+    const keyboardSavedText = expectedText + ' saved with Ctrl+S';
+    await page.locator('.window[data-app-name="editor"] #editor-content').fill(keyboardSavedText);
+    await page.locator('.window[data-app-name="editor"] #editor-content').press('Control+s');
+    await page.waitForFunction((text) => {
+      const editor = document.querySelector('.window[data-app-name="editor"] #editor-content');
+      const status = document.querySelector('#editor-status-text');
+      return editor && editor.value === text && status && status.textContent.includes('Saved locally');
+    }, keyboardSavedText);
+    await page.locator('.window[data-app-name="editor"] .window-close').click();
+    await page.locator('.window[data-app-name="editor"]').waitFor({ state: 'detached' });
+    await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke-renamed.md' }).dblclick();
+    await page.waitForFunction((text) =>
+      document.querySelector('.window[data-app-name="editor"] #editor-content')?.value === text, keyboardSavedText);
 
 
     // Import validation rejects malformed structures before mutating browser storage.

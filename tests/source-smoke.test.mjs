@@ -105,10 +105,17 @@ test('local workspace storage exposes safe file operations and bounded event his
 
 test('Files and Editor have real templates and shared storage integration', () => {
   assert.match(windows, /files: \{/);
+  assert.match(windows, /id="files-context-menu"/);
+  assert.match(windows, /data-files-action="move"/);
   assert.match(windows, /editor: \{/);
   assert.match(windows, /OSBioWorkspaceApps\.mount/);
   assert.match(workspaceApps, /store\.createFolder/);
   assert.match(workspaceApps, /store\.saveFile/);
+  assert.match(workspaceApps, /function showMoveDialog\(/);
+  assert.match(workspaceApps, /data-context-action/);
+  assert.match(workspaceApps, /event\.detail === 0/);
+  assert.match(workspaceApps, /loadRequestId/);
+  assert.match(workspaceApps, /saveDocument\(true\)/);
   assert.match(workspaceApps, /osbio:open-file/);
   assert.match(workspaceApps, /osbio:before-close/);
   assert.match(html, /data-app="files"/);

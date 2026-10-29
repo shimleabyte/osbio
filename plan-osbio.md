@@ -544,3 +544,14 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Test IndexedDB-unavailable localStorage fallback across reload.
 - [x] Test write/quota-failure degradation to memory mode and confirm session-only files are not presented as durable across reload.
 - [ ] Run full CI for these last Stage 2 hardening changes.
+
+### Stage 3 — Files and Editor interaction pass (2026-10-29)
+
+- [x] Preserve keyboard focus when selecting a file row instead of replacing the focused button node.
+- [x] Implement a context menu reachable by pointer and Shift+F10/ContextMenu, with arrow navigation, Escape focus restore and read-only restrictions.
+- [x] Implement a destination-aware Move dialog, excluding a folder and its descendants to prevent cyclic moves.
+- [x] Add file-manager keys: Enter open, F2 rename, Delete, Ctrl/Cmd+N new file, Ctrl/Cmd+Shift+N new folder, Ctrl/Cmd+Shift+M move, Alt+Up parent folder.
+- [x] Add Editor Ctrl/Cmd+S save and Ctrl/Cmd+Shift+S Save Copy.
+- [x] Guard Files refresh and Editor load completion against stale asynchronous results.
+- [x] Add browser regression coverage for context menu, rename/move, Enter-open, dirty close cancel/discard and Ctrl+S.
+- [ ] Rerun Chromium and review failures before closing Phase 3.
