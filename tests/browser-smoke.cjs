@@ -89,6 +89,13 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       resizedBounds.y + resizedBounds.height <= desktopBounds.y + desktopBounds.height + 1,
       'window should remain constrained after viewport resize: ' + JSON.stringify({ resizedBounds, desktopBounds }));
     await page.setViewportSize({ width: 1440, height: 960 });
+    await pause(80);
+    const flowBoundsAfterResizeCycle = await flowWindow.boundingBox();
+    const shortcutBoundsAfterResizeCycle = await page.locator('.desktop-icon[data-app="projects"]').boundingBox();
+    assert.ok(flowBoundsAfterResizeCycle && shortcutBoundsAfterResizeCycle &&
+      flowBoundsAfterResizeCycle.x >= shortcutBoundsAfterResizeCycle.x + shortcutBoundsAfterResizeCycle.width - 1,
+      'window should remain outside the desktop shortcut lane after shrinking and restoring the viewport: ' +
+        JSON.stringify({ flowBoundsAfterResizeCycle, shortcutBoundsAfterResizeCycle }));
 
     // Taskbar clicks should minimize an active app and restore it on the next click.
     await flowTaskbarButton.click();

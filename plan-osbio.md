@@ -498,3 +498,8 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Exercise Memory Match mismatch → restart and close → reopen sequences to detect stale timers.
 - [x] Exercise mobile Files ↔ Memory Match switching, active-window close recovery, and empty-desktop return.
 - [ ] Rerun Chromium and review the entire lifecycle sequence before closing Stage 1.
+
+### Stage 1 — viewport restore diagnostic (2026-10-29)
+
+- [x] Add a post-resize-cycle bounds assertion before testing desktop-shortcut hit targets; this separates stale geometry from pointer-layer interception.
+- [ ] Keep the shortcut click test in place until the real-browser run confirms the restored window does not cover the shortcut lane.
