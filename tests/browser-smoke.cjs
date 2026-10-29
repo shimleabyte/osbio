@@ -693,7 +693,6 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     assert.equal(await page.locator('.desktop-wallpaper').getAttribute('data-wallpaper'), 'grid');
     assert.equal(await wallpaperArt.evaluate((image) => getComputedStyle(image).display), 'none',
       'the SVG artwork should be hidden when Grid only is selected');
-    assert.equal(await settings.locator('#settings-wallpaper-preview').getAttribute('data-wallpaper'), 'grid');
     assert.equal(await page.locator('html').getAttribute('data-motion'), 'reduced');
     assert.equal(await page.locator('.desktop-icons').evaluate((element) => element.hidden), true);
 
@@ -701,6 +700,8 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.locator('#launcher-toggle').click();
     await page.locator('.launcher-item[data-app="settings"]').click();
     await settings.waitFor({ state: 'visible' });
+    assert.equal(await settings.locator('#settings-wallpaper-preview').getAttribute('data-wallpaper'), 'grid',
+      'Settings should reflect the persisted wallpaper after reload');
     await settings.locator('#settings-reset').click();
     await page.waitForFunction(() =>
       document.querySelector('.desktop-wallpaper')?.dataset.wallpaper === 'flow' &&
