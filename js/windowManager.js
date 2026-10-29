@@ -139,7 +139,10 @@ const WindowManager = (() => {
                     </a>
                   </div>
                 </div>
-              </div>        `
+              </div>
+            </div>
+          </div>
+        `
       },
       contact: {
         title: 'Contact',
