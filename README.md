@@ -14,7 +14,7 @@ A browser portfolio that behaves like a small desktop environment. The shell is 
   <tr>
     <td width="50%" valign="top">
       <a href="https://shimleabyte.github.io/osbio/"><img src="docs/screenshots/osbio-desktop.png" alt="OSBio icon-first desktop with its Pixel-Flow wallpaper, topbar, and floating dock" width="100%" /></a>
-      <p><strong>Desktop</strong><br /><sub>Quiet workspace with icon-only chrome and a custom geometric wallpaper.</sub></p>
+      <p><strong>Desktop</strong><br /><sub>Quiet workspace with icon-only chrome and a custom Pixel-Flow wallpaper artwork, built as a local SVG asset.</sub></p>
     </td>
     <td width="50%" valign="top">
       <a href="https://shimleabyte.github.io/osbio/"><img src="docs/screenshots/osbio-launcher.png" alt="OSBio application launcher with eleven custom pixel-art icons in a four-column grid" width="100%" /></a>
@@ -28,6 +28,7 @@ A browser portfolio that behaves like a small desktop environment. The shell is 
 ## Shell behavior
 
 - A short, skippable boot sequence introduces the Pixel-Flow mark, then opens to an intentionally quiet, icon-only desktop. No app or guide opens automatically.
+- The default wallpaper is original local SVG artwork: split-corner signal-yellow and mint ribbons dissolve into pixel fragments beside the OSBio wordmark. Grid-only and plain-field variants remain available in Settings; the selected surface is previewed there.
 - The topbar keeps the product mark, window overview, optional Field Guide, local-session indicator, and clock/date. Visible text stays out of the idle shell except for the time and date; controls keep accessible names.
 - The launcher opens as an eleven-app icon grid from the top-left mark or with `Ctrl+K`. Typing filters the focused launcher; app names remain available to assistive technology.
 - The optional Field Guide provides three concrete routes (Projects, Profile, Editor), tracks visited stops locally, can be dismissed, and can be reopened from its topbar icon.
