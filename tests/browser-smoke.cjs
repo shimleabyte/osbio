@@ -34,6 +34,18 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       .evaluate((element) => getComputedStyle(element).backgroundImage);
     assert.ok(firstIconOutline.includes('linear-gradient'),
       'desktop app icons should inherit the segmented outline style');
+    const topbarAudit = await page.evaluate(() => ({
+      panel: getComputedStyle(document.querySelector('.system-panel')).backgroundImage,
+      navButton: getComputedStyle(document.querySelector('#visitor-guide-toggle')).backgroundImage,
+      clock: getComputedStyle(document.querySelector('.panel-clock')).backgroundImage,
+      status: getComputedStyle(document.querySelector('.local-status')).backgroundImage,
+      height: document.querySelector('.system-panel').getBoundingClientRect().height
+    }));
+    assert.ok(topbarAudit.panel.includes('linear-gradient'), 'topbar rail should use layered linework');
+    assert.ok(topbarAudit.navButton.includes('linear-gradient'), 'topbar buttons should use segmented corners');
+    assert.ok(topbarAudit.clock.includes('linear-gradient'), 'clock should use the same outline language');
+    assert.ok(topbarAudit.status.includes('linear-gradient'), 'session mark should use the same outline language');
+    assert.ok(Math.abs(topbarAudit.height - 55.2) < 1.5, 'desktop topbar should keep its intended height');
     const shellOutlineAudit = await page.evaluate(() => ({
       launcher: getComputedStyle(document.querySelector('#app-launcher')).backgroundImage,
       dock: getComputedStyle(document.querySelector('.taskbar-apps')).backgroundImage,

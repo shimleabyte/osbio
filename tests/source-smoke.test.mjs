@@ -325,3 +325,13 @@ test('interactive shell edges preserve consistent split-corner treatment and foc
   assert.match(css, /\.panel-nav-button:focus-visible \{ outline: 2px solid var\(--pf-outline-yellow\)/);
   assert.match(css, /\.app-launcher \.launcher-item:focus-visible \{ outline: 2px solid var\(--pf-outline-yellow\)/);
 });
+
+
+test('topbar aligns with the segmented outline system and retains responsive clock/navigation', () => {
+  assert.match(css, /#desktop-screen > \.system-panel \{[\s\S]*?linear-gradient\(var\(--pf-outline-low\),var\(--pf-outline-low\)\) 0 calc\(100% - 1px\)/);
+  assert.match(css, /\.system-panel \.panel-navigation \{[\s\S]*?border: 0;[\s\S]*?background: transparent/);
+  assert.match(css, /\.system-panel \.panel-nav-button,[\s\S]*?linear-gradient\(var\(--nav-edge\),var\(--nav-edge\)\) 4px 0/);
+  assert.match(css, /\.system-panel \.panel-clock \{[\s\S]*?linear-gradient\(#435a45,#435a45\) 4px 0/);
+  assert.match(css, /\.system-panel \.local-status \{[\s\S]*?linear-gradient\(#435a45,#435a45\) 3px 0/);
+  assert.match(css, /@media \(max-width: 420px\) \{[\s\S]*?\.system-panel #window-overview-toggle \{ display: none; \}/);
+});

@@ -2647,3 +2647,244 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
     linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 100% 4px / 1px calc(100% - 8px) no-repeat,
     rgba(20,34,25,.72);
 }
+
+
+/* Topbar refinement: same split-corner language, less nested framing, clearer spacing. */
+#desktop-screen > .system-panel {
+  --topbar-rail: var(--pf-outline-low);
+  box-sizing: border-box;
+  height: 3.45rem;
+  padding: 0 clamp(.65rem, 1.45vw, 1.4rem);
+  gap: clamp(.45rem, .85vw, .8rem);
+  border: 0;
+  background:
+    linear-gradient(#253329,#253329) 0 0 / 100% 1px no-repeat,
+    linear-gradient(var(--pf-outline-low),var(--pf-outline-low)) 0 calc(100% - 1px) / 100% 1px no-repeat,
+    #131a15;
+  box-shadow: none;
+}
+#desktop-screen > .system-panel::after {
+  left: clamp(.65rem, 1.45vw, 1.4rem);
+  bottom: 0;
+  width: 2.6rem;
+  height: 2px;
+  background: var(--pf-outline-yellow);
+}
+#desktop-screen > .system-panel::before {
+  position: absolute;
+  right: calc(clamp(.65rem, 1.45vw, 1.4rem) + 4.65rem);
+  bottom: 0;
+  width: 1.45rem;
+  height: 2px;
+  background: var(--pf-outline-mint);
+  content: '';
+  pointer-events: none;
+}
+.system-panel .panel-left,
+.system-panel .panel-right {
+  align-items: center;
+  min-width: 0;
+}
+.system-panel .panel-left {
+  flex: 1 1 auto;
+  gap: clamp(.42rem, .75vw, .7rem);
+  overflow: visible;
+}
+.system-panel .panel-right {
+  flex: 0 0 auto;
+  gap: .48rem;
+}
+.system-panel .launcher-toggle {
+  width: 3.1rem;
+  min-width: 3.1rem;
+  min-height: 2.55rem;
+  padding: 0;
+  gap: .32rem;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+}
+.system-panel .launcher-toggle::before { display: none; }
+.system-panel .osbio-logo-frame {
+  width: 2.34rem;
+  height: 2.34rem;
+  padding: 3px;
+  box-shadow: 1px 1px 0 #070d09;
+}
+.system-panel .launcher-toggle:hover .osbio-logo-frame,
+.system-panel .launcher-toggle:focus-visible .osbio-logo-frame {
+  transform: translate(-1px,-1px);
+  box-shadow: 2px 2px 0 #070d09;
+}
+.system-panel .panel-chevron {
+  width: .32rem;
+  height: .32rem;
+  border-right: 1px solid #b6c99b;
+  border-bottom: 1px solid #b6c99b;
+  transform: rotate(45deg) translateY(-1px);
+}
+.system-panel .launcher-toggle.is-active .panel-chevron {
+  transform: rotate(225deg) translate(-1px,-1px);
+}
+.system-panel .panel-navigation {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: .22rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.system-panel .panel-nav-button,
+.system-panel .guide-toggle {
+  --nav-edge: #334638;
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.18rem;
+  min-width: 2.18rem;
+  height: 2.18rem;
+  min-height: 2.18rem;
+  padding: 0;
+  gap: 0;
+  border: 0;
+  background:
+    linear-gradient(var(--nav-edge),var(--nav-edge)) 4px 0 / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--nav-edge),var(--nav-edge)) 0 4px / 1px calc(100% - 8px) no-repeat,
+    linear-gradient(var(--nav-edge),var(--nav-edge)) 4px 100% / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--nav-edge),var(--nav-edge)) 100% 4px / 1px calc(100% - 8px) no-repeat,
+    transparent;
+  color: #98aa99;
+  transition: background-color 120ms linear, color 120ms linear;
+}
+.system-panel .panel-nav-button:hover,
+.system-panel .panel-nav-button:focus-visible {
+  --nav-edge: var(--pf-outline-mint);
+  background:
+    linear-gradient(var(--nav-edge),var(--nav-edge)) 4px 0 / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--nav-edge),var(--nav-edge)) 0 4px / 1px calc(100% - 8px) no-repeat,
+    linear-gradient(var(--nav-edge),var(--nav-edge)) 4px 100% / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(var(--nav-edge),var(--nav-edge)) 100% 4px / 1px calc(100% - 8px) no-repeat,
+    #1a271e;
+  color: #edf1e9;
+  box-shadow: none;
+}
+.system-panel .panel-nav-button:focus-visible {
+  outline: 2px solid var(--pf-outline-yellow);
+  outline-offset: 2px;
+}
+.system-panel .guide-toggle {
+  --nav-edge: #51502d;
+  color: var(--pf-outline-yellow);
+}
+.system-panel .guide-toggle:hover,
+.system-panel .guide-toggle:focus-visible {
+  --nav-edge: var(--pf-outline-yellow);
+  color: #fff4a3;
+}
+.system-panel .panel-nav-glyph {
+  flex: 0 0 11px;
+  width: 11px;
+  height: 11px;
+}
+.system-panel .panel-nav-glyph-windows {
+  border: 1px solid currentColor;
+  box-shadow: inset 3px 0 0 -2px currentColor, inset 0 3px 0 -2px currentColor;
+}
+.system-panel .panel-nav-glyph-guide { border: 1px solid currentColor; }
+.system-panel .panel-nav-glyph-guide::after {
+  top: 3px;
+  right: -3px;
+  width: 4px;
+  height: 1px;
+  background: var(--pf-outline-yellow);
+}
+.system-panel .local-status {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.84rem;
+  height: 1.84rem;
+  min-width: 1.84rem;
+  padding: 0;
+  border: 0;
+  background:
+    linear-gradient(#435a45,#435a45) 3px 0 / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(#435a45,#435a45) 0 3px / 1px calc(100% - 6px) no-repeat,
+    linear-gradient(#293d2e,#293d2e) 3px 100% / calc(100% - 6px) 1px no-repeat,
+    linear-gradient(#293d2e,#293d2e) 100% 3px / 1px calc(100% - 6px) no-repeat,
+    #111812;
+}
+.system-panel .status-square {
+  width: 7px;
+  height: 7px;
+  box-shadow: 1px 1px 0 #31503b;
+}
+.system-panel .panel-divider { display: none; }
+.system-panel .panel-clock {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: .2rem;
+  width: 5.05rem;
+  min-width: 5.05rem;
+  min-height: 2.36rem;
+  padding: .32rem .46rem;
+  border: 0;
+  background:
+    linear-gradient(#435a45,#435a45) 4px 0 / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(#435a45,#435a45) 0 4px / 1px calc(100% - 8px) no-repeat,
+    linear-gradient(#293d2e,#293d2e) 4px 100% / calc(100% - 8px) 1px no-repeat,
+    linear-gradient(#293d2e,#293d2e) 100% 4px / 1px calc(100% - 8px) no-repeat,
+    #111812;
+  line-height: 1;
+}
+.system-panel #system-clock {
+  color: #f0f2e9;
+  font: 500 .88rem/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .045em;
+}
+.system-panel #system-date {
+  color: #95a596;
+  font: 500 .48rem/1 var(--font-mono);
+  letter-spacing: .045em;
+}
+@media (max-width: 900px) {
+  #desktop-screen > .system-panel { padding-right: .65rem; padding-left: .65rem; }
+  .system-panel .panel-left { gap: .36rem; }
+  .system-panel .panel-right { gap: .32rem; }
+  .system-panel .panel-clock { width: 4.55rem; min-width: 4.55rem; padding-right: .36rem; padding-left: .36rem; }
+}
+@media (max-width: 680px) {
+  #desktop-screen > .system-panel { height: 3.2rem; padding-right: .38rem; padding-left: .38rem; gap: .18rem; }
+  .system-panel .panel-left { gap: .22rem; }
+  .system-panel .panel-right { gap: .18rem; }
+  .system-panel .launcher-toggle { width: 2.68rem; min-width: 2.68rem; min-height: 2.38rem; }
+  .system-panel .osbio-logo-frame { width: 2.05rem; height: 2.05rem; padding: 2px; }
+  .system-panel .panel-chevron { width: .27rem; height: .27rem; }
+  .system-panel .panel-navigation { gap: .1rem; }
+  .system-panel .panel-nav-button,
+  .system-panel .guide-toggle { width: 1.78rem; min-width: 1.78rem; height: 1.82rem; min-height: 1.82rem; }
+  .system-panel .panel-nav-glyph { flex-basis: 10px; width: 10px; height: 10px; }
+  .system-panel .local-status { display: none!important; }
+  .system-panel .panel-clock { width: 4.08rem; min-width: 4.08rem; min-height: 2.05rem; gap: .16rem; padding: .26rem .22rem; }
+  .system-panel #system-clock { font-size: .76rem; }
+  .system-panel #system-date { font-size: .42rem; letter-spacing: 0; }
+}
+@media (max-width: 420px) {
+  .system-panel #window-overview-toggle { display: none; }
+  .system-panel .panel-clock { width: 3.25rem; min-width: 3.25rem; padding-right: .15rem; padding-left: .15rem; }
+  .system-panel #system-date { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .system-panel .panel-nav-button,
+  .system-panel .guide-toggle,
+  .system-panel .osbio-logo-frame,
+  .system-panel .panel-chevron { transition: none; }
+}
