@@ -335,7 +335,16 @@
   }
 
   async function exportData() {
-    const entries = (await listAll()).filter((entry) => !entry.system);
+    const all = await listAll();
+    const userEntries = all.filter((entry) => !entry.system);
+    const userIds = new Set(userEntries.map((entry) => entry.id));
+    // Built-in folders are intentionally excluded from exports. Rebase direct
+    // user children of those folders to the exported root while preserving
+    // parent links between user-created folders/files.
+    const entries = userEntries.map((entry) => ({
+      ...entry,
+      parentId: userIds.has(entry.parentId) ? entry.parentId : 'root'
+    }));
     return JSON.stringify({ format: 'osbio-workspace-export-v1', exportedAt: new Date().toISOString(), entries }, null, 2);
   }
 

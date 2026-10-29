@@ -307,12 +307,40 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       if (note) await store.remove(note.id);
       if (nested) await store.remove(nested.id);
       if (root) await store.remove(root.id);
+      // A user folder nested inside a built-in Documents folder must export
+      // portably even though built-in/system folders are omitted from the file.
+      const portableParent = await store.createFolder('Portable Parent', 'folder-documents');
+      const portableChild = await store.saveFile({
+        name: 'Portable Child.md',
+        parentId: portableParent.id,
+        content: 'portable-export-marker'
+      });
+      const portableDocument = JSON.parse(await store.exportData());
+      const exportedParent = portableDocument.entries.find((entry) => entry.id === portableParent.id);
+      const exportedChild = portableDocument.entries.find((entry) => entry.id === portableChild.id);
+      const exportParentNormalized = Boolean(exportedParent && exportedParent.parentId === 'root' &&
+        exportedChild && exportedChild.parentId === portableParent.id);
+      await store.importData(JSON.stringify(portableDocument));
+      const afterPortableImport = await store.listAll();
+      const importedChild = afterPortableImport.find((entry) =>
+        entry.content === 'portable-export-marker' && entry.id !== portableChild.id);
+      const importedParent = importedChild && afterPortableImport.find((entry) => entry.id === importedChild.parentId);
+      const portableHierarchyValid = Boolean(importedChild && importedParent &&
+        importedParent.id !== portableParent.id && importedParent.parentId === 'root');
+
+      if (importedChild) await store.remove(importedChild.id);
+      if (importedParent) await store.remove(importedParent.id);
+      await store.remove(portableChild.id);
+      await store.remove(portableParent.id);
+
       return {
         rejected,
         baselineCount: baseline.length,
         afterInvalidCount: afterInvalid.length,
         validImportCount: validResult.imported,
-        hierarchyValid
+        hierarchyValid,
+        exportParentNormalized,
+        portableHierarchyValid
       };
     });
     assert.deepEqual(importValidation.rejected, [true, true, true, true, true],
@@ -321,6 +349,8 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       'invalid imports must not partially mutate storage');
     assert.equal(importValidation.validImportCount, 3);
     assert.equal(importValidation.hierarchyValid, true, 'valid nested folder relationships should survive ID remapping');
+    assert.equal(importValidation.exportParentNormalized, true, 'export should rebase children of excluded built-in folders to its root');
+    assert.equal(importValidation.portableHierarchyValid, true, 'export/import should preserve the user-created folder hierarchy');
 
     // Settings apply immediately and survive a reload.
     await page.locator('#launcher-toggle').click();

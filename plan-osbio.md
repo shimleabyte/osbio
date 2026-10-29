@@ -520,3 +520,9 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Validate import IDs, names, text payload sizes, parent existence, parent type, self-parenting and cycles before any write.
 - [x] Add browser checks for close/reopen/reload geometry, empty-desktop reload, malformed layout recovery, malformed import rejection, and a valid nested import.
 - [ ] Run the complete CI suite for this commit. Stage 2 release gate remains open until it passes.
+
+### Stage 2 — portable export edge case (2026-10-29)
+
+- [x] Rebase a user's direct child of an excluded built-in folder to the export root; preserve references between user-created folders and files.
+- [x] Add a browser round-trip check that exports a nested user folder from built-in Documents, imports it, verifies its hierarchy and cleans up the test entries.
+- [ ] Re-run the full validation and deployment workflow after this edge-case fix.
