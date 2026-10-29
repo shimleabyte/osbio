@@ -257,3 +257,16 @@ test('system navigation and taskbar have a grouped, responsive shell treatment',
   assert.match(css, /@media \(max-width: 680px\)[\s\S]*\.panel-context \{ display: none; \}/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.taskbar-btn:hover/);
 });
+
+
+test('shell presentation uses a floating taskbar dock and responsive chrome', () => {
+  assert.match(css, /#desktop-screen > \.taskbar\s*\{[\s\S]*pointer-events: none/);
+  assert.match(css, /\.taskbar-apps\s*\{[\s\S]*left: 50%[\s\S]*transform: translateX\(-50%\)/);
+  assert.match(css, /\.taskbar-apps[\s\S]*background: #111813/);
+  assert.match(css, /\.taskbar-system\s*\{[\s\S]*pointer-events: auto/);
+  assert.match(css, /\.app-search-wrap:focus-within/);
+  assert.match(css, /\.launcher-tier \.launcher-item:hover/);
+  assert.match(css, /\.system-panel::after/);
+  assert.match(css, /@media \(max-width: 680px\)[\s\S]*\.panel-context \{ display: none; \}/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.taskbar-btn:hover/);
+});
