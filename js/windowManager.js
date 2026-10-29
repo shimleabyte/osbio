@@ -225,7 +225,6 @@ const WindowManager = (() => {
             <div class="terminal-input-line">
               <span class="terminal-prompt">$</span>
               <input type="text" class="terminal-input" autofocus>
-              <span class="terminal-cursor">█</span>
             </div>
           </div>
         `
@@ -251,8 +250,9 @@ const WindowManager = (() => {
       return;
     }
 
-    // Initialize taskbar buttons
+    // Initialize taskbar buttons and their closed/idle state.
     initTaskbarButtons();
+    updateTaskbarState();
 
     document.addEventListener('keydown', (e) => {
       if (e.altKey && e.key === 'F4' && activeWindowId) {
@@ -523,7 +523,6 @@ const WindowManager = (() => {
     if (appName === 'terminal') {
       const terminalOutput = windowElement.querySelector('.terminal-output');
       const terminalInput = windowElement.querySelector('.terminal-input');
-      const terminalCursor = windowElement.querySelector('.terminal-cursor');
       
       // Command history and navigation
       let commandHistory = [];
@@ -716,37 +715,7 @@ const WindowManager = (() => {
         currentCommand = terminalInput.value;
       });
       
-      // Handle cursor position for the fake cursor
-      terminalInput.addEventListener('click', (e) => {
-        updateCursorPosition();
-      });
-      
-      terminalInput.addEventListener('keyup', (e) => {
-        updateCursorPosition();
-      });
-      
-      // Update cursor position based on input width
-      const updateCursorPosition = () => {
-        const input = terminalInput;
-        const text = input.value.substring(0, input.selectionStart);
-        const tempSpan = document.createElement('span');
-        tempSpan.textContent = text;
-        tempSpan.style.visibility = 'hidden';
-        tempSpan.style.position = 'absolute';
-        tempSpan.style.font = getComputedStyle(input).font;
-        tempSpan.style.whiteSpace = 'pre';
-        document.body.appendChild(tempSpan);
-        const width = tempSpan.offsetWidth;
-        document.body.removeChild(tempSpan);
-        
-        // Position the cursor
-        const promptWidth = 10; // Width of the "$" prompt
-        terminalCursor.style.transform = `translateX(${promptWidth + width}px)`;
-      };
-      
-      // Initial cursor position
-      updateCursorPosition();
-      
+      // The browser's native caret is used; the input remains keyboard-accessible.
       // Focus the input when clicking anywhere in the terminal
       windowElement.addEventListener('click', (e) => {
         if (e.target === windowElement || e.target === terminalOutput) {

@@ -1040,21 +1040,9 @@ body {
   outline: none;
   padding: 0;
   margin: 0;
-  caret-color: transparent;
+  caret-color: var(--color-text);
 }
 
-.terminal-cursor {
-  position: absolute;
-  left: 0;
-  color: var(--color-text);
-  animation: blink 1s step-end infinite;
-  opacity: 1;
-}
-
-.terminal-input:focus + .terminal-cursor {
-  animation: none;
-  opacity: 0;
-}
 
 
 /* Scrollbar for terminal */
