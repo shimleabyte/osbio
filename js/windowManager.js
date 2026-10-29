@@ -169,6 +169,29 @@ const WindowManager = (() => {
           <div class="editor-app"><div class="editor-toolbar"><label for="editor-name">Document</label><input id="editor-name" type="text" maxlength="120" value="untitled.md" autocomplete="off"><span id="editor-dirty-state" class="editor-dirty-state">NEW DOCUMENT</span><button id="editor-save" type="button">Save</button><button id="editor-save-copy" type="button">Save copy</button></div><textarea id="editor-content" spellcheck="false" aria-label="Document contents" placeholder="Start writing…"></textarea><footer class="editor-status"><span id="editor-status-text" role="status" aria-live="polite">New document · not saved</span><span id="editor-character-count">0 chars</span></footer></div>
         `
       },
+      settings: {
+        title: 'Settings', width: '620px', height: '540px',
+        content: `
+          <div class="settings-app">
+            <header class="settings-heading"><p class="settings-kicker">OSBIO / LOCAL WORKSPACE</p><h2>Settings</h2><p>Changes apply to this browser workspace and are stored locally when browser storage allows.</p></header>
+            <section class="settings-section"><h3>Appearance</h3><label>Wallpaper <select id="setting-wallpaper"><option value="flow">Pixel-Flow</option><option value="grid">Grid only</option><option value="plain">Plain field</option></select></label><label>Accent signal <select id="setting-accent"><option value="yellow">Signal yellow</option><option value="green">Flow green</option></select></label><label>Motion <select id="setting-motion"><option value="system">Follow system</option><option value="reduced">Reduced motion</option></select></label><label class="settings-check"><input id="setting-desktop-icons" type="checkbox" checked> Show desktop shortcuts</label></section>
+            <section class="settings-section"><h3>Workspace data</h3><p>Files are local to this browser. Export user files from Files before clearing them.</p><div class="settings-actions"><button id="settings-reset" type="button">Reset preferences</button><button id="settings-clear-data" type="button" class="settings-danger">Clear user files</button></div></section>
+            <p id="settings-status" class="settings-status" role="status" aria-live="polite">Loading preferences…</p>
+          </div>
+        `
+      },
+      system: {
+        title: 'System Monitor', width: '680px', height: '570px',
+        content: `
+          <div class="system-monitor-app">
+            <header class="monitor-heading"><p class="monitor-kicker">OSBIO / SESSION</p><h2>System Monitor</h2><p>Actual browser-workspace state. Host CPU, memory and device telemetry are not available here.</p></header>
+            <div class="monitor-metrics"><section><span>ACTIVE APP</span><strong id="monitor-active-app">Desktop</strong></section><section><span>OPEN WINDOWS</span><strong id="monitor-window-count">0</strong></section><section><span>VIRTUAL FILES</span><strong id="monitor-file-count">—</strong></section><section><span>VIRTUAL FOLDERS</span><strong id="monitor-folder-count">—</strong></section><section><span>TEXT CHARACTERS</span><strong id="monitor-character-count">—</strong></section><section><span>STORAGE MODE</span><strong id="monitor-storage-mode">—</strong></section></div>
+            <div class="monitor-log-head"><h3>Recent events</h3><button id="monitor-clear-events" type="button">Clear history</button></div>
+            <ol id="monitor-events" class="monitor-events" aria-label="Recent OSBio events"></ol>
+            <p id="monitor-status" class="monitor-status" role="status" aria-live="polite">Reading workspace state…</p>
+          </div>
+        `
+      },
       contact: {
         title: 'Contact',
         width: '400px',
@@ -1196,6 +1219,19 @@ const WindowManager = (() => {
       }
     },
     closeWindow,
+    getSnapshot: () => ({
+      activeWindowId,
+      windows: openWindows.map((item) => ({
+        id: item.id,
+        appName: item.appName,
+        title: CONFIG.windowTemplates[item.appName].title,
+        active: item.id === activeWindowId,
+        minimized: item.minimized,
+        maximized: item.maximized,
+        snapped: item.snapped || null,
+        zIndex: item.zIndex
+      }))
+    }),
     closeAllWindows: () => {
       // Create a copy of the array to avoid modification during iteration
       const windowsToClose = [...openWindows];

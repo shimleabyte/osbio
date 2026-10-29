@@ -392,3 +392,12 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 - [x] Add a cancellable before-close lifecycle event so dirty Editor documents can prevent accidental closure.
 - [x] Connect Files to Editor through a shared file-opening event and dispose of app event listeners on close.
 - [ ] Verify interactions, real IndexedDB persistence, import edge cases and unsaved-close confirmation in a real browser.
+
+
+### Stage 4 — Settings and honest system information (first implementation pass)
+- [x] Add settings for wallpaper variant, accent signal, motion preference and desktop shortcut visibility.
+- [x] Persist preferences locally, apply them across the shell, and expose a storage-degraded event if persistence fails.
+- [x] Add System Monitor values from the active-window snapshot and actual virtual filesystem statistics.
+- [x] Show real event history without claiming access to host CPU, RAM, battery, network or process information.
+- [x] Add separate preference-reset and user-file-clear actions.
+- [ ] Browser-test preference reload, storage failure, event stream ordering and narrow-screen layout.

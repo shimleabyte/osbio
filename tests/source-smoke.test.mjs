@@ -12,12 +12,14 @@ const windows = read('js/windowManager.js');
 const css = read('css/main.css');
 const core = read('js/osbioCore.js');
 const workspaceApps = read('js/workspaceApps.js');
+const settingsModule = read('js/osbioSettings.js');
 
 test('shell JavaScript parses without syntax errors', () => {
   assert.doesNotThrow(() => new Function(main));
   assert.doesNotThrow(() => new Function(windows));
   assert.doesNotThrow(() => new Function(core));
   assert.doesNotThrow(() => new Function(workspaceApps));
+  assert.doesNotThrow(() => new Function(settingsModule));
 });
 
 test('desktop landmarks and launcher controls exist exactly once', () => {
@@ -91,4 +93,15 @@ test('Files and Editor have real templates and shared storage integration', () =
   assert.match(workspaceApps, /osbio:before-close/);
   assert.match(html, /data-app="files"/);
   assert.match(html, /data-app="editor"/);
+});
+
+
+test('Settings and System Monitor use real local preference and session APIs', () => {
+  assert.match(windows, /settings: \{/);
+  assert.match(windows, /system: \{/);
+  assert.match(windows, /getSnapshot/);
+  assert.match(workspaceApps, /OSBioSettings\.update/);
+  assert.match(workspaceApps, /OSBioStorage\.clearUserData/);
+  assert.match(workspaceApps, /OSBioEvents\.recent/);
+  assert.match(settingsModule, /localStorage/);
 });

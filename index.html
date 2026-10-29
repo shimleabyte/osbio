@@ -51,11 +51,13 @@
     </main>
 
     <aside id="app-launcher" class="app-launcher" aria-label="Application launcher" hidden>
-      <div class="launcher-heading"><div><span class="launcher-overline">OSBIO / SHELL</span><h2>Applications</h2></div><span class="launcher-count">08 APPS</span></div>
+      <div class="launcher-heading"><div><span class="launcher-overline">OSBIO / SHELL</span><h2>Applications</h2></div><span class="launcher-count">10 APPS</span></div>
       <label class="app-search-wrap" for="app-search"><span class="search-mark" aria-hidden="true">/</span><input id="app-search" type="search" placeholder="Find an application..." autocomplete="off" spellcheck="false"><kbd>CTRL K</kbd></label>
       <div id="launcher-grid" class="launcher-grid">
         <button class="launcher-item" type="button" data-app="files" data-search="files folder filesystem documents"><span class="app-icon app-icon-files" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Files</strong><small>LOCAL / DOCUMENTS</small></span><span class="launcher-item-index">07</span></button>
         <button class="launcher-item" type="button" data-app="editor" data-search="editor text notes markdown"><span class="app-icon app-icon-editor" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Editor</strong><small>TEXT / NOTES</small></span><span class="launcher-item-index">08</span></button>
+        <button class="launcher-item" type="button" data-app="settings" data-search="settings preferences wallpaper appearance motion"><span class="app-icon app-icon-settings" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Settings</strong><small>APPEARANCE / WORKSPACE</small></span><span class="launcher-item-index">09</span></button>
+        <button class="launcher-item" type="button" data-app="system" data-search="system monitor diagnostics events storage"><span class="app-icon app-icon-system" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>System Monitor</strong><small>SESSION / EVENT LOG</small></span><span class="launcher-item-index">10</span></button>
         <button class="launcher-item" type="button" data-app="about" data-search="about profile bio information"><span class="app-icon app-icon-about" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Profile</strong><small>IDENTITY / STACK</small></span><span class="launcher-item-index">01</span></button>
         <button class="launcher-item" type="button" data-app="projects" data-search="projects repositories github work"><span class="app-icon app-icon-projects" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Projects</strong><small>REPOSITORIES / WORK</small></span><span class="launcher-item-index">02</span></button>
         <button class="launcher-item" type="button" data-app="terminal" data-search="terminal command line cli"><span class="app-icon app-icon-terminal" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-item-copy"><strong>Terminal</strong><small>COMMANDS / LINKS</small></span><span class="launcher-item-index">03</span></button>
@@ -80,6 +82,7 @@
     </nav>
   </div>
   <script src="js/osbioCore.js"></script>
+  <script src="js/osbioSettings.js"></script>
   <script src="js/windowManager.js"></script>
   <script src="js/workspaceApps.js"></script>
   <script src="js/main.js"></script>

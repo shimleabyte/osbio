@@ -149,5 +149,86 @@
     if(pending)load(pending);else{ name.value=savedName;body.value='';status(statusNode,'New document · not saved');update(); }
   }
 
-  global.OSBioWorkspaceApps={mount(win,name){if(name==='files')mountFiles(win);if(name==='editor')mountEditor(win);}};
+
+  function mountSettings(win) {
+    const settings=global.OSBioSettings;
+    const wallpaper=win.querySelector('#setting-wallpaper'),accent=win.querySelector('#setting-accent');
+    const motion=win.querySelector('#setting-motion'),icons=win.querySelector('#setting-desktop-icons');
+    const statusNode=win.querySelector('#settings-status');
+    function sync(){const value=settings.get();wallpaper.value=value.wallpaper;accent.value=value.accent;motion.value=value.motion;icons.checked=value.desktopIcons;}
+    function message(text,error=false){status(statusNode,text,error);}
+    function change(){try{const result=settings.update({wallpaper:wallpaper.value,accent:accent.value,motion:motion.value,desktopIcons:icons.checked});message(result.persistent?'Preferences saved.':'Preferences applied for this session; browser storage is unavailable.',!result.persistent);}catch(e){message(e.message||'Could not update preferences.',true);}}
+    [wallpaper,accent,motion].forEach((control)=>control.addEventListener('change',change));
+    icons.addEventListener('change',change);
+    win.querySelector('#settings-reset').addEventListener('click',()=>{settings.reset();sync();message('Preferences reset to defaults.');});
+    win.querySelector('#settings-clear-data').addEventListener('click',async()=>{
+      if(!global.confirm('Delete all user-created workspace files and folders? Built-in documents will remain. Export first if you need a backup.'))return;
+      try{const result=await global.OSBioStorage.clearUserData();message('User files and folders cleared.');emit('settings.user-data-cleared',result);}
+      catch(e){message(e.message||'Could not clear workspace data.',true);}
+    });
+    const onEvent=(e)=>{if(e.detail&&e.detail.type==='settings.changed')sync();};
+    global.addEventListener('osbio:event',onEvent);
+    win.addEventListener('osbio:dispose',()=>global.removeEventListener('osbio:event',onEvent),{once:true});
+    sync();
+    message('Preferences loaded · '+(global.OSBioSettings.get().motion==='system'?'system motion preference':'custom motion preference')+'.');
+  }
+
+  function mountSystemMonitor(win) {
+    const activeNode=win.querySelector('#monitor-active-app'),windowCount=win.querySelector('#monitor-window-count');
+    const files=win.querySelector('#monitor-file-count'),folders=win.querySelector('#monitor-folder-count');
+    const chars=win.querySelector('#monitor-character-count'),mode=win.querySelector('#monitor-storage-mode');
+    const log=win.querySelector('#monitor-events'),statusNode=win.querySelector('#monitor-status');
+    let lastRender=Promise.resolve();
+    function renderEvents(){
+      log.replaceChildren();
+      const events=global.OSBioEvents.recent(35);
+      if(!events.length){const li=document.createElement('li');li.className='monitor-no-events';li.textContent='No events recorded in this tab yet.';log.appendChild(li);return;}
+      events.forEach((event)=>{
+        const li=document.createElement('li');
+        const time=document.createElement('time');
+        const date=new Date(event.timestamp);
+        time.textContent=Number.isNaN(date.getTime())?'--:--:--':date.toLocaleTimeString('en-GB');
+        const type=document.createElement('strong');type.textContent=event.type;
+        const detail=document.createElement('span');
+        const fragments=[];
+        if(event.app)fragments.push(event.app);
+        if(event.name)fragments.push(event.name);
+        if(event.side)fragments.push(event.side);
+        if(event.count!=null)fragments.push(String(event.count)+' item(s)');
+        if(event.windowCount!=null)fragments.push(String(event.windowCount)+' windows');
+        detail.textContent=fragments.join(' · ');
+        li.append(time,type,detail);log.appendChild(li);
+      });
+    }
+    async function refresh(){
+      const snapshot=global.WindowManager&&global.WindowManager.getSnapshot?global.WindowManager.getSnapshot():{windows:[],activeWindowId:null};
+      const active=snapshot.windows.find((item)=>item.id===snapshot.activeWindowId);
+      activeNode.textContent=active?active.title:'Desktop';
+      windowCount.textContent=String(snapshot.windows.filter((item)=>!item.minimized).length)+' / '+snapshot.windows.length;
+      try{
+        const data=await global.OSBioStorage.stats();
+        files.textContent=String(data.files);folders.textContent=String(data.folders);chars.textContent=Number(data.contentCharacters).toLocaleString('en-US');mode.textContent=data.mode.toUpperCase();
+        status(statusNode,'Workspace state updated · '+new Date().toLocaleTimeString('en-GB'));
+      }catch(e){mode.textContent='ERROR';status(statusNode,e.message||'Could not read storage status.',true);}
+      renderEvents();
+    }
+    function onEvent(event){
+      renderEvents();
+      const type=event.detail&&event.detail.type||'';
+      if(/^(window\\.|file\\.|folder\\.|storage\\.|settings\\.)/.test(type)){
+        lastRender=lastRender.then(()=>refresh()).catch(()=>undefined);
+      }
+    }
+    global.addEventListener('osbio:event',onEvent);
+    win.addEventListener('osbio:dispose',()=>global.removeEventListener('osbio:event',onEvent),{once:true});
+    win.querySelector('#monitor-clear-events').addEventListener('click',()=>{global.OSBioEvents.clearHistory();renderEvents();status(statusNode,'Event history cleared for this tab.');});
+    refresh();
+  }
+
+  global.OSBioWorkspaceApps={mount(win,name){
+    if(name==='files')mountFiles(win);
+    if(name==='editor')mountEditor(win);
+    if(name==='settings')mountSettings(win);
+    if(name==='system')mountSystemMonitor(win);
+  }};
 })(window);
