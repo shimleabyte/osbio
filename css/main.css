@@ -3067,3 +3067,12 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
 :root[data-theme="field-archive"] #desktop-screen .settings-wallpaper-preview span{border-left-color:#ba4e34;background:#24251d;color:#e5dcc1;}
 :root[data-theme="field-archive"] .settings-wallpaper-preview[data-wallpaper="archive"]{background:#24251d;}
 :root[data-theme="field-archive"] .settings-wallpaper-preview[data-wallpaper="archive"] img{display:block;object-position:center;}
+
+/* Keep the archive palette on the dock despite the shell's ID-scoped layout rules. */
+:root[data-theme="field-archive"] #desktop-screen>.taskbar{background:transparent;border:0;color:#e5dcc1;}
+:root[data-theme="field-archive"] #desktop-screen>.taskbar .taskbar-apps{border:1px solid #4a4b36;background:#24251c;box-shadow:3px 3px 0 #14150f;}
+:root[data-theme="field-archive"] #desktop-screen>.taskbar .taskbar-btn{border-radius:0;color:#d7cda9;}
+:root[data-theme="field-archive"] #desktop-screen>.taskbar .taskbar-btn:hover,
+:root[data-theme="field-archive"] #desktop-screen>.taskbar .taskbar-btn.open{border-color:#6d6d4c;background:#303025;box-shadow:none;}
+:root[data-theme="field-archive"] #desktop-screen>.taskbar .taskbar-btn.active{border-color:#ba4e34;background:#303025;box-shadow:inset 0 -2px #ba4e34;}
+:root[data-theme="field-archive"] #desktop-screen>.taskbar .taskbar-btn.active::after{background:#ba4e34;}
