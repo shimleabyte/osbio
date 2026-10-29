@@ -45,6 +45,9 @@ test('window lifecycle safeguards remain present', () => {
   assert.match(windows, /function maximizeWindow\(/);
   assert.match(windows, /function closeWindow\(/);
   assert.match(windows, /addEventListener\('resize', scheduleConstrainWindows\)/);
+  assert.match(windows, /addEventListener\('pointercancel', stopDrag\)/);
+  assert.match(windows, /e\.target\.closest\('\.window-title-group'\)/);
+  assert.match(windows, /setAttribute\('aria-modal', 'false'\)/);
   assert.match(windows, /ResizeObserver/);
   assert.match(windows, /function scheduleConstrainWindows\(/);
   assert.match(windows, /function snapWindow\(windowId, side, restoreBounds = null\)/);

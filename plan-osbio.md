@@ -489,3 +489,12 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Add a Chromium regression assertion that snap → maximize → restore leaves the window outside the desktop-shortcut lane.
 - [x] Keep the desktop taskbar tooltip visible at normal widths; constrain horizontal scrolling to narrow workspace widths.
 - [ ] Re-run Chromium to verify the restore bounds, overview hit targets, taskbar toggling and remaining smoke scenarios.
+
+### Stage 1 — extended lifecycle regression coverage (2026-10-29)
+
+- [x] Add a browser assertion that at most one app window is active after launch, app switching, and overview dismissal.
+- [x] Exercise the keyboard window overview shortcut and Escape focus restoration.
+- [x] Assert a drag beginning on a titlebar control does not snap or maximize the window.
+- [x] Exercise Memory Match mismatch → restart and close → reopen sequences to detect stale timers.
+- [x] Exercise mobile Files ↔ Memory Match switching, active-window close recovery, and empty-desktop return.
+- [ ] Rerun Chromium and review the entire lifecycle sequence before closing Stage 1.
