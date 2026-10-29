@@ -767,7 +767,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     }));
     assert.equal(afterLayoutReset.userFile, true, 'reset layout must not remove user files');
     assert.deepEqual(afterLayoutReset.preferences, {
-      wallpaper: 'flow', accent: 'yellow', motion: 'system', desktopIcons: true
+      theme: 'pixel-flow', wallpaper: 'flow', accent: 'yellow', motion: 'system', desktopIcons: true
     }, 'reset layout must not change preferences');
     assert.equal(afterLayoutReset.savedLayout, null);
 
