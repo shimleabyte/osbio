@@ -59,3 +59,13 @@ js/windowManager.js app templates, window state, focus, drag and resize
 ## License
 
 See [LICENSE](LICENSE).
+
+## Checks
+
+Run the dependency-free source and shell-contract tests with Node.js 18 or newer:
+
+```sh
+node --test tests/source-smoke.test.mjs
+```
+
+These checks cover syntax and important source-level contracts. They do not replace browser testing for pointer, focus, layout, persistence, or responsive behavior.
