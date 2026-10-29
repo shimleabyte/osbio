@@ -251,7 +251,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       const item = all.find((entry) => entry.name === 'browser-smoke-renamed.md');
       return item && item.parentId === 'folder-documents';
     });
-    await filesWindow.locator('[data-files-parent="folder-documents"]').click();
+    await filesWindow.locator('.file-row').filter({ hasText: 'Documents' }).dblclick();
     const movedFileRow = filesWindow.locator('.file-row').filter({ hasText: 'browser-smoke-renamed.md' });
     await movedFileRow.waitFor({ state: 'visible' });
     await movedFileRow.click();
