@@ -2949,3 +2949,121 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
   #desktop-screen .desktop-wallpaper .wallpaper-art { object-position:60% center; }
   .settings-wallpaper-preview { height:5.5rem; }
 }
+
+
+/* FIELD ARCHIVE — an alternate register: paper, olive ink and oxidation-red marks. */
+:root[data-theme="field-archive"]{
+ --color-bg:#24251d;--color-window-bg:#e5dcc1;--color-window-header:#d3c5a1;--color-window-header-bg:#d7c9a8;--color-window-border:#8d8263;--color-window-shadow:rgba(12,13,9,.36);
+ --color-text:#29281e;--color-text-muted:#68624b;--color-shell-text:#e5dcc1;--color-shell-muted:#a8a181;--color-accent:#ba4e34;--color-accent-rgb:186,78,52;--color-accent-dark:#833723;--color-flow:#b8b18a;--color-success:#747b4e;--color-warning:#ba4e34;--color-danger:#963927;--color-button-hover:rgba(186,78,52,.08);--color-button-active:rgba(186,78,52,.15);--color-scrollbar:rgba(41,40,30,.22);--color-scrollbar-hover:rgba(41,40,30,.38);
+ --pf-outline-dark:#171811;--pf-outline-low:#454735;--pf-outline-mid:#797958;--pf-outline-high:#aaa17b;--pf-outline-yellow:#d7c79e;--pf-outline-mint:#ba4e34;
+}
+:root[data-theme="field-archive"][data-accent="green"]{--color-accent:#838a62;--color-accent-rgb:131,138,98;--color-accent-dark:#5d6342;--color-flow:#ba4e34;--pf-outline-yellow:#a6ac80;--pf-outline-mint:#ba4e34;}
+:root[data-theme="field-archive"] #desktop-screen{color:#e5dcc1;background:#24251d;}
+#desktop-screen .desktop-wallpaper[data-wallpaper="archive"] .wallpaper-grid,
+#desktop-screen .desktop-wallpaper[data-wallpaper="archive"] .wallpaper-block{display:none;}
+#desktop-screen .desktop-wallpaper[data-wallpaper="archive"] .wallpaper-art{display:block;}
+
+:root[data-theme="field-archive"] #desktop-screen>.system-panel{color:#e5dcc1;border:0;background:#1b1d16;box-shadow:none;}
+:root[data-theme="field-archive"] #desktop-screen>.system-panel::after{left:clamp(.65rem,1.45vw,1.4rem);width:3.25rem;background:#ba4e34;}
+:root[data-theme="field-archive"] #desktop-screen>.system-panel::before{right:calc(clamp(.65rem,1.45vw,1.4rem) + 4.65rem);width:1.1rem;background:#b9ad86;}
+:root[data-theme="field-archive"] .launcher-toggle,
+:root[data-theme="field-archive"] .panel-navigation,
+:root[data-theme="field-archive"] .local-status{border:1px solid #4a4b36;background:#24251c;color:#e5dcc1;}
+:root[data-theme="field-archive"] .launcher-toggle:hover,
+:root[data-theme="field-archive"] .launcher-toggle.is-active,
+:root[data-theme="field-archive"] .panel-nav-button:hover,
+:root[data-theme="field-archive"] .panel-nav-button:focus-visible{border-color:#ba4e34;background:#303025;}
+:root[data-theme="field-archive"] .launcher-toggle:hover::before,
+:root[data-theme="field-archive"] .launcher-toggle.is-active::before{background:#ba4e34;}
+:root[data-theme="field-archive"] .launcher-wordmark,
+:root[data-theme="field-archive"] .system-panel #system-clock{color:#e5dcc1;}
+:root[data-theme="field-archive"] .launcher-brand-note,
+:root[data-theme="field-archive"] .system-panel #system-date,
+:root[data-theme="field-archive"] .local-status{color:#a8a181;}
+:root[data-theme="field-archive"] .pixel-mark i{background:#ba4e34;}
+:root[data-theme="field-archive"] .pixel-mark i:nth-child(2),
+:root[data-theme="field-archive"] .pixel-mark i:nth-child(3){background:#d7c79e;}
+
+:root[data-theme="field-archive"] .taskbar{border-top:1px solid #4a4b36;background:#1b1d16;color:#d7cda9;}
+:root[data-theme="field-archive"] .taskbar-apps{border:1px solid #4a4b36;background:#24251c;box-shadow:3px 3px 0 #14150f;}
+:root[data-theme="field-archive"] .taskbar-btn{border:1px solid transparent;background:transparent;}
+:root[data-theme="field-archive"] .taskbar-btn:hover,
+:root[data-theme="field-archive"] .taskbar-btn.open{border-color:#6d6d4c;background:#303025;box-shadow:none;}
+:root[data-theme="field-archive"] .taskbar-btn.active{border-color:#ba4e34;background:#303025;box-shadow:inset 0 -2px #ba4e34;}
+:root[data-theme="field-archive"] .taskbar-btn.active::after{background:#ba4e34;}
+:root[data-theme="field-archive"] .app-launcher{border:1px solid #6d6a4c;background:#202118;box-shadow:6px 6px 0 rgba(0,0,0,.34);}
+:root[data-theme="field-archive"] .app-launcher .launcher-item{--tile-edge:#555640;--tile-surface:#292a20;border:1px solid #4c4d38;background:#292a20;box-shadow:none;}
+:root[data-theme="field-archive"] .app-launcher .launcher-item:hover,
+:root[data-theme="field-archive"] .app-launcher .launcher-item:focus-visible{--tile-edge:#ba4e34;--tile-surface:#39382a;border-color:#ba4e34;background:#39382a;box-shadow:none;}
+:root[data-theme="field-archive"] .app-icon{--icon-edge:#a8a181;border:1px solid #626447;outline:0;background:#2b2d22;box-shadow:none;}
+:root[data-theme="field-archive"] .app-icon-projects,
+:root[data-theme="field-archive"] .app-icon-resume,
+:root[data-theme="field-archive"] .app-icon-flow{--icon-edge:#ba4e34;}
+:root[data-theme="field-archive"] .app-icon-about,
+:root[data-theme="field-archive"] .app-icon-settings{--icon-edge:#c7bd94;}
+:root[data-theme="field-archive"] .app-icon-files,
+:root[data-theme="field-archive"] .app-icon-memory{--icon-edge:#989a6c;}
+
+:root[data-theme="field-archive"] #desktop-screen .window{border:1px solid #8d8263;border-radius:0;box-shadow:3px 3px 0 rgba(15,15,10,.3);}
+:root[data-theme="field-archive"] #desktop-screen .window.active{border-color:#ba4e34;box-shadow:3px 3px 0 rgba(15,15,10,.3);}
+:root[data-theme="field-archive"] #desktop-screen .window-header{border-bottom:1px solid #8d8263;background:#d3c5a1;color:#29281e;}
+:root[data-theme="field-archive"] #desktop-screen .window-control{border:1px solid #9c906e;border-radius:0;background:#e5dcc1;color:#29281e;}
+:root[data-theme="field-archive"] #desktop-screen .window-control:hover{border-color:#ba4e34;background:#d9cbb0;color:#29281e;}
+:root[data-theme="field-archive"] #desktop-screen .window-close:hover{border-color:#ba4e34;background:#ba4e34;color:#f4ead0;}
+:root[data-theme="field-archive"] #desktop-screen .window-app-marker{background:#ba4e34;box-shadow:2px 2px 0 #8c8a64;}
+:root[data-theme="field-archive"] #desktop-screen .window-content,
+:root[data-theme="field-archive"] #desktop-screen .about-app,
+:root[data-theme="field-archive"] #desktop-screen .contact-app,
+:root[data-theme="field-archive"] #desktop-screen .resume-app,
+:root[data-theme="field-archive"] #desktop-screen .memory-app,
+:root[data-theme="field-archive"] #desktop-screen .terminal-app,
+:root[data-theme="field-archive"] #desktop-screen .settings-app,
+:root[data-theme="field-archive"] #desktop-screen .system-monitor-app,
+:root[data-theme="field-archive"] #desktop-screen .files-app,
+:root[data-theme="field-archive"] #desktop-screen .editor-app,
+:root[data-theme="field-archive"] #desktop-screen .flow-monitor-app,
+:root[data-theme="field-archive"] #desktop-screen .projects-app{border-radius:0;background:#e5dcc1;color:#29281e;}
+
+:root[data-theme="field-archive"] #desktop-screen .settings-section,
+:root[data-theme="field-archive"] #desktop-screen .files-toolbar,
+:root[data-theme="field-archive"] #desktop-screen .editor-toolbar,
+:root[data-theme="field-archive"] #desktop-screen .files-list-head,
+:root[data-theme="field-archive"] #desktop-screen .files-status,
+:root[data-theme="field-archive"] #desktop-screen .editor-status,
+:root[data-theme="field-archive"] #desktop-screen .flow-toolbar,
+:root[data-theme="field-archive"] #desktop-screen .flow-stream-section,
+:root[data-theme="field-archive"] #desktop-screen .flow-inspector,
+:root[data-theme="field-archive"] #desktop-screen .project-detail,
+:root[data-theme="field-archive"] #desktop-screen .project-card{border-color:#b8ab88;border-radius:0;background:#ddd2b5;color:#29281e;}
+:root[data-theme="field-archive"] #desktop-screen .project-card.active{border-color:#ba4e34;border-left-color:#ba4e34;background:#d6c8a7;}
+:root[data-theme="field-archive"] #desktop-screen .settings-heading p,
+:root[data-theme="field-archive"] #desktop-screen .settings-section>p,
+:root[data-theme="field-archive"] #desktop-screen .projects-count,
+:root[data-theme="field-archive"] #desktop-screen .projects-kicker{color:#68624b;}
+:root[data-theme="field-archive"] #desktop-screen .project-title,
+:root[data-theme="field-archive"] #desktop-screen .project-desc,
+:root[data-theme="field-archive"] #desktop-screen .projects-heading h2,
+:root[data-theme="field-archive"] #desktop-screen .section-title,
+:root[data-theme="field-archive"] #desktop-screen .about-name{color:#29281e;}
+:root[data-theme="field-archive"] #desktop-screen input,
+:root[data-theme="field-archive"] #desktop-screen select,
+:root[data-theme="field-archive"] #desktop-screen textarea,
+:root[data-theme="field-archive"] #desktop-screen .window button{border-radius:0;}
+:root[data-theme="field-archive"] #desktop-screen .settings-section select,
+:root[data-theme="field-archive"] #desktop-screen .settings-actions button,
+:root[data-theme="field-archive"] #desktop-screen .files-toolbar button,
+:root[data-theme="field-archive"] #desktop-screen .editor-toolbar button,
+:root[data-theme="field-archive"] #desktop-screen .flow-toolbar button{border:1px solid #a99b76;background:#eee5cd;color:#29281e;box-shadow:none;}
+:root[data-theme="field-archive"] #desktop-screen .settings-actions button:hover,
+:root[data-theme="field-archive"] #desktop-screen .files-toolbar button:hover,
+:root[data-theme="field-archive"] #desktop-screen .editor-toolbar button:hover,
+:root[data-theme="field-archive"] #desktop-screen .flow-toolbar button:hover{border-color:#ba4e34;background:#e0d2b0;}
+:root[data-theme="field-archive"] #desktop-screen input,
+:root[data-theme="field-archive"] #desktop-screen select,
+:root[data-theme="field-archive"] #desktop-screen textarea{border-color:#a99b76;background:#f0e7ce;color:#29281e;}
+:root[data-theme="field-archive"] #desktop-screen .settings-status,
+:root[data-theme="field-archive"] #desktop-screen .monitor-status{border-color:#b8ab88;color:#68624b;}
+:root[data-theme="field-archive"] #desktop-screen .settings-wallpaper-preview{border-color:#928363;background:#24251d;}
+:root[data-theme="field-archive"] #desktop-screen .settings-wallpaper-preview span{border-left-color:#ba4e34;background:#24251d;color:#e5dcc1;}
+:root[data-theme="field-archive"] .settings-wallpaper-preview[data-wallpaper="archive"]{background:#24251d;}
+:root[data-theme="field-archive"] .settings-wallpaper-preview[data-wallpaper="archive"] img{display:block;object-position:center;}
