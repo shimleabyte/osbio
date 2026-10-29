@@ -679,6 +679,17 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const wallpaperArt = page.locator('.desktop-wallpaper .wallpaper-art');
     assert.equal(await wallpaperArt.evaluate((image) => image.complete && image.naturalWidth > 0), true,
       'the bundled Pixel-Flow wallpaper SVG should load locally');
+
+    await settings.locator('#setting-theme').selectOption('field-archive');
+    await page.waitForFunction(() =>
+      document.documentElement.dataset.theme === 'field-archive' &&
+      document.querySelector('.desktop-wallpaper')?.dataset.wallpaper === 'archive' &&
+      document.querySelector('.desktop-wallpaper .wallpaper-art')?.getAttribute('src') === 'assets/wallpapers/field-archive.svg');
+    assert.equal(await wallpaperArt.evaluate((image) => image.complete && image.naturalWidth > 0), true,
+      'the local Field Archive SVG should load when the theme is selected');
+    assert.equal(await page.locator('html').evaluate((root) => getComputedStyle(root).getPropertyValue('--color-window-bg').trim()), '#e5dcc1',
+      'Field Archive should apply its paper surface palette');
+
     await settings.locator('#setting-wallpaper').selectOption('grid');
     await settings.locator('#setting-accent').selectOption('green');
     await settings.locator('#setting-motion').selectOption('reduced');
@@ -690,6 +701,8 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.body.classList.contains('desktop-ready'), { timeout: 6000 });
     assert.equal(await page.locator('html').getAttribute('data-accent'), 'green');
+    assert.equal(await page.locator('html').getAttribute('data-theme'), 'field-archive',
+      'the selected theme should persist after reload');
     assert.equal(await page.locator('.desktop-wallpaper').getAttribute('data-wallpaper'), 'grid');
     assert.equal(await wallpaperArt.evaluate((image) => getComputedStyle(image).display), 'none',
       'the SVG artwork should be hidden when Grid only is selected');
@@ -704,6 +717,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       'Settings should reflect the persisted wallpaper after reload');
     await settings.locator('#settings-reset').click();
     await page.waitForFunction(() =>
+      document.documentElement.dataset.theme === 'pixel-flow' &&
       document.querySelector('.desktop-wallpaper')?.dataset.wallpaper === 'flow' &&
       document.querySelector('#settings-wallpaper-preview')?.dataset.wallpaper === 'flow');
     assert.notEqual(await wallpaperArt.evaluate((image) => getComputedStyle(image).display), 'none',
@@ -711,6 +725,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.waitForFunction(() => {
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       return document.documentElement.dataset.accent === 'yellow' &&
+        document.documentElement.dataset.theme === 'pixel-flow' &&
         document.querySelector('.desktop-wallpaper')?.dataset.wallpaper === 'flow' &&
         window.OSBioSettings.get().motion === 'system' &&
         document.documentElement.dataset.motion === (reduced ? 'reduced' : 'normal') &&
