@@ -6,17 +6,21 @@
   function mountFiles(win) {
     const store = global.OSBioStorage, list = win.querySelector('.files-list'), empty = win.querySelector('.files-empty');
     const state = win.querySelector('.files-status'), crumbs = win.querySelector('.files-breadcrumbs');
+    const app = win.querySelector('.files-app'), contextMenu = win.querySelector('.files-context-menu');
+    const moveDialog = win.querySelector('.files-move-dialog'), moveForm = win.querySelector('.files-move-form');
+    const moveDestination = win.querySelector('#files-move-destination'), moveError = win.querySelector('.files-move-error');
     const dialog = win.querySelector('.files-name-dialog'), form = win.querySelector('.files-name-form');
     const input = win.querySelector('#files-name-input'), errorNode = win.querySelector('.files-dialog-error');
     const importInput = win.querySelector('.files-import-input');
     let parent = 'root', selected = null, entries = [], action = 'new-file', renameId = null;
+    let contextItemId = null, movingItemId = null, refreshRequest = 0;
     const picked = () => entries.find((item) => item.id === selected) || null;
     const setActions = () => {
       const item = picked();
       const disabled = {
         open: !item, rename: !item || item.readOnly || item.system,
         delete: !item || item.readOnly || item.system,
-        'move-root': !item || item.readOnly || item.system || item.parentId === 'root',
+        move: !item || item.readOnly || item.system,
         up: parent === 'root'
       };
       Object.entries(disabled).forEach(([name, isDisabled]) => {
@@ -24,17 +28,117 @@
         if (button) button.disabled = isDisabled;
       });
     };
+    function syncSelection() {
+      list.querySelectorAll('.file-row').forEach((row) => {
+        const isSelected = row.dataset.id === selected;
+        row.classList.toggle('is-selected', isSelected);
+        row.setAttribute('aria-pressed', String(isSelected));
+      });
+      setActions();
+    }
+    function closeContextMenu(restoreFocus = false) {
+      if (contextMenu.hidden) return;
+      contextMenu.hidden = true;
+      const previousId = contextItemId;
+      contextItemId = null;
+      if (restoreFocus) {
+        const row = [...list.querySelectorAll('.file-row')].find((item) => item.dataset.id === (previousId || selected));
+        if (row) row.focus({ preventScroll: true });
+      }
+    }
+    function showContextMenu(item, row, clientX = null, clientY = null) {
+      if (!item) return;
+      selected = item.id;
+      contextItemId = item.id;
+      syncSelection();
+      const restricted = Boolean(item.readOnly || item.system);
+      contextMenu.querySelectorAll('[data-context-action]').forEach((button) => {
+        const name = button.dataset.contextAction;
+        button.disabled = restricted && ['rename', 'move', 'delete'].includes(name);
+      });
+      contextMenu.hidden = false;
+      const appRect = app.getBoundingClientRect();
+      const rowRect = row.getBoundingClientRect();
+      const x = Number.isFinite(clientX) ? clientX : rowRect.left + 10;
+      const y = Number.isFinite(clientY) ? clientY : rowRect.bottom;
+      const maxLeft = Math.max(6, appRect.width - contextMenu.offsetWidth - 6);
+      const maxTop = Math.max(6, appRect.height - contextMenu.offsetHeight - 6);
+      contextMenu.style.left = Math.max(6, Math.min(x - appRect.left, maxLeft)) + 'px';
+      contextMenu.style.top = Math.max(6, Math.min(y - appRect.top, maxTop)) + 'px';
+      contextMenu.querySelector('button:not(:disabled)')?.focus({ preventScroll: true });
+      emit('files.context-menu-opened', { entryId: item.id, name: item.name });
+    }
+    function closeMoveDialog(restoreFocus = true) {
+      moveDialog.hidden = true;
+      moveError.textContent = '';
+      movingItemId = null;
+      if (restoreFocus) {
+        const row = [...list.querySelectorAll('.file-row')].find((item) => item.dataset.id === selected);
+        if (row) row.focus({ preventScroll: true });
+      }
+    }
+    async function showMoveDialog(item) {
+      if (!item || item.readOnly || item.system) return;
+      closeContextMenu(false);
+      moveError.textContent = '';
+      movingItemId = item.id;
+      try {
+        const all = await store.listAll();
+        const byId = new Map(all.map((entry) => [entry.id, entry]));
+        const isInsideMovingFolder = (candidateId) => {
+          if (item.type !== 'folder') return false;
+          let cursor = byId.get(candidateId), guard = 0;
+          while (cursor && guard++ <= all.length) {
+            if (cursor.id === item.id) return true;
+            cursor = cursor.parentId === 'root' ? null : byId.get(cursor.parentId);
+          }
+          return false;
+        };
+        moveDestination.replaceChildren();
+        const rootOption = document.createElement('option');
+        rootOption.value = 'root';
+        rootOption.textContent = 'Workspace';
+        moveDestination.appendChild(rootOption);
+        all.filter((entry) => entry.type === 'folder' && !isInsideMovingFolder(entry.id))
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .forEach((folder) => {
+            const path = [folder.name];
+            let cursor = folder, guard = 0;
+            while (cursor.parentId !== 'root' && guard++ <= all.length) {
+              cursor = byId.get(cursor.parentId);
+              if (!cursor) break;
+              path.unshift(cursor.name);
+            }
+            const option = document.createElement('option');
+            option.value = folder.id;
+            option.textContent = path.join(' / ');
+            moveDestination.appendChild(option);
+          });
+        moveDestination.value = item.parentId;
+        if (![...moveDestination.options].some((option) => option.value === item.parentId)) moveDestination.value = 'root';
+        moveDialog.hidden = false;
+        moveDestination.focus({ preventScroll: true });
+      } catch (error) {
+        moveError.textContent = error.message || 'Could not load destination folders.';
+      }
+    }
     function renderRows() {
+      closeContextMenu(false);
       list.replaceChildren();
       entries.forEach((item) => {
         const row = document.createElement('button'); row.type = 'button'; row.className = 'file-row';
         row.dataset.id = item.id; row.setAttribute('aria-pressed', String(selected === item.id));
+        row.setAttribute('aria-haspopup', 'menu'); row.setAttribute('aria-controls', 'files-context-menu');
         if (selected === item.id) row.classList.add('is-selected');
         const type = document.createElement('span'); type.className = 'file-row-type'; type.textContent = item.type === 'folder' ? 'DIR' : 'TXT';
         const name = document.createElement('span'); name.className = 'file-row-name'; name.textContent = item.name;
         const tag = document.createElement('span'); tag.className = 'file-row-state'; tag.textContent = item.readOnly ? 'BUILT-IN' : 'LOCAL';
         row.append(type, name, tag);
-        row.addEventListener('click', () => { selected = item.id; renderRows(); setActions(); });
+        row.addEventListener('click', (event) => {
+          selected = item.id;
+          syncSelection();
+          if (event.detail === 0) open(item);
+        });
         row.addEventListener('dblclick', () => open(item));
         list.appendChild(row);
       });
@@ -51,31 +155,45 @@
       chain.forEach((folder) => { const slash = document.createElement('span'); slash.setAttribute('aria-hidden','true'); slash.textContent='/'; const button=document.createElement('button'); button.type='button'; button.dataset.filesParent=folder.id; button.textContent=folder.name; crumbs.append(slash,button); });
     }
     async function refresh() {
+      const requestId = ++refreshRequest;
+      closeContextMenu(false);
       status(state, 'Reading local workspace…');
       try {
         await store.ready();
         const all = await store.listAll();
+        if (requestId !== refreshRequest || !win.isConnected) return;
         if (parent !== 'root' && !all.some((item) => item.id === parent && item.type === 'folder')) parent = 'root';
         entries = all.filter((item) => item.parentId === parent);
         if (!entries.some((item) => item.id === selected)) selected = null;
         renderRows(); renderCrumbs(all);
-        const s = await store.stats(); status(state, s.mode.toUpperCase() + ' · ' + s.files + ' files · ' + s.folders + ' folders');
+        const s = await store.stats();
+        if (requestId !== refreshRequest || !win.isConnected) return;
+        status(state, s.mode.toUpperCase() + ' · ' + s.files + ' files · ' + s.folders + ' folders');
         emit('files.viewed', { parentId: parent, count: entries.length });
-      } catch (e) { status(state, e.message || 'Could not read workspace.', true); empty.hidden=false; empty.textContent='Workspace is unavailable. Check browser storage permissions and reload.'; }
+      } catch (e) {
+        if (requestId !== refreshRequest || !win.isConnected) return;
+        status(state, e.message || 'Could not read workspace.', true); empty.hidden=false; empty.textContent='Workspace is unavailable. Check browser storage permissions and reload.';
+      }
     }
     function open(item) {
       if (!item) return;
+      closeContextMenu(false);
       if (item.type === 'folder') { parent=item.id; selected=null; refresh(); }
       else if (global.OSBioWorkspace) global.OSBioWorkspace.openFile(item.id);
     }
     function showName(actionName, item = null) {
+      closeContextMenu(false);
       action=actionName; renameId=item && item.id; errorNode.textContent='';
       input.value=item ? item.name : actionName === 'new-file' ? 'untitled.md' : '';
       dialog.hidden=false;
       form.querySelector('[type="submit"]').textContent=actionName === 'rename' ? 'Rename' : actionName === 'new-folder' ? 'Create folder' : 'Create file';
       input.focus({preventScroll:true}); input.select();
     }
-    const closeName=()=>{dialog.hidden=true;errorNode.textContent='';};
+    const closeName=()=>{
+      dialog.hidden=true;errorNode.textContent='';
+      const row=[...list.querySelectorAll('.file-row')].find((item)=>item.dataset.id===selected);
+      (row||win.querySelector('[data-files-action="new-file"]'))?.focus({preventScroll:true});
+    };
     form.addEventListener('submit',async(e)=>{
       e.preventDefault();
       try {
@@ -89,13 +207,73 @@
     bind('open',()=>open(picked())); bind('rename',()=>{const item=picked();if(item&&!item.readOnly&&!item.system)showName('rename',item);});
     bind('cancel-name',closeName);
     bind('up',async()=>{if(parent==='root')return;const folder=await store.get(parent);parent=folder?folder.parentId:'root';selected=null;refresh();});
-    bind('move-root',async()=>{const item=picked();if(!item||item.readOnly||item.system||item.parentId==='root')return;try{await store.move(item.id,'root');selected=null;await refresh();status(state,'Moved to workspace root.');}catch(e){status(state,e.message||'Move failed.',true);}});
+    bind('move',()=>showMoveDialog(picked()));
+    bind('cancel-move',()=>closeMoveDialog(true));
+    moveForm.addEventListener('submit',async(e)=>{
+      e.preventDefault();
+      const itemId=movingItemId, destination=moveDestination.value;
+      if(!itemId)return;
+      try{
+        await store.move(itemId,destination);
+        selected=null;
+        closeMoveDialog(false);
+        await refresh();
+        status(state,'Item moved.');
+      }catch(error){moveError.textContent=error.message||'Move failed.';}
+    });
     bind('delete',async()=>{const item=picked();if(!item||item.readOnly||item.system)return;if(!global.confirm('Delete "'+item.name+'"? This cannot be undone.'))return;try{await store.remove(item.id);selected=null;await refresh();status(state,'Item deleted.');}catch(e){status(state,e.message||'Delete failed.',true);}});
     bind('export',async()=>{try{const data=await store.exportData();const url=URL.createObjectURL(new Blob([data],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='osbio-workspace-export.json';a.click();URL.revokeObjectURL(url);status(state,'Workspace export prepared.');}catch(e){status(state,e.message||'Export failed.',true);}});
     bind('import',()=>importInput.click());
     importInput.addEventListener('change',async()=>{const file=importInput.files&&importInput.files[0];if(!file)return;try{const limit=store.getLimits().maxImportBytes;if(file.size>limit){throw new Error('Import file exceeds the 12 MB transfer limit.');}const result=await store.importData(await file.text());parent='root';selected=null;await refresh();status(state,'Imported '+result.imported+' item(s).');}catch(e){status(state,e.message||'Import failed.',true);}finally{importInput.value='';}});
     crumbs.addEventListener('click',(e)=>{const button=e.target.closest('[data-files-parent]');if(!button)return;parent=button.dataset.filesParent;selected=null;refresh();});
-    win.addEventListener('keydown',(e)=>{if(e.key==='Escape'&&!dialog.hidden){e.preventDefault();e.stopPropagation();closeName();}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();showName('new-file');}});
+    list.addEventListener('contextmenu',(event)=>{
+      const row=event.target.closest('.file-row');
+      if(!row)return;
+      event.preventDefault();
+      showContextMenu(entries.find((entry)=>entry.id===row.dataset.id),row,event.clientX,event.clientY);
+    });
+    contextMenu.addEventListener('click',(event)=>{
+      const button=event.target.closest('[data-context-action]');
+      if(!button||button.disabled)return;
+      const actionName=button.dataset.contextAction;
+      const item=entries.find((entry)=>entry.id===contextItemId);
+      closeContextMenu(false);
+      if(actionName==='open'){open(item);return;}
+      if(actionName==='move'){showMoveDialog(item);return;}
+      win.querySelector('[data-files-action="'+actionName+'"]')?.click();
+    });
+    contextMenu.addEventListener('keydown',(event)=>{
+      const items=[...contextMenu.querySelectorAll('button:not(:disabled)')];
+      const index=items.indexOf(document.activeElement);
+      let next=null;
+      if(event.key==='ArrowDown')next=items[(index+1)%items.length];
+      else if(event.key==='ArrowUp')next=items[(index-1+items.length)%items.length];
+      else if(event.key==='Home')next=items[0];
+      else if(event.key==='End')next=items[items.length-1];
+      else if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeContextMenu(true);return;}
+      if(next){event.preventDefault();event.stopPropagation();next.focus({preventScroll:true});}
+    });
+    win.addEventListener('pointerdown',(event)=>{if(!contextMenu.hidden&&!contextMenu.contains(event.target))closeContextMenu(false);});
+    win.addEventListener('keydown',(event)=>{
+      if(event.key==='Escape'&&!dialog.hidden){event.preventDefault();event.stopPropagation();closeName();return;}
+      if(event.key==='Escape'&&!moveDialog.hidden){event.preventDefault();event.stopPropagation();closeMoveDialog(true);return;}
+      if(event.key==='Escape'&&!contextMenu.hidden){event.preventDefault();event.stopPropagation();closeContextMenu(true);return;}
+      const typingTarget=event.target.closest&&event.target.closest('input,textarea,select,[contenteditable="true"]');
+      if(typingTarget)return;
+      if((event.ctrlKey||event.metaKey)&&event.shiftKey&&event.key.toLowerCase()==='n'){event.preventDefault();showName('new-folder');return;}
+      if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='n'){event.preventDefault();showName('new-file');return;}
+      if((event.ctrlKey||event.metaKey)&&event.shiftKey&&event.key.toLowerCase()==='m'){event.preventDefault();showMoveDialog(picked());return;}
+      if(event.key==='ContextMenu'||(event.shiftKey&&event.key==='F10')){
+        const row=event.target.closest&&event.target.closest('.file-row');
+        const itemId=row?row.dataset.id:selected;
+        const item=entries.find((entry)=>entry.id===itemId);
+        const targetRow=[...list.querySelectorAll('.file-row')].find((element)=>element.dataset.id===itemId);
+        if(item&&targetRow){event.preventDefault();showContextMenu(item,targetRow);return;}
+      }
+      if(event.key==='F2'&&picked()){event.preventDefault();showName('rename',picked());}
+      else if(event.key==='Delete'&&picked()){event.preventDefault();win.querySelector('[data-files-action="delete"]').click();}
+      else if(event.altKey&&event.key==='ArrowUp'){event.preventDefault();win.querySelector('[data-files-action="up"]').click();}
+    });
     const onEvent=(e)=>{const type=e.detail&&e.detail.type;if(type&&(type.startsWith('file.')||type.startsWith('folder.')||type==='storage.imported'||type==='storage.user-data-cleared'))refresh();};
     global.addEventListener('osbio:event',onEvent);
     win.addEventListener('osbio:dispose',()=>global.removeEventListener('osbio:event',onEvent),{once:true});
@@ -106,7 +284,7 @@
     const store=global.OSBioStorage,name=win.querySelector('#editor-name'),body=win.querySelector('#editor-content');
     const save=win.querySelector('#editor-save'),copy=win.querySelector('#editor-save-copy'),badge=win.querySelector('#editor-dirty-state');
     const statusNode=win.querySelector('#editor-status-text'),count=win.querySelector('#editor-character-count'),title=win.querySelector('.window-title');
-    let id=null,parent='root',readOnly=false,hasFile=false,dirty=false,savedName='untitled.md',savedBody='';
+    let id=null,parent='root',readOnly=false,hasFile=false,dirty=false,savedName='untitled.md',savedBody='',loadRequestId=0;
     const update=()=>{
       dirty=name.value!==savedName||body.value!==savedBody;
       count.textContent=body.value.length+' chars';
@@ -118,7 +296,8 @@
       if(dirty&&!readOnly)status(statusNode,'Unsaved changes');
     };
     async function load(fileId){
-      try{const item=await store.get(fileId);if(!item||item.type!=='file'){status(statusNode,'That document no longer exists.',true);return;}
+      const requestId=++loadRequestId;
+      try{const item=await store.get(fileId);if(requestId!==loadRequestId||!win.isConnected)return;if(!item||item.type!=='file'){status(statusNode,'That document no longer exists.',true);return;}
         id=item.id;parent=item.parentId;readOnly=Boolean(item.readOnly||item.system);hasFile=true;
         name.value=item.name;body.value=item.content||'';name.readOnly=readOnly;body.readOnly=readOnly;savedName=name.value;savedBody=body.value;
         status(statusNode,readOnly?'Built-in document · save a copy to edit':'Saved locally · '+item.updatedAt);update();
@@ -139,6 +318,11 @@
       }catch(e){status(statusNode,e.message||'Save failed.',true);}
     }
     save.addEventListener('click',()=>saveDocument(false));copy.addEventListener('click',()=>saveDocument(true));
+    win.addEventListener('keydown',(event)=>{
+      if(!(event.ctrlKey||event.metaKey)||event.key.toLowerCase()!=='s')return;
+      event.preventDefault();
+      if(event.shiftKey)saveDocument(true);else saveDocument(false);
+    });
     name.addEventListener('input',update);body.addEventListener('input',update);
     const onOpen=(e)=>{
       if(!e.detail||!e.detail.id||!win.isConnected)return;
@@ -150,7 +334,7 @@
       load(e.detail.id);
     };
     global.addEventListener('osbio:open-file',onOpen);
-    win.addEventListener('osbio:dispose',()=>global.removeEventListener('osbio:open-file',onOpen),{once:true});
+    win.addEventListener('osbio:dispose',()=>{loadRequestId+=1;global.removeEventListener('osbio:open-file',onOpen);},{once:true});
     win.addEventListener('osbio:before-close',(e)=>{update();if(dirty&&!global.confirm('Discard unsaved changes to "'+name.value+'"?'))e.preventDefault();});
     name.value=savedName;
     body.value='';

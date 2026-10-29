@@ -107,11 +107,25 @@ const WindowManager = (() => {
         content: `
           <div class="files-app">
             <div class="files-toolbar" role="toolbar" aria-label="File actions">
-              <button type="button" data-files-action="up">Up</button><button type="button" data-files-action="new-file">New file</button><button type="button" data-files-action="new-folder">New folder</button><button type="button" data-files-action="open" disabled>Open</button><button type="button" data-files-action="rename" disabled>Rename</button><button type="button" data-files-action="move-root" disabled>Move to root</button><button type="button" data-files-action="delete" disabled>Delete</button><span class="files-toolbar-spacer"></span><button type="button" data-files-action="import">Import</button><button type="button" data-files-action="export">Export</button>
+              <button type="button" data-files-action="up">Up</button><button type="button" data-files-action="new-file">New file</button><button type="button" data-files-action="new-folder">New folder</button><button type="button" data-files-action="open" disabled>Open</button><button type="button" data-files-action="rename" disabled>Rename</button><button type="button" data-files-action="move" disabled>Move…</button><button type="button" data-files-action="delete" disabled>Delete</button><span class="files-toolbar-spacer"></span><button type="button" data-files-action="import">Import</button><button type="button" data-files-action="export">Export</button>
               <input class="files-import-input" type="file" accept=".json,application/json" hidden aria-label="Import OSBio workspace export">
             </div>
             <nav class="files-breadcrumbs" aria-label="Current folder"></nav><div class="files-list-head"><span>TYPE</span><span>NAME</span><span>STATUS</span></div>
             <div class="files-list" role="group" aria-label="Workspace entries"></div><p class="files-empty" hidden>This folder is empty. Create a file or folder to begin.</p>
+            <div class="files-context-menu" id="files-context-menu" role="menu" aria-label="Selected item actions" hidden>
+              <button type="button" role="menuitem" data-context-action="open">Open</button>
+              <button type="button" role="menuitem" data-context-action="rename">Rename</button>
+              <button type="button" role="menuitem" data-context-action="move">Move…</button>
+              <button type="button" role="menuitem" data-context-action="delete">Delete</button>
+            </div>
+            <div class="files-move-dialog" role="dialog" aria-modal="false" aria-label="Move workspace item" hidden>
+              <form class="files-move-form">
+                <label for="files-move-destination">Destination folder</label>
+                <select id="files-move-destination" name="destination" required></select>
+                <p class="files-move-error" aria-live="polite"></p>
+                <div><button type="button" data-files-action="cancel-move">Cancel</button><button type="submit">Move item</button></div>
+              </form>
+            </div>
             <div class="files-status" role="status" aria-live="polite">Initializing local workspace…</div>
             <div class="files-name-dialog" role="dialog" aria-modal="false" aria-label="Name workspace item" hidden><form class="files-name-form"><label for="files-name-input">Name</label><input id="files-name-input" name="name" type="text" maxlength="120" required autocomplete="off"><p class="files-dialog-error" aria-live="polite"></p><div><button type="button" data-files-action="cancel-name">Cancel</button><button type="submit">Create</button></div></form></div>
           </div>
