@@ -38,6 +38,13 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     assert.equal(await visitorGuide.isVisible(), false, 'visitors can dismiss the guide without opening an app');
     assert.equal(await page.locator('#visitor-guide-toggle').getAttribute('aria-expanded'), 'false');
 
+    await page.evaluate(() => document.fonts.ready);
+    assert.equal(await page.evaluate(() => document.fonts.check('16px "IBM Plex Sans"')), true,
+      'self-hosted IBM Plex Sans should be available');
+    assert.equal(await page.evaluate(() => document.fonts.check('16px "IBM Plex Mono"')), true,
+      'self-hosted IBM Plex Mono should be available');
+    assert.deepEqual(externalFontRequests, [], 'the shell must not request Google Fonts at runtime');
+
     // Inspect the navigation and floating dock at desktop, tablet, and narrow mobile widths.
     for (const width of [1440, 1024, 900, 768, 760, 700, 681, 680, 390, 320]) {
       await page.setViewportSize({ width, height: width <= 420 ? 720 : 820 });
@@ -89,12 +96,6 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         'the date should collapse before it crowds the smallest topbar widths');
     }
     await page.setViewportSize({ width: 1440, height: 960 });
-    await page.evaluate(() => document.fonts.ready);
-    assert.equal(await page.evaluate(() => document.fonts.check('16px "IBM Plex Sans"')), true,
-      'self-hosted IBM Plex Sans should be available');
-    assert.equal(await page.evaluate(() => document.fonts.check('16px "IBM Plex Mono"')), true,
-      'self-hosted IBM Plex Mono should be available');
-    assert.deepEqual(externalFontRequests, [], 'the shell must not request Google Fonts at runtime');
     assert.deepEqual(await page.locator('.taskbar-btn[data-pinned="true"]').evaluateAll((buttons) =>
       buttons.map((button) => button.dataset.app)), ['projects', 'about', 'files', 'editor', 'contact']);
     assert.equal(await page.locator('#taskbar-recent-divider').evaluate((element) => element.hidden), true,
