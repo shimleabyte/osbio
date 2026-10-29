@@ -37,6 +37,58 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.locator('#visitor-guide-hide').click();
     assert.equal(await visitorGuide.isVisible(), false, 'visitors can dismiss the guide without opening an app');
     assert.equal(await page.locator('#visitor-guide-toggle').getAttribute('aria-expanded'), 'false');
+
+    // Inspect the navigation and floating dock at desktop, tablet, and narrow mobile widths.
+    for (const width of [1440, 1024, 900, 768, 760, 700, 681, 680, 390, 320]) {
+      await page.setViewportSize({ width, height: width <= 420 ? 720 : 820 });
+      const chrome = await page.evaluate(() => {
+        const measure = (selector) => {
+          const element = document.querySelector(selector);
+          if (!element) return null;
+          const rect = element.getBoundingClientRect();
+          const style = getComputedStyle(element);
+          return {
+            left: rect.left, right: rect.right, width: rect.width,
+            display: style.display, overflowX: style.overflowX,
+            scrollWidth: element.scrollWidth, clientWidth: element.clientWidth
+          };
+        };
+        return {
+          viewport: innerWidth,
+          documentWidth: document.documentElement.scrollWidth,
+          panelLeft: measure('.system-panel .panel-left'),
+          panelRight: measure('.system-panel .panel-right'),
+          launcher: measure('#launcher-toggle'),
+          panelNavigation: measure('.panel-navigation'),
+          panelContext: measure('.panel-context'),
+          dock: measure('.taskbar-apps'),
+          dockSystem: measure('.taskbar-system'),
+          date: measure('#system-date')
+        };
+      });
+      assert.ok(chrome.documentWidth <= width,
+        'shell must not create horizontal page overflow at ' + width + 'px: ' + JSON.stringify(chrome));
+      assert.ok(chrome.panelLeft && chrome.panelRight && chrome.panelLeft.right <= chrome.panelRight.left + 1,
+        'topbar groups must not overlap at ' + width + 'px: ' + JSON.stringify(chrome));
+      assert.ok(chrome.launcher && chrome.panelNavigation &&
+        chrome.launcher.right <= chrome.panelNavigation.left + 1,
+        'launcher must remain distinct from system navigation at ' + width + 'px: ' + JSON.stringify(chrome));
+      assert.ok(chrome.dock && chrome.dock.left >= -1 && chrome.dock.right <= width + 1,
+        'floating dock must stay inside the viewport at ' + width + 'px: ' + JSON.stringify(chrome));
+      if (width <= 760) {
+        assert.equal(chrome.dockSystem.display, 'none',
+          'dock metadata must yield space to app navigation at ' + width + 'px');
+        assert.equal(chrome.dock.overflowX, 'auto',
+          'the dock should remain horizontally scrollable when recent apps grow at ' + width + 'px');
+      } else if (chrome.dockSystem.display !== 'none') {
+        const separated = chrome.dock.right <= chrome.dockSystem.left - 4 ||
+          chrome.dockSystem.right <= chrome.dock.left - 4;
+        assert.ok(separated, 'dock and workspace label must not collide at ' + width + 'px: ' + JSON.stringify(chrome));
+      }
+      if (width <= 420) assert.equal(chrome.date.display, 'none',
+        'the date should collapse before it crowds the smallest topbar widths');
+    }
+    await page.setViewportSize({ width: 1440, height: 960 });
     await page.evaluate(() => document.fonts.ready);
     assert.equal(await page.evaluate(() => document.fonts.check('16px "IBM Plex Sans"')), true,
       'self-hosted IBM Plex Sans should be available');

@@ -1463,6 +1463,18 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
   overflow: visible;
 }
 .taskbar-btn { flex: 0 0 auto; }
+@media (max-width: 760px) {
+  /* Recent apps can fill the rail; preserve horizontal access before the phone breakpoint. */
+  .taskbar-system { display: none; }
+  .taskbar-apps {
+    max-width: calc(100vw - .8rem);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .taskbar-apps::-webkit-scrollbar { display: none; }
+}
 @media (max-width: 680px) {
   .taskbar-apps {
     max-width: 100%;
@@ -2167,7 +2179,7 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
   #window-overview-toggle { display: none; }
   .panel-right .panel-divider { display: none; }
   .panel-clock { padding-left: .34rem; }
-  .panel-date { display: none; }
+  #system-date { display: none; }
   .launcher-tier .launcher-item { grid-template-columns: auto minmax(0,1fr) auto; }
 }
 @media (prefers-reduced-motion: reduce) {
