@@ -1,928 +1,568 @@
-/**
- * Window Management System for OS-Style Portfolio
- * 
- * Features:
- * - Open/close windows
- * - Focus management
- * - Taskbar integration
- * - Optional dragging
- */
-
-const WindowManager = (() => {
+/* OSBio window manager.
+   Custom pixel-flow interface, real project evidence, and no shell execution. */
+(function () {
   'use strict';
 
-  // Icons (inline SVG, inherit currentColor)
-  const ICON = {
-    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>',
-    github: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
-    external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>',
-    download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>',
-    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
-  };
+  const desktop = document.getElementById('desktop-screen');
+  const layer = document.getElementById('window-layer');
+  const contextLabel = document.getElementById('system-context');
+  const appButtons = Array.from(document.querySelectorAll('[data-app]'));
+  const windows = new Map();
+  let activeId = null;
+  let nextZ = 30;
+  let cascade = 0;
+  let drag = null;
+  let initialized = false;
 
-  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const projectData = [
+    {
+      number: '01',
+      name: 'Mutabaah CLI',
+      symbol: '$_',
+      symbolClass: '',
+      description: 'A Go command-line tool for managing mutabaah activities with JSON-backed local data.',
+      approach: 'Command dispatch in main.go is separated from activity operations and JSON file persistence.',
+      tags: ['Go', 'CLI', 'JSON', 'File I/O'],
+      repo: 'https://github.com/shimleabyte/mutabaah-cli'
+    },
+    {
+      number: '02',
+      name: 'OSBio',
+      symbol: 'PX',
+      symbolClass: 'flow',
+      description: 'A static portfolio presented as an interactive desktop with a dock, application windows, and a simulated terminal.',
+      approach: 'A vanilla JavaScript window manager coordinates focus, dragging, minimize, maximize, restore, and app switching.',
+      tags: ['HTML', 'CSS', 'JavaScript', 'Static site'],
+      repo: 'https://github.com/shimleabyte/osbio',
+      live: 'https://shimleabyte.github.io/osbio/'
+    }
+  ];
 
-  // Configuration
-  const CONFIG = {
-    windowTemplates: {
-      about: {
-        title: 'About Me',
-        width: '600px',
-        height: '500px',
-        content: `
-          <div class="about-app">
-            <header class="about-header">
-              <h1 class="about-name">Shimleabyte</h1>
-              <p class="about-role">Frontend Developer & UI/UX Enthusiast</p>
-            </header>
-            
-            <section class="about-section">
-              <h2 class="section-title">Bio</h2>
-              <p>I build intuitive, accessible web experiences that balance form and function. With a focus on clean code and thoughtful design, I create digital products that solve real problems.</p>
-            </section>
-            
-            <section class="about-section">
-              <h2 class="section-title">Tech Stack</h2>
-              <div class="tech-stack">
-                <div class="tech-category">
-                  <h3>Frontend</h3>
-                  <ul>
-                    <li>JavaScript (ES6+)</li>
-                    <li>TypeScript</li>
-                    <li>React.js/ts</li>
-                    <li>Vue.js</li>
-                    <li>CSS3 / SASS / Tailwind</li>
-                  </ul>
-                </div>
-                <div class="tech-category">
-                  <h3>Tools</h3>
-                  <ul>
-                    <li>Git & GitHub</li>
-                    <li>VS Code / Windsurf / Notepad++</li>
-                    <li>Figma</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-            
-            <section class="about-section">
-              <h2 class="section-title">Focus & Interests</h2>
-              <ul class="interests-list">
-                <li>Design systems and component libraries</li>
-                <li>Performance optimization</li>
-                <li>Accessible web experiences</li>
-                <li>Developer experience</li>
-              </ul>
-            </section>
+  const appTemplates = {
+    about: {
+      title: 'About this workspace',
+      kicker: 'PROFILE / 01',
+      width: 660,
+      height: 600,
+      content: () => `
+        <div class="app-content about-app">
+          <p class="eyebrow">PROFILE / APPROACH</p>
+          <h1 class="app-heading">Learn by <span>building.</span></h1>
+          <p class="app-lede">I'm Shimleabyte. This workspace presents real repositories and the implementation decisions behind them. I use small builds to understand how interfaces, state, and data behave together.</p>
+          <div class="profile-grid">
+            <section class="profile-item"><span class="meta-label">01 / BUILD</span><strong>Inspectable projects</strong><p>Prefer implementations that can be inspected in source instead of claims without evidence.</p></section>
+            <section class="profile-item"><span class="meta-label">02 / UNDERSTAND</span><strong>Systems thinking</strong><p>Study how interactions, application state, and persistence fit together.</p></section>
+            <section class="profile-item"><span class="meta-label">03 / DESIGN</span><strong>Purposeful interfaces</strong><p>Use hierarchy, typography, and custom pixel geometry to make the structure visible.</p></section>
+            <section class="profile-item"><span class="meta-label">04 / ITERATE</span><strong>Keep the evidence</strong><p>Make decisions and limitations visible rather than inventing metrics or project maturity.</p></section>
           </div>
-        `
-      },
-      projects: {
-        title: 'Projects',
-        width: '750px',
-        height: '600px',
-        content: `
-          <div class="projects-app">
-            <div class="projects-grid">
-              <!-- Project 1 -->
-              <div class="project-card" data-project="project1">
-                <div class="project-header">
-                  <h3 class="project-title">Portfolio OS</h3>
-                  <div class="project-stack">HTML, CSS, JavaScript</div>
+          <section class="window-section">
+            <h2 class="section-heading">Current project context</h2>
+            <div class="tech-list"><span class="tech-label">Go / CLI</span><span class="tech-label">HTML + CSS</span><span class="tech-label">JavaScript</span><span class="tech-label">Git / GitHub</span></div>
+          </section>
+        </div>
+      `
+    },
+    projects: {
+      title: 'Project index',
+      kicker: 'REPOSITORIES / 02',
+      width: 900,
+      height: 660,
+      content: () => `
+        <div class="app-content projects-app">
+          <p class="eyebrow">WORKSPACE / PROJECT INDEX</p>
+          <h1 class="app-heading">Selected <span>work.</span></h1>
+          <p class="app-lede">A small index of public repositories. Implementation notes describe choices visible in the projects; no invented performance metrics or placeholder case studies.</p>
+          <div class="project-index">
+            ${projectData.map(project => `
+              <article class="project-row">
+                <div class="project-aside">
+                  <span class="project-number">PROJECT / ${project.number}</span>
+                  <span class="project-symbol ${project.symbolClass}" aria-hidden="true">${project.symbol}</span>
                 </div>
-                <p class="project-desc">An OS-style interactive portfolio website with a focus on clean design and smooth interactions.</p>
-                <div class="project-details" id="project1">
-                  <div class="project-learned">
-                    <strong>What I learned:</strong> Building a window management system from scratch with vanilla JavaScript.
-                  </div>
+                <div class="project-main">
+                  <h2 class="project-title">${project.name}</h2>
+                  <p class="project-description">${project.description}</p>
+                  <ul class="tag-list" aria-label="Technologies">${project.tags.map(tag => `<li>${tag}</li>`).join('')}</ul>
                   <div class="project-links">
-                    <a href="https://shimleabyte.github.io/osbio/" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
-                      <span class="icon">${ICON.external}</span> Live Demo
-                    </a>
-                    <a href="https://github.com/shimleabyte/osbio" class="btn btn-outline btn-sm" target="_blank" rel="noopener">
-                      <span class="icon">${ICON.github}</span> Source Code
-                    </a>
+                    <a class="text-action" href="${project.repo}" target="_blank" rel="noopener noreferrer">Source repository ↗</a>
+                    ${project.live ? `<a class="text-action" href="${project.live}" target="_blank" rel="noopener noreferrer">Live version ↗</a>` : ''}
                   </div>
                 </div>
-              </div>
-
-              <!-- Project 2 -->
-              <div class="project-card" data-project="project2">
-                <div class="project-header">
-                  <h3 class="project-title">TaskFlow</h3>
-                  <div class="project-stack">React, TypeScript, Tailwind</div>
+                <div class="project-details">
+                  <p class="project-approach"><span class="project-approach-label">Implementation note</span>${project.approach}</p>
                 </div>
-                <p class="project-desc">A minimal task management application with drag-and-drop functionality.</p>
-                <div class="project-details" id="project2">
-                  <div class="project-learned">
-                    <strong>What I learned:</strong> Implementing drag-and-drop interfaces with React DnD and TypeScript type safety.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Project 3 -->
-              <div class="project-card" data-project="project3">
-                <div class="project-header">
-                  <h3 class="project-title">WeatherViz</h3>
-                  <div class="project-stack">Vue.js, D3.js, OpenWeather API</div>
-                </div>
-                <p class="project-desc">Weather visualization dashboard showing forecast data with interactive charts.</p>
-                <div class="project-details" id="project3">
-                  <div class="project-learned">
-                    <strong>What I learned:</strong> Data visualization with D3.js and working with external weather APIs.
-                  </div>
-                </div>
-              </div>
-            </div>
+              </article>
+            `).join('')}
           </div>
-        `
-      },
-      contact: {
-        title: 'Contact',
-        width: '400px',
-        height: 'auto',
-        content: `
-          <div class="contact-app">
-            <div class="contact-list">
-              <a href="mailto:presentshimley@gmail.com" class="contact-item" target="_blank" rel="noopener noreferrer">
-                <span class="contact-icon">${ICON.mail}</span>
-                <span class="contact-label">Email</span>
-              </a>
-              <a href="https://github.com/shimleabyte" class="contact-item" target="_blank" rel="noopener noreferrer">
-                <span class="contact-icon">${ICON.github}</span>
-                <span class="contact-label">GitHub</span>
-              </a>
-            </div>
-          </div>
-        `
-      },
-      resume: {
-        title: 'Resume',
-        width: '800px',
-        height: '90vh',
-        content: `
-          <div class="resume-app">
-            <div class="resume-actions">
-              <a href="resume.pdf" class="btn btn-primary" download>
-                <span class="icon">${ICON.download}</span> Download PDF
-              </a>
-              <button class="btn btn-outline view-toggle">
-                <span class="icon">${ICON.eye}</span> Fit height
-              </button>
-            </div>
-            <div class="resume-preview">
-              <iframe src="resume.pdf#view=FitH" class="resume-iframe"></iframe>
-            </div>
-            <p class="resume-note">Preview not loading? <a href="resume.pdf" download>Download the PDF</a>.</p>
-          </div>
-        `
-      },
-      memory: {
-        title: 'Memory Match',
-        width: '500px',
-        height: '600px',
-        content: `
-          <div class="memory-game">
-            <div class="game-header">
-              <h3>Memory Match</h3>
-              <div class="game-stats">
-                <span class="moves">Moves: <span id="move-count">0</span></span>
-                <button id="restart-btn" class="btn btn-sm">Restart</button>
-              </div>
-            </div>
-            <div class="game-board" id="game-board">
-              <!-- Cards will be generated here -->
-            </div>
-            <div class="game-message" id="game-message">
-              <p>Find all matching pairs of cards</p>
-            </div>
-          </div>
-        `
-      },
-      terminal: {
-        title: 'Terminal',
-        width: '700px',
-        height: '500px',
-        content: `
-          <div class="terminal-app">
-            <div class="terminal-output">
-              <div class="terminal-line">
-                <span class="terminal-prompt">$</span>
-                <span class="terminal-text">Welcome to the portfolio terminal</span>
-              </div>
-              <div class="terminal-line">
-                <span class="terminal-prompt">$</span>
-                <span class="terminal-text">Type <span class="terminal-command">help</span> to see available commands</span>
-              </div>
-              <div class="terminal-line">
-                <span class="terminal-prompt">$</span>
-                <span class="terminal-text"></span>
-              </div>
-            </div>
-            <div class="terminal-input-line">
-              <span class="terminal-prompt">$</span>
-              <input type="text" class="terminal-input" autofocus>
-              <span class="terminal-cursor">█</span>
-            </div>
-          </div>
-        `
-      }
+          <p class="project-note">Only repositories with verifiable source are listed. The index intentionally avoids sample projects, fabricated metrics, and unsupported status claims.</p>
+        </div>
+      `
     },
-    zIndex: 1000, // Starting z-index for windows
-    windowOffset: 30 // Pixel offset for cascading windows
+    contact: {
+      title: 'Contact',
+      kicker: 'CONTACT / LINKS',
+      width: 500,
+      height: 470,
+      content: () => `
+        <div class="app-content contact-app">
+          <p class="eyebrow">OPEN CHANNELS</p>
+          <h1 class="app-heading">Keep it <span>direct.</span></h1>
+          <p class="app-lede">Reach me through the destinations already associated with this portfolio.</p>
+          <div class="contact-list">
+            <a class="contact-link" href="https://github.com/shimleabyte" target="_blank" rel="noopener noreferrer">
+              <span class="contact-symbol">GH</span><span class="contact-copy"><strong>GitHub</strong><small>github.com/shimleabyte</small></span><span aria-hidden="true">↗</span>
+            </a>
+            <a class="contact-link" href="mailto:presentshimley@gmail.com">
+              <span class="contact-symbol">@</span><span class="contact-copy"><strong>Email</strong><small>presentshimley@gmail.com</small></span><span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      `
+    },
+    resume: {
+      title: 'Resume',
+      kicker: 'DOCUMENT / PDF',
+      width: 860,
+      height: 700,
+      content: () => `
+        <div class="resume-app">
+          <div class="resume-actions">
+            <a href="resume.pdf" class="resume-action" download>Download PDF ↓</a>
+            <button type="button" class="resume-action view-toggle">Fit width / height</button>
+          </div>
+          <div class="resume-preview">
+            <iframe src="resume.pdf#view=FitH" class="resume-iframe" title="Resume PDF preview"></iframe>
+          </div>
+          <p class="resume-note">Preview unavailable? <a href="resume.pdf" download>Download the PDF</a>.</p>
+        </div>
+      `
+    },
+    terminal: {
+      title: 'Terminal',
+      kicker: 'SHELL / SIMULATED',
+      width: 700,
+      height: 520,
+      content: () => `
+        <div class="terminal-app">
+          <div class="terminal-topline"><span>SHIMLEABYTE SHELL</span><span>SIMULATED / READ ONLY</span></div>
+          <div class="terminal-output" role="log" aria-live="polite">
+            <p class="terminal-line">OSBio terminal. Type <span class="terminal-command">help</span> to list available commands.</p>
+          </div>
+          <form class="terminal-input-row">
+            <label class="terminal-prompt" for="terminal-input"> $ </label>
+            <input type="text" class="terminal-input" id="terminal-input" name="command" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal command">
+            <span class="terminal-hint">ENTER TO RUN</span>
+          </form>
+        </div>
+      `
+    },
+    memory: {
+      title: 'Memory Match',
+      kicker: 'MINI / GAME',
+      width: 500,
+      height: 590,
+      content: () => `
+        <div class="memory-app">
+          <header class="memory-head">
+            <div><p class="eyebrow">PATTERN RECOGNITION</p><h2>Memory Match</h2></div>
+            <div class="memory-stats">
+              <span class="memory-stat">Moves <strong id="memory-moves">0</strong></span>
+              <button class="memory-restart" id="memory-restart" type="button">Restart</button>
+            </div>
+          </header>
+          <div class="memory-board" id="memory-board" role="group" aria-label="Memory match cards"></div>
+          <p class="memory-message" id="memory-message" aria-live="polite">Find all six pairs. Select two tiles to reveal their values.</p>
+        </div>
+      `
+    }
   };
 
-  // State
-  let openWindows = [];
-  let activeWindowId = null;
-  let windowCounter = 0;
+  function isMobile() {
+    return window.matchMedia('(max-width: 760px)').matches;
+  }
 
-  // DOM Elements
-  let desktopElement;
-
-  // Initialize the window manager
-  function init() {
-    desktopElement = document.getElementById('desktop-screen');
-    if (!desktopElement) {
-      console.error('Desktop element not found');
-      return;
-    }
-
-    // Initialize taskbar buttons
-    initTaskbarButtons();
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && activeWindowId) closeWindow(activeWindowId);
+  function updateButtons() {
+    appButtons.forEach(button => {
+      const entry = windows.get(button.dataset.app);
+      const isOpen = Boolean(entry);
+      const isActive = Boolean(entry && entry.id === activeId && !entry.minimized);
+      button.classList.toggle('is-open', isOpen);
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
     });
   }
 
-  // Initialize taskbar button event listeners
-  function initTaskbarButtons() {
-    const taskbarButtons = document.querySelectorAll('.taskbar-btn');
-    
-    taskbarButtons.forEach(button => {
-      const appName = button.dataset.app;
-      if (appName) {
-        button.addEventListener('click', (e) => {
-          e.stopPropagation();
-          toggleWindow(appName);
-        });
-      }
-    });
+  function updateContext(value) {
+    if (contextLabel) contextLabel.textContent = value;
   }
 
-  // Toggle window open/close
-  function toggleWindow(appName) {
-    const existingWindow = openWindows.find(w => w.appName === appName);
-    
-    if (existingWindow) {
-      if (existingWindow.id === activeWindowId) {
-        // Window is already active, do nothing
-        return;
-      } else {
-        // Window exists but not active, bring to front
-        focusWindow(existingWindow.id);
-      }
-    } else {
-      // Window doesn't exist, create it
-      createWindow(appName);
+  function focusWindow(id) {
+    const entry = windows.get(id);
+    if (!entry || entry.minimized) return;
+    activeId = id;
+    entry.z = ++nextZ;
+    entry.element.style.zIndex = String(entry.z);
+    windows.forEach(other => other.element.classList.toggle('is-active', other.id === id && !other.minimized));
+    updateContext(entry.appName.toUpperCase());
+    updateButtons();
+  }
+
+  function focusMostRecent(exceptId) {
+    const recent = Array.from(windows.values())
+      .filter(entry => entry.id !== exceptId && !entry.minimized)
+      .sort((a, b) => b.z - a.z)[0];
+    if (recent) focusWindow(recent.id);
+    else {
+      activeId = null;
+      updateContext('DESKTOP');
+      updateButtons();
     }
   }
 
-  // Create a new window
-  function createWindow(appName) {
-    const template = CONFIG.windowTemplates[appName];
-    if (!template) {
-      console.error(`No template found for app: ${appName}`);
-      return null;
-    }
+  function renderWindow(appName) {
+    const template = appTemplates[appName];
+    if (!template) return null;
+    const id = 'window-' + appName;
+    const element = document.createElement('section');
+    element.className = 'app-window';
+    element.dataset.app = appName;
+    element.dataset.windowId = id;
+    element.setAttribute('role', 'dialog');
+    element.setAttribute('aria-labelledby', id + '-title');
 
-    windowCounter++;
-    const windowId = `${appName}-${windowCounter}`;
-    const zIndex = CONFIG.zIndex + openWindows.length;
-    
-    // Calculate position to cascade windows
-    const offset = openWindows.length * CONFIG.windowOffset;
-    const top = 50 + offset;
-    const left = 50 + offset;
+    const layerWidth = layer.clientWidth;
+    const layerHeight = layer.clientHeight;
+    const width = Math.min(template.width, Math.max(300, layerWidth - 24));
+    const height = Math.min(template.height, Math.max(220, layerHeight - 20));
+    const offset = (cascade++ % 5) * 24;
+    element.style.width = width + 'px';
+    element.style.height = height + 'px';
+    element.style.left = Math.max(12, Math.min((layerWidth - width) / 2 + offset, layerWidth - width - 12)) + 'px';
+    element.style.top = Math.max(12, Math.min((layerHeight - height) / 2 + offset, layerHeight - height - 12)) + 'px';
 
-    // Create window element
-    const windowElement = document.createElement('div');
-    windowElement.className = 'window';
-    windowElement.id = windowId;
-    windowElement.setAttribute('role', 'dialog');
-    windowElement.setAttribute('aria-labelledby', `${windowId}-title`);
-    windowElement.style.zIndex = zIndex;
-    windowElement.style.width = template.width;
-    windowElement.style.height = template.height;
-    windowElement.style.top = `${top}px`;
-    windowElement.style.left = `${left}px`;
-
-    // Window header
-    const header = document.createElement('div');
-    header.className = 'window-header';
-    header.innerHTML = `
-      <span class="window-title" id="${windowId}-title">${template.title}</span>
-      <button class="window-close" aria-label="Close">×</button>
+    element.innerHTML = `
+      <header class="window-header">
+        <div class="window-controls" aria-label="Window controls">
+          <button class="window-control" type="button" data-window-action="close" aria-label="Close window">×</button>
+          <button class="window-control" type="button" data-window-action="minimize" aria-label="Minimize window">−</button>
+          <button class="window-control" type="button" data-window-action="maximize" aria-label="Maximize or restore window">□</button>
+        </div>
+        <span class="window-title" id="${id}-title">${template.title}</span>
+        <span class="window-kicker">${template.kicker}</span>
+      </header>
+      <div class="window-content">${template.content()}</div>
     `;
+    layer.appendChild(element);
 
-    // Window content
-    const content = document.createElement('div');
-    content.className = 'window-content';
-    content.innerHTML = template.content;
+    const entry = { id, appName, element, title: template.title, z: ++nextZ, minimized: false, maximized: false, restoreRect: null };
+    windows.set(appName, entry);
+    setupWindow(entry);
+    return entry;
+  }
 
-    // Assemble window
-    windowElement.appendChild(header);
-    windowElement.appendChild(content);
-    
-    // Add to DOM
-    desktopElement.appendChild(windowElement);
+  function openWindow(appName) {
+    if (!appTemplates[appName]) return null;
 
-    // Set up event listeners
-    setupWindowEvents(windowElement, windowId, appName);
+    if (isMobile()) {
+      windows.forEach(other => {
+        if (other.appName !== appName) {
+          other.minimized = true;
+          other.element.classList.add('is-minimized');
+        }
+      });
+    }
 
-    // Add to open windows
-    const windowData = {
-      id: windowId,
-      appName,
-      element: windowElement,
-      zIndex
+    let entry = windows.get(appName);
+    if (entry) {
+      entry.minimized = false;
+      entry.element.classList.remove('is-minimized');
+    } else {
+      entry = renderWindow(appName);
+    }
+    focusWindow(entry.id);
+    return entry;
+  }
+
+  function toggleWindow(appName) {
+    const entry = windows.get(appName);
+    if (!entry) {
+      openWindow(appName);
+    } else if (entry.minimized) {
+      openWindow(appName);
+    } else if (activeId === entry.id) {
+      minimizeWindow(entry.id);
+    } else {
+      focusWindow(entry.id);
+    }
+  }
+
+  function setupWindow(entry) {
+    const { element, id, appName } = entry;
+    element.addEventListener('pointerdown', () => focusWindow(id));
+    element.querySelectorAll('[data-window-action]').forEach(button => {
+      button.addEventListener('click', event => {
+        event.stopPropagation();
+        const action = button.dataset.windowAction;
+        if (action === 'close') closeWindow(id);
+        if (action === 'minimize') minimizeWindow(id);
+        if (action === 'maximize') toggleMaximize(id);
+      });
+    });
+
+    const header = element.querySelector('.window-header');
+    header.addEventListener('pointerdown', event => {
+      if (isMobile() || event.target.closest('button') || entry.maximized) return;
+      focusWindow(id);
+      const rect = element.getBoundingClientRect();
+      const layerRect = layer.getBoundingClientRect();
+      drag = {
+        id, pointerId: event.pointerId,
+        startX: event.clientX, startY: event.clientY,
+        left: rect.left - layerRect.left, top: rect.top - layerRect.top
+      };
+      header.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+    header.addEventListener('pointermove', event => {
+      if (!drag || drag.id !== id || drag.pointerId !== event.pointerId) return;
+      const bounds = layer.getBoundingClientRect();
+      const maxLeft = Math.max(0, bounds.width - element.offsetWidth);
+      const maxTop = Math.max(0, bounds.height - element.offsetHeight);
+      element.style.left = Math.max(0, Math.min(maxLeft, drag.left + event.clientX - drag.startX)) + 'px';
+      element.style.top = Math.max(0, Math.min(maxTop, drag.top + event.clientY - drag.startY)) + 'px';
+    });
+    const stopDrag = event => {
+      if (drag && drag.id === id && drag.pointerId === event.pointerId) drag = null;
     };
-    
-    openWindows.push(windowData);
-    focusWindow(windowId);
+    header.addEventListener('pointerup', stopDrag);
+    header.addEventListener('pointercancel', stopDrag);
 
-    return windowId;
+    if (appName === 'terminal') setupTerminal(element);
+    if (appName === 'resume') setupResume(element);
+    if (appName === 'memory') setupMemory(element);
   }
 
-  // Set up window event listeners
-  function setupWindowEvents(windowElement, windowId, appName) {
-    const header = windowElement.querySelector('.window-header');
-    const closeBtn = windowElement.querySelector('.window-close');
-    let isDragging = false;
-    let offsetX, offsetY;
+  function closeWindow(id) {
+    const entry = Array.from(windows.values()).find(item => item.id === id);
+    if (!entry) return;
+    entry.element.remove();
+    windows.delete(entry.appName);
+    if (activeId === id) {
+      activeId = null;
+      focusMostRecent(id);
+    }
+    updateButtons();
+  }
 
-    // Focus window when clicked
-    windowElement.addEventListener('pointerdown', (e) => {
-      if (!isDragging) {
-        focusWindow(windowId);
-      }
+  function minimizeWindow(id) {
+    const entry = Array.from(windows.values()).find(item => item.id === id);
+    if (!entry) return;
+    entry.minimized = true;
+    entry.element.classList.add('is-minimized');
+    if (activeId === id) {
+      activeId = null;
+      focusMostRecent(id);
+    }
+    updateButtons();
+  }
+
+  function toggleMaximize(id) {
+    const entry = Array.from(windows.values()).find(item => item.id === id);
+    if (!entry) return;
+    if (!entry.maximized) {
+      const style = entry.element.style;
+      entry.restoreRect = { left: style.left, top: style.top, width: style.width, height: style.height };
+      entry.maximized = true;
+      entry.element.classList.add('is-maximized');
+    } else {
+      entry.maximized = false;
+      entry.element.classList.remove('is-maximized');
+      if (entry.restoreRect) Object.assign(entry.element.style, entry.restoreRect);
+    }
+    focusWindow(id);
+  }
+
+  function showDesktop() {
+    windows.forEach(entry => {
+      entry.minimized = true;
+      entry.element.classList.add('is-minimized');
     });
-
-    // Close button
-    closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      closeWindow(windowId);
-    });
-
-    // Dragging functionality
-    header.addEventListener('pointerdown', (e) => {
-      if (e.target === header || e.target.closest('.window-title')) {
-        isDragging = true;
-        offsetX = e.clientX - windowElement.offsetLeft;
-        offsetY = e.clientY - windowElement.offsetTop;
-        document.addEventListener('pointermove', handleDrag);
-        document.addEventListener('pointerup', stopDrag);
-        focusWindow(windowId);
-      }
-    });
-
-    function handleDrag(e) {
-      if (isDragging) {
-        const x = e.clientX - offsetX;
-        const y = e.clientY - offsetY;
-        
-        // Keep window within viewport
-        const maxX = window.innerWidth - windowElement.offsetWidth;
-        const maxY = window.innerHeight - windowElement.offsetHeight;
-        
-        windowElement.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
-        windowElement.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
-      }
-    }
-
-    function stopDrag() {
-      isDragging = false;
-      document.removeEventListener('pointermove', handleDrag);
-      document.removeEventListener('pointerup', stopDrag);
-    }
-
-    // Projects app specific functionality
-    if (appName === 'projects') {
-      const projectCards = windowElement.querySelectorAll('.project-card');
-      
-      projectCards.forEach(card => {
-        card.addEventListener('click', (e) => {
-          // Don't toggle if clicking on a link or button
-          if (e.target.tagName === 'A' || e.target.closest('a, button, .btn')) {
-            return;
-          }
-          
-          const wasActive = card.classList.contains('active');
-          
-          // Close all other project cards
-          projectCards.forEach(c => c.classList.remove('active'));
-          
-          // Toggle the clicked card if it wasn't active
-          if (!wasActive) {
-            card.classList.add('active');
-            
-            // Scroll the card into view if it's near the bottom of the window
-            const rect = card.getBoundingClientRect();
-            const isInViewport = (
-              rect.top >= 0 &&
-              rect.left >= 0 &&
-              rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-              rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-            );
-            
-            if (!isInViewport) {
-              card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-          }
-        });
-      });
-      
-      // Handle clicks on project links (prevent event bubbling)
-      const projectLinks = windowElement.querySelectorAll('.project-links a');
-      projectLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.stopPropagation();
-        });
-      });
-    }
-    
-    // Resume app specific functionality
-    if (appName === 'resume') {
-      const viewToggle = windowElement.querySelector('.view-toggle');
-      const iframe = windowElement.querySelector('.resume-iframe');
-      
-      if (viewToggle && iframe) {
-        viewToggle.addEventListener('click', () => {
-          const isFitH = iframe.src.includes('FitH');
-          if (isFitH) {
-            iframe.src = iframe.src.replace('FitH', 'FitV');
-            viewToggle.innerHTML = '<span class="icon">' + ICON.eye + '</span> Fit width';
-          } else {
-            iframe.src = iframe.src.replace('FitV', 'FitH');
-            viewToggle.innerHTML = '<span class="icon">' + ICON.eye + '</span> Fit height';
-          }
-        });
-      }
-    }
-    
-    // Terminal app specific functionality
-    if (appName === 'terminal') {
-      const terminalOutput = windowElement.querySelector('.terminal-output');
-      const terminalInput = windowElement.querySelector('.terminal-input');
-      const terminalCursor = windowElement.querySelector('.terminal-cursor');
-      
-      // Command history and navigation
-      let commandHistory = [];
-      let historyIndex = -1;
-      let currentCommand = '';
-      
-      // Available commands
-      const commands = {
-        help: {
-          description: 'Display this help message',
-          execute: () => {
-            const helpText = `
-  Available commands:
-  ------------------
-  <div class="command-output">
-    <p><span class="help-command">help</span> <span class="help-description">- Display this help message</span></p>
-    <p><span class="help-command">about</span> <span class="help-description">- Show information about me</span></p>
-    <p><span class="help-command">projects</span> <span class="help-description">- List my projects</span></p>
-    <p><span class="help-command">contact</span> <span class="help-description">- Show contact information</span></p>
-    <p><span class="help-command">open &lt;app&gt;</span> <span class="help-description">- Open an app window</span></p>
-    <p><span class="help-command">clear</span> <span class="help-description">- Clear the terminal</span></p>
-  </div>
-            `;
-            return helpText;
-          }
-        },
-        about: {
-          description: 'Show information about me',
-          execute: () => {
-            return `
-  <div class="command-output">
-    <p>Hello! I'm a passionate developer with expertise in building web applications.</p>
-    <p>I love creating clean, efficient, and user-friendly experiences.</p>
-    <p>Type <span class="terminal-command">projects</span> to see some of my work or <span class="terminal-command">contact</span> to get in touch!</p>
-  </div>
-            `;
-          }
-        },
-        projects: {
-          description: 'List my projects',
-          execute: () => {
-            return `
-  <div class="command-output">
-    <p>Here are some of my recent projects:</p>
-    <ul>
-      <li class="project-item">
-        <span class="project-name">Portfolio OS</span>
-        <span class="project-desc">- An interactive OS-style portfolio website</span>
-      </li>
-      <li class="project-item">
-        <span class="project-name">TaskFlow</span>
-        <span class="project-desc">- A task management application</span>
-      </li>
-      <li class="project-item">
-        <span class="project-name">WeatherViz</span>
-        <span class="project-desc">- Weather visualization dashboard</span>
-      </li>
-    </ul>
-  </div>
-            `;
-          }
-        },
-        contact: {
-          description: 'Show contact information',
-          execute: () => {
-            return `
-  <div class="command-output">
-    <p>You can reach me at:</p>
-    <ul>
-      <li>Email: <a href="mailto:presentshimley@gmail.com" target="_blank">presentshimley@gmail.com</a></li>
-      <li>GitHub: <a href="https://github.com/shimleabyte" target="_blank">github.com/shimleabyte</a></li>
-    </ul>
-  </div>
-            `;
-          }
-        },
-        open: {
-          description: 'Open an app window',
-          execute: (_out, arg) => {
-            const apps = Object.keys(CONFIG.windowTemplates);
-            if (!arg || !apps.includes(arg)) {
-              return `<div class="command-output"><p>Usage: <span class="terminal-command">open &lt;app&gt;</span> (${apps.join(', ')})</p></div>`;
-            }
-            toggleWindow(arg);
-            return '';
-          }
-        },
-        clear: {
-          description: 'Clear the terminal',
-          execute: (output) => {
-            output.innerHTML = '';
-            return '';
-          }
-        }
-      };
-      
-      // Handle command execution
-      const executeCommand = (command) => {
-        // Add command to history if not empty
-        if (command.trim()) {
-          commandHistory.push(command);
-          historyIndex = commandHistory.length;
-        }
-        
-        // Display the command
-        const commandLine = document.createElement('div');
-        commandLine.className = 'terminal-line';
-        commandLine.innerHTML = `
-          <span class="terminal-prompt">$</span>
-          <span class="terminal-text">${esc(command)}</span>
-        `;
-        terminalOutput.appendChild(commandLine);
-        
-        // Process the command
-        const cmd = command.trim().toLowerCase();
-        const [name, arg] = cmd.split(/\s+/);
-        let output = '';
-        
-        if (cmd === '') {
-          // Do nothing for empty command
-        } else if (Object.prototype.hasOwnProperty.call(commands, name)) {
-          output = commands[name].execute(terminalOutput, arg);
-        } else {
-          output = `
-  <div class="command-output">
-    <p class="error-message">Command not found: ${esc(cmd)}</p>
-    <p>Type <span class="terminal-command">help</span> to see available commands.</p>
-  </div>
-          `;
-        }
-        
-        // Display the output if any
-        if (output) {
-          const outputElement = document.createElement('div');
-          outputElement.innerHTML = output;
-          terminalOutput.appendChild(outputElement);
-        }
-        
-        // Scroll to bottom
-        terminalOutput.scrollTop = terminalOutput.scrollHeight;
-        
-        // Add a new prompt
-        const newPrompt = document.createElement('div');
-        newPrompt.className = 'terminal-line';
-        newPrompt.innerHTML = `
-          <span class="terminal-prompt">$</span>
-          <span class="terminal-text"></span>
-        `;
-        terminalOutput.appendChild(newPrompt);
-        
-        // Focus the input
-        terminalInput.value = '';
-        terminalInput.focus();
-      };
-      
-      // Handle input events
-      terminalInput.addEventListener('keydown', (e) => {
-        // Handle Enter key
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          const command = terminalInput.value.trim();
-          executeCommand(command);
-          return;
-        }
-        
-        // Handle up/down arrow keys for command history
-        if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          if (commandHistory.length > 0 && historyIndex > 0) {
-            historyIndex--;
-            terminalInput.value = commandHistory[historyIndex];
-          }
-        } else if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          if (historyIndex < commandHistory.length - 1) {
-            historyIndex++;
-            terminalInput.value = commandHistory[historyIndex] || '';
-          } else {
-            historyIndex = commandHistory.length;
-            terminalInput.value = currentCommand;
-          }
-        } else if (e.key === 'Tab') {
-          e.preventDefault();
-          // Tab completion could be implemented here
-        }
-      });
-      
-      // Store current command when typing
-      terminalInput.addEventListener('input', (e) => {
-        currentCommand = terminalInput.value;
-      });
-      
-      // Handle cursor position for the fake cursor
-      terminalInput.addEventListener('click', (e) => {
-        updateCursorPosition();
-      });
-      
-      terminalInput.addEventListener('keyup', (e) => {
-        updateCursorPosition();
-      });
-      
-      // Update cursor position based on input width
-      const updateCursorPosition = () => {
-        const input = terminalInput;
-        const text = input.value.substring(0, input.selectionStart);
-        const tempSpan = document.createElement('span');
-        tempSpan.textContent = text;
-        tempSpan.style.visibility = 'hidden';
-        tempSpan.style.position = 'absolute';
-        tempSpan.style.font = getComputedStyle(input).font;
-        tempSpan.style.whiteSpace = 'pre';
-        document.body.appendChild(tempSpan);
-        const width = tempSpan.offsetWidth;
-        document.body.removeChild(tempSpan);
-        
-        // Position the cursor
-        const promptWidth = 10; // Width of the "$" prompt
-        terminalCursor.style.transform = `translateX(${promptWidth + width}px)`;
-      };
-      
-      // Initial cursor position
-      updateCursorPosition();
-      
-      // Focus the input when clicking anywhere in the terminal
-      windowElement.addEventListener('click', (e) => {
-        if (e.target === windowElement || e.target === terminalOutput) {
-          terminalInput.focus();
-        }
-      });
-      
-      // Initial focus
-      terminalInput.focus();
-    }
-    
-    // Memory Match game logic
-    if (appName === 'memory') {
-      const gameBoard = windowElement.querySelector('#game-board');
-      const moveCountElement = windowElement.querySelector('#move-count');
-      const restartButton = windowElement.querySelector('#restart-btn');
-      const gameMessage = windowElement.querySelector('#game-message');
-      
-      // Game state
-      let cards = [];
-      let flippedCards = [];
-      let matchedPairs = 0;
-      let moves = 0;
-      let canFlip = true;
-      
-      // Emoji pairs for the game (8 pairs = 16 cards)
-      const emojis = ['🌟', '🎨', '🛠️', '🚀', '📱', '💡', '🎯', '✨'];
-      
-      // Initialize the game
-      function initGame() {
-        // Reset game state
-        cards = [];
-        flippedCards = [];
-        matchedPairs = 0;
-        moves = 0;
-        canFlip = true;
-        
-        // Update UI
-        moveCountElement.textContent = moves;
-        gameMessage.innerHTML = '<p>Find all matching pairs of cards</p>';
-        
-        // Create card pairs
-        const gameCards = [];
-        emojis.forEach(emoji => {
-          gameCards.push(emoji, emoji);
-        });
-        
-        // Shuffle cards
-        const shuffledCards = shuffleArray([...gameCards]);
-        
-        // Clear and create board
-        gameBoard.innerHTML = '';
-        
-        // Create card elements
-        shuffledCards.forEach((emoji, index) => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.dataset.index = index;
-          card.dataset.emoji = emoji;
-          card.textContent = emoji;
-          card.addEventListener('click', handleCardClick);
-          gameBoard.appendChild(card);
-          cards.push(card);
-        });
-      }
-      
-      // Handle card click
-      function handleCardClick(e) {
-        const selectedCard = e.currentTarget;
-        
-        // Don't do anything if the card is already flipped, matched, or if we're waiting
-        if (!canFlip || selectedCard.classList.contains('flipped') || selectedCard.classList.contains('matched')) {
-          return;
-        }
-        
-        // Flip the card
-        flipCard(selectedCard);
-        
-        // Add to flipped cards
-        flippedCards.push(selectedCard);
-        
-        // Check for match if two cards are flipped
-        if (flippedCards.length === 2) {
-          checkForMatch();
-        }
-      }
-      
-      // Flip a card
-      function flipCard(card) {
-        card.classList.add('flipped');
-      }
-      
-      // Check if flipped cards match
-      function checkForMatch() {
-        canFlip = false;
-        moves++;
-        moveCountElement.textContent = moves;
-        
-        const [firstCard, secondCard] = flippedCards;
-        
-        if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
-          // Match found
-          firstCard.classList.add('matched');
-          secondCard.classList.add('matched');
-          matchedPairs++;
-          
-          // Check for win
-          if (matchedPairs === emojis.length) {
-            setTimeout(() => {
-              gameMessage.innerHTML = `<p class="completion-message">You won in ${moves} moves! 🎉</p>`;
-            }, 500);
-          } else {
-            gameMessage.innerHTML = '<p>Match found! Keep going!</p>';
-          }
-          
-          resetFlippedCards();
-        } else {
-          // No match
-          gameMessage.innerHTML = '<p>No match. Try again!</p>';
-          
-          // Flip cards back after a delay
-          setTimeout(() => {
-            firstCard.classList.remove('flipped');
-            secondCard.classList.remove('flipped');
-            resetFlippedCards();
-          }, 1000);
-        }
-      }
-      
-      // Reset flipped cards array and allow new moves
-      function resetFlippedCards() {
-        flippedCards = [];
-        canFlip = true;
-      }
-      
-      // Fisher-Yates shuffle algorithm
-      function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-      }
-      
-      // Event listeners
-      restartButton.addEventListener('click', initGame);
-      
-      // Initialize the game
-      initGame();
-    }
+    activeId = null;
+    updateContext('DESKTOP');
+    updateButtons();
   }
 
-  // Bring a window to the front and mark it active
-  function focusWindow(windowId) {
-    const target = openWindows.find(w => w.id === windowId);
-    if (!target) return;
-    const top = Math.max(CONFIG.zIndex, ...openWindows.map(w => w.zIndex)) + 1;
-    target.zIndex = top;
-    target.element.style.zIndex = top;
-    openWindows.forEach(w => w.element.classList.toggle('active', w.id === windowId));
-    activeWindowId = windowId;
-    updateTaskbarState();
+  function writeTerminalLine(output, text, className = 'terminal-line') {
+    const line = document.createElement('p');
+    line.className = className;
+    line.textContent = text;
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
   }
 
-  // Close a window
-  function closeWindow(windowId) {
-    const windowIndex = openWindows.findIndex(w => w.id === windowId);
-    if (windowIndex === -1) return;
+  function setupTerminal(element) {
+    const form = element.querySelector('.terminal-input-row');
+    const input = element.querySelector('.terminal-input');
+    const output = element.querySelector('.terminal-output');
+    if (!form || !input || !output) return;
 
-    // Remove from DOM
-    const [closedWindow] = openWindows.splice(windowIndex, 1);
-    if (closedWindow.element && closedWindow.element.parentNode) {
-      closedWindow.element.remove();
-    }
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const raw = input.value.trim();
+      input.value = '';
+      writeTerminalLine(output, '$ ' + raw, 'terminal-line');
+      if (!raw) return;
 
-    // Update active window if needed
-    if (activeWindowId === windowId) {
-      activeWindowId = openWindows.length > 0 ? openWindows[openWindows.length - 1].id : null;
-      if (activeWindowId) {
-        focusWindow(activeWindowId);
-      }
-    }
-
-    // Update taskbar state
-    updateTaskbarState();
-  }
-
-  // Update taskbar button states
-  function updateTaskbarState() {
-    const taskbarButtons = document.querySelectorAll('.taskbar-btn');
-    
-    taskbarButtons.forEach(button => {
-      const appName = button.dataset.app;
-      const isWindowOpen = openWindows.some(w => w.appName === appName);
-      const isActive = openWindows.some(w => w.id === activeWindowId && w.appName === appName);
-      
-      button.classList.toggle('active', isActive);
-      button.classList.toggle('open', isWindowOpen);
-    });
-  }
-
-  // Public API
-  return {
-    init,
-    openWindow: (appName) => {
-      if (!openWindows.some(w => w.appName === appName)) {
-        createWindow(appName);
+      const [command, ...args] = raw.toLowerCase().split(/\s+/);
+      const arg = args[0];
+      if (command === 'help') {
+        [
+          'help                 List available commands',
+          'about                Open the profile',
+          'projects             List verified repositories',
+          'contact              Show contact destinations',
+          'resume               Open the resume PDF',
+          'memory               Open Memory Match',
+          'open <app>           Open an app by name',
+          'clear                Clear terminal output'
+        ].forEach(line => writeTerminalLine(output, line, 'terminal-result'));
+      } else if (command === 'about') {
+        writeTerminalLine(output, 'Shimleabyte — a developer workspace focused on real projects.');
+        openWindow('about');
+      } else if (command === 'projects') {
+        projectData.forEach(project => writeTerminalLine(output, project.name + ' — ' + project.repo, 'terminal-result'));
+      } else if (command === 'contact') {
+        writeTerminalLine(output, 'GitHub: https://github.com/shimleabyte', 'terminal-result');
+        writeTerminalLine(output, 'Email: presentshimley@gmail.com', 'terminal-result');
+        openWindow('contact');
+      } else if (command === 'resume') {
+        writeTerminalLine(output, 'Opening resume.pdf', 'terminal-result');
+        openWindow('resume');
+      } else if (command === 'memory') {
+        writeTerminalLine(output, 'Opening Memory Match', 'terminal-result');
+        openWindow('memory');
+      } else if (command === 'open' && appTemplates[arg]) {
+        writeTerminalLine(output, 'Opening ' + arg, 'terminal-result');
+        openWindow(arg);
+      } else if (command === 'clear') {
+        output.replaceChildren();
       } else {
-        const window = openWindows.find(w => w.appName === appName);
-        if (window) focusWindow(window.id);
+        writeTerminalLine(output, 'Unknown command. Type "help" for available commands.', 'terminal-result');
       }
-    },
-    closeWindow,
-    closeAllWindows: () => {
-      // Create a copy of the array to avoid modification during iteration
-      const windowsToClose = [...openWindows];
-      windowsToClose.forEach(win => closeWindow(win.id));
-    }
-  };
-})();
+      output.scrollTop = output.scrollHeight;
+    });
+  }
 
-// Initialize when DOM is loaded
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => WindowManager.init());
-} else {
-  WindowManager.init();
-}
+  function setupResume(element) {
+    const toggle = element.querySelector('.view-toggle');
+    const frame = element.querySelector('.resume-iframe');
+    if (!toggle || !frame) return;
+    toggle.addEventListener('click', () => {
+      const fitHeight = frame.src.includes('FitH');
+      frame.src = fitHeight ? 'resume.pdf#view=FitV' : 'resume.pdf#view=FitH';
+      toggle.textContent = fitHeight ? 'Fit height' : 'Fit width';
+    });
+  }
+
+  function setupMemory(element) {
+    const board = element.querySelector('#memory-board');
+    const moveCounter = element.querySelector('#memory-moves');
+    const message = element.querySelector('#memory-message');
+    const restart = element.querySelector('#memory-restart');
+    if (!board || !moveCounter || !message || !restart) return;
+
+    const symbols = ['PX', '01', 'GO', 'JS', 'UI', 'DB'];
+    let first = null;
+    let locked = false;
+    let moves = 0;
+    let matched = 0;
+    let timeoutId = null;
+
+    function startGame() {
+      if (timeoutId) window.clearTimeout(timeoutId);
+      first = null;
+      locked = false;
+      moves = 0;
+      matched = 0;
+      moveCounter.textContent = '0';
+      message.textContent = 'Find all six pairs. Select two tiles to reveal their values.';
+      const deck = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+      board.replaceChildren();
+      deck.forEach((symbol, index) => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'memory-card';
+        card.dataset.value = symbol;
+        card.dataset.index = String(index);
+        card.textContent = 'PX';
+        card.setAttribute('aria-label', 'Hidden tile ' + String(index + 1));
+        card.addEventListener('click', () => flipCard(card));
+        board.appendChild(card);
+      });
+    }
+
+    function flipCard(card) {
+      if (locked || card.classList.contains('is-matched') || card === first || card.classList.contains('is-revealed')) return;
+      card.classList.add('is-revealed');
+      card.textContent = card.dataset.value;
+      card.setAttribute('aria-label', 'Revealed tile ' + card.dataset.value);
+      if (!first) {
+        first = card;
+        return;
+      }
+
+      moves += 1;
+      moveCounter.textContent = String(moves);
+      const previous = first;
+      first = null;
+      if (previous.dataset.value === card.dataset.value) {
+        previous.classList.add('is-matched');
+        card.classList.add('is-matched');
+        previous.setAttribute('aria-disabled', 'true');
+        card.setAttribute('aria-disabled', 'true');
+        matched += 1;
+        if (matched === symbols.length) message.textContent = 'All pairs found in ' + moves + ' moves.';
+        return;
+      }
+
+      locked = true;
+      timeoutId = window.setTimeout(() => {
+        [previous, card].forEach(tile => {
+          tile.classList.remove('is-revealed');
+          tile.textContent = 'PX';
+          tile.setAttribute('aria-label', 'Hidden tile ' + (Number(tile.dataset.index) + 1));
+        });
+        locked = false;
+      }, 650);
+    }
+
+    restart.addEventListener('click', startGame);
+    startGame();
+  }
+
+  function init() {
+    if (initialized) return;
+    initialized = true;
+    if (!desktop || !layer) return;
+
+    appButtons.forEach(button => button.addEventListener('click', event => {
+      event.stopPropagation();
+      toggleWindow(button.dataset.app);
+    }));
+    document.querySelectorAll('[data-action="show-desktop"]').forEach(button => {
+      button.addEventListener('click', showDesktop);
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && activeId) closeWindow(activeId);
+    });
+    window.addEventListener('resize', () => {
+      if (!isMobile()) return;
+      windows.forEach(entry => {
+        entry.element.style.left = '8px';
+        entry.element.style.top = '8px';
+      });
+    });
+  }
+
+  window.WindowManager = { init, openWindow, closeWindow, toggleWindow, showDesktop };
+})();
