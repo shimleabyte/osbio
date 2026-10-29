@@ -719,7 +719,7 @@ const WindowManager = (() => {
     header.className = 'window-header';
     header.innerHTML = `
       <div class="window-title-group">
-        <span class="window-app-marker" aria-hidden="true"></span>
+        <span class="window-app-marker" aria-hidden="true"><svg class="window-app-glyph" viewBox="0 0 40 40" focusable="false"><use href="#pf-icon-${appName}"></use></svg></span>
         <span class="window-title" id="${windowId}-title">${template.title}</span>
       </div>
       <div class="window-controls" role="group" aria-label="${esc(template.title)} window controls">

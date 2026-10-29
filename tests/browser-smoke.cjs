@@ -112,6 +112,19 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.locator('.launcher-item[data-app="flow"]').click();
     const flowWindow = page.locator('.window[data-app-name="flow"]');
     await flowWindow.waitFor({ state: 'visible' });
+    assert.equal(await flowWindow.locator('.window-app-marker use').getAttribute('href'), '#pf-icon-flow',
+      'window title should use the matching custom app glyph');
+    assert.equal(await flowTaskbarButton.locator('.app-icon use').getAttribute('href'), '#pf-icon-flow',
+      'recent taskbar buttons should clone the custom app glyph, not fall back to a generic marker');
+    const iconAudit = await page.locator('.app-icon use').evaluateAll((uses) => ({
+      count: uses.length,
+      allResolve: uses.every((use) => {
+        const href = use.getAttribute('href');
+        return href && document.getElementById(href.slice(1))?.tagName.toLowerCase() === 'symbol';
+      })
+    }));
+    assert.ok(iconAudit.count >= 20, 'desktop, launcher, taskbar and recent apps should all render custom glyphs');
+    assert.equal(iconAudit.allResolve, true, 'every visible icon reference should resolve to an SVG symbol');
     assert.equal(await page.locator('.window.active').count(), 1, 'exactly one window should be active after launch');
     assert.ok(await flowWindow.evaluate((element) => element.offsetLeft >= 116), 'new windows should not cover the desktop shortcut lane');
     await page.locator('#flow-event-list').waitFor({ state: 'visible' });

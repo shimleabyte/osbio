@@ -1211,14 +1211,6 @@ body {
 .desktop-icon { min-height:5rem; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem; padding:.45rem .25rem; color:#c7d1c8; background:transparent; border:1px solid transparent; cursor:pointer; font:500 .7rem var(--font-ui); }
 .desktop-icon:hover,.desktop-icon:focus-visible { background:rgba(118,215,180,.08); border-color:#405547; color:#f0f2e9; } .desktop-icon>span:last-child { text-shadow:0 1px 3px #000; }
 .app-icon { flex:0 0 auto; width:2.35rem; height:2.35rem; display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(4,1fr); gap:2px; padding:4px; background:#1c2921; border:1px solid #536456; color:#e8d64a; }
-.app-icon i { display:block; background:currentColor; min-width:0; min-height:0; }
-.app-icon i:nth-child(2) { background:#76d7b4; } .app-icon i:nth-child(3) { background:#e8ede4; } .app-icon i:nth-child(4) { background:#536456; }
-.app-icon-about i:nth-child(1) { grid-area:1/2/3/4; } .app-icon-about i:nth-child(2) { grid-area:3/1/5/3; } .app-icon-about i:nth-child(3) { grid-area:3/3/5/5; } .app-icon-about i:nth-child(4) { grid-area:4/2/5/4; }
-.app-icon-projects i:nth-child(1) { grid-area:1/1/3/3; } .app-icon-projects i:nth-child(2) { grid-area:2/3/5/5; } .app-icon-projects i:nth-child(3) { grid-area:3/1/5/2; } .app-icon-projects i:nth-child(4) { grid-area:1/3/2/5; }
-.app-icon-terminal i:nth-child(1) { grid-area:1/1/2/2; } .app-icon-terminal i:nth-child(2) { grid-area:2/2/3/3; } .app-icon-terminal i:nth-child(3) { grid-area:3/1/4/2; } .app-icon-terminal i:nth-child(4) { grid-area:3/3/4/5; }
-.app-icon-resume i:nth-child(1) { grid-area:1/1/5/2; } .app-icon-resume i:nth-child(2) { grid-area:1/3/2/5; } .app-icon-resume i:nth-child(3) { grid-area:2/3/3/5; } .app-icon-resume i:nth-child(4) { grid-area:4/3/5/5; }
-.app-icon-contact i:nth-child(1) { grid-area:1/1/2/5; } .app-icon-contact i:nth-child(2) { grid-area:2/1/3/3; } .app-icon-contact i:nth-child(3) { grid-area:2/3/3/5; } .app-icon-contact i:nth-child(4) { grid-area:4/2/5/4; }
-.app-icon-memory i:nth-child(1) { grid-area:1/1/3/3; } .app-icon-memory i:nth-child(2) { grid-area:1/3/3/5; } .app-icon-memory i:nth-child(3) { grid-area:3/1/5/3; } .app-icon-memory i:nth-child(4) { grid-area:3/3/5/5; }
 .window-layer { position:absolute; z-index:20; inset:0; overflow:hidden; pointer-events:none; }
 .window { pointer-events:auto; min-width:min(20rem,calc(100vw - 1rem)); min-height:14rem; max-width:100%; max-height:100%; resize:both; border:1px solid #aeb9ac; border-radius:3px; box-shadow:0 13px 30px rgba(0,0,0,.34),0 2px 0 rgba(0,0,0,.14); }
 .window.active { border-color:#e8d64a; box-shadow:0 0 0 1px #e8d64a,0 16px 34px rgba(0,0,0,.42); }
@@ -1324,8 +1316,6 @@ body {
 
 
 /* Local Files and Editor applications */
-.app-icon-files i:nth-child(1){grid-area:1/1/2/5}.app-icon-files i:nth-child(2){grid-area:2/1/5/3}.app-icon-files i:nth-child(3){grid-area:2/3/4/5}.app-icon-files i:nth-child(4){grid-area:4/3/5/5}
-.app-icon-editor i:nth-child(1){grid-area:1/1/5/2}.app-icon-editor i:nth-child(2){grid-area:1/3/2/5}.app-icon-editor i:nth-child(3){grid-area:2/3/3/5}.app-icon-editor i:nth-child(4){grid-area:4/3/5/5}
 .files-app,.editor-app{display:flex;min-height:100%;flex-direction:column;background:var(--color-window-bg);color:var(--color-text)}
 .files-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;padding:.6rem;border-bottom:1px solid var(--color-window-border);background:#e5e8dd}
 .files-toolbar button,.files-name-form button,.editor-toolbar button{min-height:2rem;padding:.28rem .48rem;border:1px solid #c3cabc;border-radius:2px;background:#f3f4ed;color:#263128;font:500 .7rem var(--font-ui);cursor:pointer}
@@ -1357,8 +1347,6 @@ body {
 
 
 /* Settings and System Monitor */
-.app-icon-settings i:nth-child(1){grid-area:1/1/3/3}.app-icon-settings i:nth-child(2){grid-area:1/3/3/5}.app-icon-settings i:nth-child(3){grid-area:3/1/5/3}.app-icon-settings i:nth-child(4){grid-area:3/3/5/5}
-.app-icon-system i:nth-child(1){grid-area:1/1/2/5}.app-icon-system i:nth-child(2){grid-area:2/1/3/5}.app-icon-system i:nth-child(3){grid-area:3/1/4/5}.app-icon-system i:nth-child(4){grid-area:4/1/5/5}
 .settings-app,.system-monitor-app{display:flex;min-height:100%;flex-direction:column;padding:1.15rem;gap:1rem;background:#eef0e6;color:#1b2820}
 .settings-heading h2,.monitor-heading h2{font:600 1.25rem var(--font-ui);margin:.25rem 0}
 .settings-heading p,.monitor-heading p{font-size:.78rem;line-height:1.5;color:#667268}
@@ -1394,7 +1382,6 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
 
 
 /* Pixel-Flow event trace */
-.app-icon-flow i:nth-child(1){grid-area:1/1/2/3}.app-icon-flow i:nth-child(2){grid-area:1/3/3/5}.app-icon-flow i:nth-child(3){grid-area:2/1/5/3}.app-icon-flow i:nth-child(4){grid-area:3/3/5/5}
 .flow-monitor-app{display:flex;min-height:100%;flex-direction:column;gap:.75rem;padding:1rem;background:#eef0e6;color:#1b2820}
 .flow-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
 .flow-heading h2{margin:.25rem 0;font:600 1.25rem var(--font-ui)}
@@ -2187,4 +2174,121 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
     -webkit-overflow-scrolling: touch;
   }
   #desktop-screen > .taskbar .taskbar-apps::-webkit-scrollbar { display: none; }
+}
+
+
+/* Pixel-Flow iconography: custom sprite artwork on beveled, anodized tiles. */
+.app-icon {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  grid-template-rows: minmax(0,1fr);
+  place-items: stretch;
+  isolation: isolate;
+  overflow: visible;
+  border: 1px solid #5a705e;
+  border-right-color: #111a13;
+  border-bottom-color: #111a13;
+  background:
+    linear-gradient(135deg, rgba(239,247,225,.075), transparent 42%),
+    linear-gradient(315deg, rgba(0,0,0,.28), transparent 54%),
+    var(--icon-ground, #1a281e);
+  box-shadow:
+    inset 1px 1px 0 rgba(239,247,225,.15),
+    inset -1px -1px 0 rgba(0,0,0,.34),
+    2px 2px 0 rgba(0,0,0,.24);
+  color: var(--icon-accent, #e8d64a);
+  image-rendering: pixelated;
+  transition: transform 120ms steps(2,end), box-shadow 120ms ease, border-color 120ms ease;
+}
+.app-icon::before {
+  position: absolute;
+  z-index: 2;
+  inset: 2px;
+  border-top: 1px solid rgba(239,247,225,.15);
+  border-left: 1px solid rgba(239,247,225,.12);
+  content: '';
+  pointer-events: none;
+}
+.app-icon::after {
+  position: absolute;
+  z-index: 3;
+  right: -2px;
+  bottom: -2px;
+  width: 4px;
+  height: 4px;
+  background: var(--icon-accent, #e8d64a);
+  box-shadow: -1px -1px 0 #101712;
+  content: '';
+  pointer-events: none;
+}
+.app-icon > svg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: crispEdges;
+}
+.app-icon-projects { --icon-accent: #e8d64a; --icon-ground: #263324; border-top-color: #b4a44d; border-left-color: #7c8b51; }
+.app-icon-about { --icon-accent: #76d7b4; --icon-ground: #20372b; border-top-color: #779880; border-left-color: #5a8268; }
+.app-icon-files { --icon-accent: #d3d76d; --icon-ground: #303522; border-top-color: #a4a75b; border-left-color: #78804a; }
+.app-icon-editor { --icon-accent: #e8d64a; --icon-ground: #27372c; border-top-color: #9eaa87; border-left-color: #708765; }
+.app-icon-contact { --icon-accent: #76d7b4; --icon-ground: #1d342d; border-top-color: #8ea68d; border-left-color: #577c6c; }
+.app-icon-terminal { --icon-accent: #76d7b4; --icon-ground: #14281e; border-top-color: #738d78; border-left-color: #55735d; }
+.app-icon-resume { --icon-accent: #e8d64a; --icon-ground: #343122; border-top-color: #b6ae71; border-left-color: #85805b; }
+.app-icon-settings { --icon-accent: #e8d64a; --icon-ground: #2b3022; border-top-color: #9e9c58; border-left-color: #72764a; }
+.app-icon-memory { --icon-accent: #76d7b4; --icon-ground: #202b22; border-top-color: #829c7b; border-left-color: #5e8066; }
+.app-icon-system { --icon-accent: #76d7b4; --icon-ground: #1a302b; border-top-color: #7d9e91; border-left-color: #507a6b; }
+.app-icon-flow { --icon-accent: #e8d64a; --icon-ground: #1c302b; border-top-color: #8daa91; border-left-color: #5e8c77; }
+
+.desktop-icon:hover .app-icon,
+.desktop-icon:focus-visible .app-icon,
+.launcher-item:hover .app-icon,
+.launcher-item:focus-visible .app-icon {
+  transform: translate(-1px,-1px);
+  border-color: var(--icon-accent, #e8d64a);
+  box-shadow:
+    inset 1px 1px 0 rgba(239,247,225,.2),
+    inset -1px -1px 0 rgba(0,0,0,.34),
+    3px 3px 0 rgba(0,0,0,.3);
+}
+.taskbar-btn:hover .app-icon,
+.taskbar-btn:focus-visible .app-icon {
+  border-color: var(--icon-accent, #e8d64a);
+  box-shadow:
+    inset 1px 1px 0 rgba(239,247,225,.2),
+    inset -1px -1px 0 rgba(0,0,0,.34),
+    2px 3px 0 rgba(0,0,0,.35);
+}
+.taskbar-btn.active .app-icon {
+  border-color: #e8d64a;
+  box-shadow:
+    inset 1px 1px 0 rgba(239,247,225,.19),
+    inset -1px -1px 0 rgba(0,0,0,.34),
+    2px 2px 0 rgba(0,0,0,.26);
+}
+
+/* App glyphs are repeated in title bars so the app remains recognizable in every surface. */
+.window-app-marker {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  overflow: hidden;
+  border: 1px solid #596a5d;
+  border-right-color: #27362a;
+  border-bottom-color: #27362a;
+  background: #17251b;
+  box-shadow: inset 1px 1px 0 rgba(239,247,225,.16), 1px 1px 0 rgba(0,0,0,.14);
+}
+.window-app-glyph { display: block; width: 100%; height: 100%; padding: 2px; shape-rendering: crispEdges; }
+@media (prefers-reduced-motion: reduce) {
+  .app-icon { transition: none; }
+  .desktop-icon:hover .app-icon,
+  .desktop-icon:focus-visible .app-icon,
+  .launcher-item:hover .app-icon,
+  .launcher-item:focus-visible .app-icon { transform: none; }
 }

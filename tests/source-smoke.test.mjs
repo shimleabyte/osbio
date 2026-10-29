@@ -272,3 +272,20 @@ test('shell presentation uses a floating taskbar dock and responsive chrome', ()
   assert.match(css, /@media \(max-width: 680px\)[\s\S]*\.panel-context \{ display: none; \}/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.taskbar-btn:hover/);
 });
+
+
+test('custom Pixel-Flow icon sprites cover every app and replace the generic four-pixel blocks', () => {
+  const spriteIds = new Set([...html.matchAll(/<symbol id="pf-icon-([a-z-]+)"/g)].map((match) => match[1]));
+  const appIds = new Set([...html.matchAll(/class="app-icon app-icon-([a-z-]+)"/g)].map((match) => match[1]));
+  assert.equal(spriteIds.size, 11, 'all eleven app sprites should be defined once');
+  assert.deepEqual([...appIds].sort(), [...spriteIds].sort(), 'each app tile must map to its matching sprite');
+  for (const match of html.matchAll(/<use href="#pf-icon-([a-z-]+)"><\/use>/g)) {
+    assert.ok(spriteIds.has(match[1]), 'missing icon sprite: ' + match[1]);
+  }
+  assert.match(html, /class="icon-library"/);
+  assert.match(css, /\.app-icon::before/);
+  assert.match(css, /\.app-icon::after/);
+  assert.match(css, /box-shadow:[\s\S]*inset 1px 1px 0/);
+  assert.match(windows, /class="window-app-glyph"[\s\S]*href="#pf-icon-\$\{appName\}"/);
+  assert.doesNotMatch(html, /class="app-icon app-icon-[a-z-]+" aria-hidden="true"><i><\/i><i><\/i><i><\/i><i><\/i><\/span>/);
+});
