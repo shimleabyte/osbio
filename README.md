@@ -93,4 +93,4 @@ Built-in read-only documents include `Welcome.md`, `System Notes.md` and `Projec
 
 Settings separates three actions: **Reset preferences** changes appearance options, **Reset window layout** returns open app windows to their default positions and clears saved geometry, and **Clear user files** removes only user-created workspace entries after confirmation.
 
-Settings separates three actions: **Reset preferences** changes appearance options, **Reset window layout** returns open app windows to their default positions and clears saved geometry, and **Clear user files** removes only user-created workspace entries after confirmation.
+

@@ -220,6 +220,8 @@ Tasks:
 - [x] Display recent real system events from the event model.
 - [x] Clearly label browser-environment limitations; the monitor does not fabricate host CPU/RAM/network metrics.
 
+**Verification:** **Verification:** Chromium [40816898314](https://github.com/shimleabyte/osbio/actions/runs/40816898314) and deployment [40816897599](https://github.com/shimleabyte/osbio/actions/runs/40816897599) passed for commit `db2c700b626a5a0a0a1e5b1964d999c09079b27b`.
+
 **Acceptance criteria:** changes persist through reload; system facts come from the app's real state. No fabricated CPU, RAM, battery, network or process metrics.
 
 ### Phase 5 — Flow Monitor: the signature Pixel-Flow feature
@@ -583,4 +585,4 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Verify saved geometry survives preference reset and is cleared only by layout reset.
 - [x] Verify clear-user-data confirmation removes user-created content but preserves built-in read-only documents.
 - [x] Verify System Monitor values match the live WindowManager snapshot and OSBioStorage stats/event history.
-- [ ] Run Chromium and deployment for this Stage 4 commit before closing its gate.
+- [x] Run Chromium and deployment for this Stage 4 commit; both completed successfully.
