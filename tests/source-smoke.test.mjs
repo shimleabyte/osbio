@@ -10,10 +10,12 @@ const html = read('index.html');
 const main = read('js/main.js');
 const windows = read('js/windowManager.js');
 const css = read('css/main.css');
+const core = read('js/osbioCore.js');
 
 test('shell JavaScript parses without syntax errors', () => {
   assert.doesNotThrow(() => new Function(main));
   assert.doesNotThrow(() => new Function(windows));
+  assert.doesNotThrow(() => new Function(core));
 });
 
 test('desktop landmarks and launcher controls exist exactly once', () => {
@@ -62,4 +64,16 @@ test('launcher focus restoration is deliberate and window overview is available'
   assert.match(windows, /toggleWindowOverview/);
   assert.match(windows, /function snapWindow/);
   assert.match(windows, /osbio:event/);
+});
+
+
+test('local workspace storage exposes safe file operations and bounded event history', () => {
+  for (const api of ['ready', 'list', 'listAll', 'createFolder', 'saveFile', 'rename', 'move', 'remove', 'stats', 'exportData', 'importData', 'clearUserData']) {
+    assert.match(core, new RegExp('\\\\b' + api + '\\\\b'));
+  }
+  assert.match(core, /indexedDB\.open/);
+  assert.match(core, /localStorage/);
+  assert.match(core, /storage\.degraded/);
+  assert.match(core, /EVENT_LIMIT/);
+  assert.match(core, /osbio-workspace-export-v1/);
 });

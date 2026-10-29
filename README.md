@@ -15,6 +15,12 @@ OSBio is a browser-based desktop environment built with plain HTML, CSS and Java
 - Memory Match uses keyboard-operable symbol cards. Restart cancels pending turn timers.
 - Resume shows an explicit unavailable state until the real PDF is published.
 
+## Local workspace data
+
+OSBio now initializes a browser-local workspace using IndexedDB, with a localStorage or in-memory fallback when IndexedDB is unavailable. The first run seeds read-only Documents and Projects folders. User-created files are stored locally in this browser; they are not synced to other browsers or devices. Storage capability and limitations are exposed to the desktop instead of pretending that persistence always succeeded.
+
+The storage layer supports text files and folders, rename/move/delete validation, JSON export/import for user-created items, a bounded event history, and explicit storage status. It does not read or write the host operating system's file system.
+
 ## Apps
 
 | App | Purpose |

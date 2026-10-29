@@ -374,3 +374,11 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 - [x] Add left/right edge snapping and drag-to-restore for maximized/snapped windows on desktop-sized viewports.
 - [x] Emit structured shell events for window lifecycle changes as a foundation for Flow Monitor.
 - [ ] Run full browser pointer/focus/resize tests; this remains unverified without a live browser session.
+
+
+### Stage 2 — Shared state and local persistence foundation (first implementation pass)
+- [x] Add a versioned IndexedDB-backed virtual workspace store with localStorage/in-memory fallback.
+- [x] Seed read-only example documents that accurately describe OSBio and the verified repositories.
+- [x] Implement folder/file creation, safe save/rename/move/delete validation, export/import, storage statistics, and a bounded event history.
+- [x] Report degraded storage modes as explicit events rather than silently pretending persistence is durable.
+- [ ] Browser-test reload recovery, quota/permission failures, import collisions, concurrent tabs and schema upgrade behavior.
