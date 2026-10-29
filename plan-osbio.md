@@ -432,3 +432,8 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 - [ ] Wait for and inspect the Actions run for the exact implementation commit.
 - [x] Add Chromium browser smoke tests for launcher/overview navigation, project rendering, file save and reload persistence, settings persistence, Memory Match and mobile layout.
 - [ ] Review the Chromium Actions result for the exact release commit and fix any regression it exposes.
+
+
+### Browser-driven bug fixes
+- [x] Fix initial desktop window placement so newly opened apps avoid the desktop shortcut lane when the viewport has sufficient space.
+- [x] Add a Chromium assertion for that placement and retain the clickable desktop shortcut regression check.

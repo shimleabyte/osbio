@@ -441,10 +441,19 @@ const WindowManager = (() => {
     const zIndex = Math.max(CONFIG.zIndex, ...openWindows.map((w) => w.zIndex)) + 1;
     const offset = (openWindows.length % 6) * CONFIG.windowOffset;
     const preferredWidth = Number.parseFloat(template.width) || 480;
-    const maxLeft = Math.max(0, desktopElement.clientWidth - Math.min(preferredWidth, desktopElement.clientWidth));
+    const desktopSized = desktopElement.clientWidth >= 701;
+    // Keep newly opened windows out of the desktop shortcut lane where space allows.
+    const shortcutLane = desktopSized
+      ? Math.min(124, Math.max(0, desktopElement.clientWidth - 320))
+      : 0;
+    const availableWidth = desktopSized
+      ? Math.max(320, desktopElement.clientWidth - shortcutLane - 12)
+      : desktopElement.clientWidth;
+    const windowWidth = desktopSized ? Math.min(preferredWidth, availableWidth) : preferredWidth;
+    const maxLeft = Math.max(0, desktopElement.clientWidth - Math.min(windowWidth, desktopElement.clientWidth));
     const maxTop = Math.max(0, desktopElement.clientHeight - 96);
     const top = Math.min(24 + offset, maxTop);
-    const left = Math.min(32 + offset, maxLeft);
+    const left = Math.min((desktopSized ? shortcutLane : 12) + offset, maxLeft);
 
     // Create window element
     const windowElement = document.createElement('div');
@@ -456,7 +465,7 @@ const WindowManager = (() => {
     windowElement.setAttribute('aria-modal', 'false');
     windowElement.tabIndex = -1;
     windowElement.style.zIndex = zIndex;
-    windowElement.style.width = template.width;
+    windowElement.style.width = desktopSized ? windowWidth + 'px' : template.width;
     windowElement.style.height = template.height;
     windowElement.style.top = `${top}px`;
     windowElement.style.left = `${left}px`;

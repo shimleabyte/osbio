@@ -23,6 +23,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await page.locator('.launcher-item[data-app="flow"]').click();
     const flowWindow = page.locator('.window[data-app-name="flow"]');
     await flowWindow.waitFor({ state: 'visible' });
+    assert.ok(await flowWindow.evaluate((element) => element.offsetLeft >= 116), 'new windows should not cover the desktop shortcut lane');
     await page.locator('#flow-event-list').waitFor({ state: 'visible' });
 
     // Window overview shows open windows and can focus one.
