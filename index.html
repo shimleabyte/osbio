@@ -29,12 +29,26 @@
     <div class="desktop-wallpaper" aria-hidden="true"><div class="wallpaper-grid"></div><div class="wallpaper-block wallpaper-block-a"></div><div class="wallpaper-block wallpaper-block-b"></div></div>
     <header class="system-panel">
       <div class="panel-left">
-        <button id="launcher-toggle" class="launcher-toggle" type="button" aria-expanded="false" aria-controls="app-launcher">
-          <span class="pixel-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="launcher-wordmark">OSBIO</span><span class="panel-chevron" aria-hidden="true">+</span>
+        <button id="launcher-toggle" class="launcher-toggle" type="button" aria-expanded="false" aria-controls="app-launcher" aria-label="Open application launcher">
+          <span class="pixel-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="launcher-brand-copy"><span class="launcher-wordmark">OSBIO</span><span class="launcher-brand-note">PIXEL-FLOW</span></span>
+          <span class="panel-chevron" aria-hidden="true">+</span>
         </button>
-        <span class="panel-divider" aria-hidden="true"></span><button id="window-overview-toggle" class="panel-mini-button" type="button" title="Open windows (Ctrl+Alt+W)" aria-label="Open window overview">WINDOWS</button><span class="panel-divider" aria-hidden="true"></span><button id="visitor-guide-toggle" class="panel-mini-button guide-toggle" type="button" aria-controls="visitor-guide" aria-expanded="true" aria-label="Toggle the OSBio field guide">GUIDE <span id="visitor-guide-toggle-count">0/3</span></button><span class="panel-divider" aria-hidden="true"></span><span id="active-app-label" class="active-app-label">WORKSPACE / DESKTOP</span>
+        <nav class="panel-navigation" aria-label="System navigation">
+          <button id="window-overview-toggle" class="panel-nav-button" type="button" title="Open windows (Ctrl+Alt+W)" aria-label="Open window overview"><span class="panel-nav-glyph panel-nav-glyph-windows" aria-hidden="true"></span><span class="panel-nav-copy">WINDOWS</span></button>
+          <button id="visitor-guide-toggle" class="panel-nav-button guide-toggle" type="button" aria-controls="visitor-guide" aria-expanded="true" aria-label="Toggle the OSBio field guide"><span class="panel-nav-glyph panel-nav-glyph-guide" aria-hidden="true"></span><span class="panel-nav-copy">GUIDE</span><span id="visitor-guide-toggle-count" class="panel-count">0/3</span></button>
+        </nav>
+        <div class="panel-context" aria-live="polite">
+          <span class="panel-context-marker" aria-hidden="true"></span>
+          <span class="panel-context-overline">FOCUS</span>
+          <span id="active-app-label" class="active-app-label">WORKSPACE / DESKTOP</span>
+        </div>
       </div>
-      <div class="panel-right"><span class="local-status"><span class="status-square" aria-hidden="true"></span> LOCAL SESSION</span><span class="panel-divider" aria-hidden="true"></span><div class="panel-clock"><span id="system-clock">00:00</span><span id="system-date">01 JAN 2000</span></div></div>
+      <div class="panel-right">
+        <span class="local-status" aria-label="Local session" title="Workspace state is stored locally in this browser"><span class="status-square" aria-hidden="true"></span><span class="local-status-label">LOCAL SESSION</span></span>
+        <span class="panel-divider" aria-hidden="true"></span>
+        <div class="panel-clock" role="group" aria-label="Local date and time"><span id="system-clock">00:00</span><span id="system-date">01 JAN 2000</span></div>
+      </div>
     </header>
 
     <main id="desktop-surface" class="desktop-surface" tabindex="-1">

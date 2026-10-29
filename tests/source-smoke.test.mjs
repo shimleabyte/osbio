@@ -242,3 +242,18 @@ test('first-visit field guide has real destinations and a persistent, dismissibl
   assert.match(css, /\.visitor-guide[\s\S]*border-top:3px solid #e8d64a/);
   assert.match(css, /\.visitor-guide-route:focus-visible/);
 });
+
+
+test('system navigation and taskbar have a grouped, responsive shell treatment', () => {
+  assert.match(html, /<nav class="panel-navigation" aria-label="System navigation">/);
+  assert.match(html, /class="panel-context" aria-live="polite"/);
+  assert.match(html, /class="panel-nav-button guide-toggle"/);
+  assert.equal((html.match(/id="window-overview-toggle"/g) || []).length, 1);
+  assert.equal((html.match(/id="visitor-guide-toggle"/g) || []).length, 1);
+  assert.match(html, /class="local-status" aria-label="Local session"/);
+  assert.match(css, /#desktop-screen > \.system-panel/);
+  assert.match(css, /\.panel-nav-button:focus-visible/);
+  assert.match(css, /\.taskbar-apps[\s\S]*background: #0f1511/);
+  assert.match(css, /@media \(max-width: 680px\)[\s\S]*\.panel-context \{ display: none; \}/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.taskbar-btn:hover/);
+});
