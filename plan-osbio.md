@@ -207,6 +207,7 @@ Tasks:
 
 #### Settings
 - [x] Wallpaper selection using a curated set of Pixel-Flow surfaces.
+- [x] Replace the CSS-only default surface with original Pixel-Flow SVG artwork and a live Settings preview; preserve Grid-only and Plain field variants.
 - [x] Accent or theme settings using the established palette; no unrelated gradient theme.
 - [x] Motion preference that respects OS/browser reduced-motion settings.
 - [x] Desktop icon visibility and basic workspace preferences where practical.
