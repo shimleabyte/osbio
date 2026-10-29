@@ -348,7 +348,8 @@ const WindowManager = (() => {
     `;
     windowOverviewList = windowOverview.querySelector('#window-overview-list');
     windowOverviewEmpty = windowOverview.querySelector('#window-overview-empty');
-    desktopElement.appendChild(windowOverview);
+    // Keep the overview in the shell's top stacking layer so app windows cannot intercept its controls.
+    document.getElementById('desktop-screen').appendChild(windowOverview);
 
     overviewToggle.addEventListener('click', () => toggleWindowOverview(windowOverview.hidden));
     windowOverview.querySelector('.window-overview-close').addEventListener('click', () => {

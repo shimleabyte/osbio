@@ -463,3 +463,8 @@ Do not schedule these until the core desktop is reliable and the roadmap's accep
 ### Stage 1 — Browser lifecycle coverage
 - [x] Extend Chromium smoke coverage to include launcher keyboard focus return, left-edge snapping by pointer drag, maximize/restore, viewport resize bounds, minimize/restore through the overview, and focus transfer after close.
 - [ ] Run the updated browser suite and address any interaction regression it exposes.
+
+
+### Browser-driven overview layering fix
+- [x] Move the window overview to the desktop shell top layer so snapped/maximized app windows cannot intercept overview controls.
+- [ ] Re-run the expanded pointer/window lifecycle suite.
