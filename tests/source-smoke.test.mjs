@@ -132,6 +132,16 @@ test('Files and Editor have real templates and shared storage integration', () =
 });
 
 
+test('Pixel-Flow wallpaper is a local asset wired into the desktop and Settings preview', () => {
+  const wallpaper = read('assets/wallpapers/pixel-flow.svg');
+  assert.match(html, /class="wallpaper-art" src="assets\\/wallpapers\\/pixel-flow\\.svg"/);
+  assert.match(wallpaper, /OSBio Pixel-Flow desktop wallpaper/);
+  assert.match(wallpaper, /PIXEL-FLOW \\/ WORKSTATION/);
+  assert.match(css, /\.desktop-wallpaper\[data-wallpaper="flow"\] \.wallpaper-art/);
+  assert.match(windows, /id="settings-wallpaper-preview"/);
+  assert.match(workspaceApps, /wallpaperPreview\.dataset\.wallpaper=value\.wallpaper/);
+});
+
 test('Settings and System Monitor use real local preference and session APIs', () => {
   assert.match(windows, /settings: \{/);
   assert.match(windows, /system: \{/);
