@@ -555,3 +555,13 @@ Baseline was confirmed at `6bfdf196716c36af9fa83d4b79216b391ee2c4a9`. The reposi
 - [x] Guard Files refresh and Editor load completion against stale asynchronous results.
 - [x] Add browser regression coverage for context menu, rename/move, Enter-open, dirty close cancel/discard and Ctrl+S.
 - [ ] Rerun Chromium and review failures before closing Phase 3.
+
+### Stage 3 — explicit dirty-document decision dialog (2026-10-29)
+
+- [x] Replace the native close confirmation with an in-app decision prompt.
+- [x] Offer Save changes, Discard, and Keep editing as three separate actions.
+- [x] Keep the prompt open if save fails; close only after a successful save or explicit discard.
+- [x] Restore keyboard focus on Keep editing and allow Escape to cancel the prompt.
+- [x] Reuse the same decision prompt when opening a different file while the current document has unsaved changes.
+- [x] Add browser tests for all three decisions and for saved content surviving reopen.
+- [ ] Run Chromium and deployment for this commit before fully closing Phase 3.

@@ -116,6 +116,9 @@ test('Files and Editor have real templates and shared storage integration', () =
   assert.match(workspaceApps, /event\.detail === 0/);
   assert.match(workspaceApps, /loadRequestId/);
   assert.match(workspaceApps, /saveDocument\(true\)/);
+  assert.match(workspaceApps, /data-editor-close-action/);
+  assert.match(workspaceApps, /showCloseDialog\(/);
+  assert.doesNotMatch(workspaceApps, /confirm\('Discard unsaved changes/);
   assert.match(workspaceApps, /osbio:open-file/);
   assert.match(workspaceApps, /osbio:before-close/);
   assert.match(html, /data-app="files"/);

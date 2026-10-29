@@ -327,31 +327,37 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     }, expectedText);
     assert.equal(await reopenedEditorBody.inputValue(), expectedText);
 
-    // A dirty close can be cancelled or explicitly discarded.
-    await reopenedEditorBody.fill(expectedText + ' unsaved draft');
-    let cancelCloseMessage = '';
-    page.once('dialog', (dialog) => {
-      cancelCloseMessage = dialog.message();
-      void dialog.dismiss();
-    });
+    // Dirty close offers Save, Discard and Keep editing without a native browser modal.
+    const closePrompt = page.locator('#editor-close-dialog');
+    await reopenedEditorBody.fill(expectedText + ' draft saved on close');
     await page.locator('.window[data-app-name="editor"] .window-close').click();
-    assert.match(cancelCloseMessage, /Discard unsaved changes/);
-    assert.equal(await reopenedEditorBody.isVisible(), true, 'cancel must keep the dirty editor open');
-    assert.equal(await reopenedEditorBody.inputValue(), expectedText + ' unsaved draft');
+    await closePrompt.waitFor({ state: 'visible' });
+    assert.equal(await closePrompt.locator('[data-editor-close-action]').count(), 3);
+    await closePrompt.locator('[data-editor-close-action="cancel"]').click();
+    await closePrompt.waitFor({ state: 'hidden' });
+    assert.equal(await reopenedEditorBody.isVisible(), true, 'Keep editing must leave the editor open');
+    assert.equal(await reopenedEditorBody.inputValue(), expectedText + ' draft saved on close');
 
-    let discardCloseMessage = '';
-    page.once('dialog', (dialog) => {
-      discardCloseMessage = dialog.message();
-      void dialog.accept();
-    });
     await page.locator('.window[data-app-name="editor"] .window-close').click();
-    assert.match(discardCloseMessage, /Discard unsaved changes/);
+    await closePrompt.waitFor({ state: 'visible' });
+    await closePrompt.locator('[data-editor-close-action="save"]').click();
     await page.locator('.window[data-app-name="editor"]').waitFor({ state: 'detached' });
-
+    const savedOnCloseText = expectedText + ' draft saved on close';
     await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke-renamed.md' }).dblclick();
     await page.waitForFunction((text) =>
-      document.querySelector('.window[data-app-name="editor"] #editor-content')?.value === text, expectedText);
-    const keyboardSavedText = expectedText + ' saved with Ctrl+S';
+      document.querySelector('.window[data-app-name="editor"] #editor-content')?.value === text, savedOnCloseText);
+
+    const unsavedToDiscard = savedOnCloseText + ' draft to discard';
+    await page.locator('.window[data-app-name="editor"] #editor-content').fill(unsavedToDiscard);
+    await page.locator('.window[data-app-name="editor"] .window-close').click();
+    await closePrompt.waitFor({ state: 'visible' });
+    await closePrompt.locator('[data-editor-close-action="discard"]').click();
+    await page.locator('.window[data-app-name="editor"]').waitFor({ state: 'detached' });
+    await page.locator('.window[data-app-name="files"] .file-row-name').filter({ hasText: 'browser-smoke-renamed.md' }).dblclick();
+    await page.waitForFunction((text) =>
+      document.querySelector('.window[data-app-name="editor"] #editor-content')?.value === text, savedOnCloseText);
+
+    const keyboardSavedText = savedOnCloseText + ' saved with Ctrl+S';
     await page.locator('.window[data-app-name="editor"] #editor-content').fill(keyboardSavedText);
     await page.locator('.window[data-app-name="editor"] #editor-content').press('Control+s');
     await page.waitForFunction((text) => {
