@@ -405,13 +405,42 @@
 
   function mountSettings(win) {
     const settings=global.OSBioSettings;
-    const wallpaper=win.querySelector('#setting-wallpaper'),accent=win.querySelector('#setting-accent');
+    const theme=win.querySelector('#setting-theme'),wallpaper=win.querySelector('#setting-wallpaper'),accent=win.querySelector('#setting-accent');
     const motion=win.querySelector('#setting-motion'),icons=win.querySelector('#setting-desktop-icons');
+    const wallpaperPreview=win.querySelector('#settings-wallpaper-preview');
+    const wallpaperPreviewImage=wallpaperPreview&&wallpaperPreview.querySelector('img');
+    const wallpaperPreviewLabel=wallpaperPreview&&wallpaperPreview.querySelector('span');
     const statusNode=win.querySelector('#settings-status');
-    function sync(){const value=settings.get();wallpaper.value=value.wallpaper;accent.value=value.accent;motion.value=value.motion;icons.checked=value.desktopIcons;}
+    const wallpaperDetails={
+      flow:{label:'Pixel-Flow',source:'assets/wallpapers/pixel-flow.svg',caption:'PIXEL-FLOW / ORIGINAL'},
+      archive:{label:'Field Archive',source:'assets/wallpapers/field-archive.svg',caption:'FIELD ARCHIVE / REGISTER 07'},
+      grid:{label:'Grid only',source:'assets/wallpapers/pixel-flow.svg',caption:'GRID / QUIET FIELD'},
+      plain:{label:'Plain field',source:'assets/wallpapers/pixel-flow.svg',caption:'PLAIN / MINIMAL FIELD'}
+    };
+    function sync(){
+      const value=settings.get();
+      theme.value=value.theme;wallpaper.value=value.wallpaper;accent.value=value.accent;motion.value=value.motion;icons.checked=value.desktopIcons;
+      const selected=wallpaperDetails[value.wallpaper]||wallpaperDetails.flow;
+      if(wallpaperPreview){
+        wallpaperPreview.dataset.wallpaper=value.wallpaper;
+        wallpaperPreview.setAttribute('aria-label','Wallpaper preview: '+selected.label);
+      }
+      if(wallpaperPreviewImage&&wallpaperPreviewImage.getAttribute('src')!==selected.source)wallpaperPreviewImage.setAttribute('src',selected.source);
+      if(wallpaperPreviewLabel)wallpaperPreviewLabel.textContent=selected.caption;
+    }
     function message(text,error=false){status(statusNode,text,error);}
-    function change(){try{const result=settings.update({wallpaper:wallpaper.value,accent:accent.value,motion:motion.value,desktopIcons:icons.checked});message(result.persistent?'Preferences saved.':'Preferences applied for this session; browser storage is unavailable.',!result.persistent);}catch(e){message(e.message||'Could not update preferences.',true);}}
-    [wallpaper,accent,motion].forEach((control)=>control.addEventListener('change',change));
+    function change(){try{
+      const previous=settings.get();
+      let selectedWallpaper=wallpaper.value;
+      if(theme.value!==previous.theme&&['flow','archive'].includes(selectedWallpaper)){
+        selectedWallpaper=theme.value==='field-archive'?'archive':'flow';
+        wallpaper.value=selectedWallpaper;
+      }
+      const result=settings.update({theme:theme.value,wallpaper:selectedWallpaper,accent:accent.value,motion:motion.value,desktopIcons:icons.checked});
+      sync();
+      message(result.persistent?'Preferences saved.':'Preferences applied for this session; browser storage is unavailable.',!result.persistent);
+    }catch(e){message(e.message||'Could not update preferences.',true);}}
+    [theme,wallpaper,accent,motion].forEach((control)=>control.addEventListener('change',change));
     icons.addEventListener('change',change);
     win.querySelector('#settings-reset').addEventListener('click',()=>{const result=settings.reset();sync();message(result.persistent?'Preferences reset to defaults.':'Defaults applied for this session; browser storage is unavailable.',!result.persistent);});
     win.querySelector('#settings-reset-layout').addEventListener('click',()=>{

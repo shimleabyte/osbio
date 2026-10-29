@@ -14,7 +14,7 @@ A browser portfolio that behaves like a small desktop environment. The shell is 
   <tr>
     <td width="50%" valign="top">
       <a href="https://shimleabyte.github.io/osbio/"><img src="docs/screenshots/osbio-desktop.png" alt="OSBio icon-first desktop with its Pixel-Flow wallpaper, topbar, and floating dock" width="100%" /></a>
-      <p><strong>Desktop</strong><br /><sub>Quiet workspace with icon-only chrome and a custom geometric wallpaper.</sub></p>
+      <p><strong>Desktop</strong><br /><sub>Quiet workspace with icon-only chrome and a custom Pixel-Flow wallpaper artwork, built as a local SVG asset.</sub></p>
     </td>
     <td width="50%" valign="top">
       <a href="https://shimleabyte.github.io/osbio/"><img src="docs/screenshots/osbio-launcher.png" alt="OSBio application launcher with eleven custom pixel-art icons in a four-column grid" width="100%" /></a>
@@ -25,9 +25,17 @@ A browser portfolio that behaves like a small desktop environment. The shell is 
 
 <p><sub>Captures are taken by the Playwright Chromium smoke test from the real static UI, not mockups.</sub></p>
 
+### Alternate workspace skin — Field Archive
+
+<p align="center"><img src="assets/wallpapers/field-archive.svg" alt="Field Archive wallpaper artwork with a warm paper field register, olive cartography lines, and oxidation-red catalog stamp" width="86%" /></p>
+
+<p><sub>This is the original wallpaper asset used by the selectable Field Archive theme, not a screenshot of the full interface.</sub></p>
+
 ## Shell behavior
 
 - A short, skippable boot sequence introduces the Pixel-Flow mark, then opens to an intentionally quiet, icon-only desktop. No app or guide opens automatically.
+- The default wallpaper is original local SVG artwork: split-corner signal-yellow and mint ribbons dissolve into pixel fragments beside the OSBio wordmark. Grid-only and plain-field variants remain available in Settings; the selected surface is previewed there.
+- Settings includes an optional **Field Archive** theme: an archival field-register aesthetic built from warm paper, olive ink, oxidation-red index marks, squared controls, and a matching original SVG wallpaper. Switching between Pixel-Flow and Field Archive pairs their signature wallpapers; a manually selected Grid-only or Plain field remains in place.
 - The topbar keeps the product mark, window overview, optional Field Guide, local-session indicator, and clock/date. Visible text stays out of the idle shell except for the time and date; controls keep accessible names.
 - The launcher opens as an eleven-app icon grid from the top-left mark or with `Ctrl+K`. Typing filters the focused launcher; app names remain available to assistive technology.
 - The optional Field Guide provides three concrete routes (Projects, Profile, Editor), tracks visited stops locally, can be dismissed, and can be reopened from its topbar icon.
@@ -36,7 +44,7 @@ A browser portfolio that behaves like a small desktop environment. The shell is 
 - App windows can be focused, dragged, resized on desktop, maximized/restored, minimized, and closed. Double-click a title bar to toggle maximize.
 - On narrow screens, the shell becomes a single-window workspace with touch-sized controls, compact topbar spacing, and an icon-grid launcher.
 - Files and Editor share a browser-local virtual workspace with IndexedDB-backed persistence, explicit fallback status, a keyboard-accessible context menu, destination-aware moves, and an in-app Save/Discard/Keep editing prompt for unsaved documents.
-- Settings changes persist browser-local appearance preferences; System Monitor reports actual OSBio state only (not host CPU/RAM).
+- Settings changes persist the theme, wallpaper, accent, motion, and desktop-shortcut preferences locally; System Monitor reports actual OSBio state only (not host CPU/RAM).
 - Flow Monitor records up to 160 events in the current tab, lets users filter/inspect/export them as JSON, and does not upload the trace.
 - Memory Match uses keyboard-operable symbol cards. Restart cancels pending turn timers.
 - Projects presents a compact selection list beside a dedicated detail pane for verified repository metadata.
